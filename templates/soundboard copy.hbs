@@ -1,0 +1,139 @@
+<!--form class="soundboard" autocomplete="off"-->
+<!--header class="sheet-header">
+    <div class="resource">
+        <h1 class="resource-label">Playlist: Playlist name</h1>
+    </div>
+</header-->
+
+{{!-- Tab Navigation --}}
+<section class="grid grid-3col  ">
+    <aside class="sidebar ">
+        <h2>Moods</h2>
+        <nav class="sheet-tabs tabs" data-group="primary">
+            {{#each moods}}
+                <a class="item" data-tab="{{ this.id }}">{{ this.name }}</a>
+                {{#if (eq this.status 'stop')}}
+                    <a class="mood-control fa-solid fa-play" data-action="play" 
+                        data-tooltip="PLAYLIST.SoundCreate" data-mood-name="{{ this.name }}" data-soundboard-name="{{ ../name}}"></a>
+                {{else}}
+                    <a class="mood-control fa-solid fa-stop" data-action="stop" 
+                        data-tooltip="PLAYLIST.SoundCreate" data-mood-name="{{ this.name }}" data-soundboard-name="{{ ../name}}"></a>
+                {{/if}}
+            {{/each}}
+        </nav>
+        <button class="mood-control" data-type="mood" data-action="new">Add Mood</button>
+    </aside>
+
+    {{!-- Body --}}
+    <section class="main grid-span-2 ">
+        {{!-- combat Tab --}}
+        {{#each moods}}
+        <div class="tab active" data-group="primary" data-tab="{{ this.id}}" active="false">
+            {{!-- GRID SOUNDS --}}
+            {{#forSoundType }}
+           
+            <h2> {{this.title}}</h2>
+            <div class="grid-container" data-type="{{ this.name }}" >
+            {{#eachSoundType ../this.sounds  this.title }}
+                <!-- Example of a single grid item -->
+                <div class="grid-item" draggable="true" data-mood-id="{{ ../../this.id }}" data-sound-id="{{this._id}}">
+                    <div class="music-status-icon">
+                        <!--i id="volumeicon" class="fas fa-volume-off"></i-->
+                        <div id="sound-bars">
+                        {{#if (eq ../../this.status 'stop')}}
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                            <div class="sound-bar"></div>
+                        {{else}}
+                            {{#if (eq this.status 'off')}}
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                                <div class="sound-bar"></div>
+                            {{else}}
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                                <div class="sound-bar playing-bar"></div>
+                            {{/if}}
+                        {{/if}}
+                        </div>
+                    </div>
+                    <div class="content">
+                        <span>{{ this.name }}</span>
+                    </div>
+                    <div class="buttons">
+                        <input type="range" class="volume-value-input action-sound" data-path="{{ this.path }}" data-id="{{ this._id }}"
+                        data-action="volume" min="0" max="100" value="{{ this.volume }}" step="1">
+                        <!--button class="repeat action-sound" data-id="{{ this.id }}" data-action="play"
+                            id="repeat-{{ this.id }}">
+                            <i class="fas fa-redo-alt audio-option-selected"></i>
+                        </button-->
+                        {{# if (eq ../this.title 'Soundpad')}}
+                            {{#if (eq this.status 'off')}}
+                            <a id="enableDisable-{{ this._id }}" class="enableDisable action-sound" 
+                                data-mood-name="{{ ../../name }}" data-path="{{ this.path }}" data-sound-id="{{ this._id }}" data-action="on"
+                                data-type="{{ ../this.title}}">
+                                <i id="enableDisable-btn" class="fas fa-play"></i>
+                            </a>
+                            {{else}}
+                            <a id="enableDisable-{{ this._id }}" class="enableDisable action-sound" 
+                                data-mood-name="{{ ../../name }}"  data-path="{{ this.path }}" data-sound-id="{{ this._id }}" data-action="off"
+                                data-type="{{ ../this.title}}">
+                                <i id="enableDisable-btn" class="fas fa-stop"></i>
+                            </a>
+                            {{/if}}
+                        {{else}}
+                            {{#if (eq this.status 'off')}}
+                            <a id="enableDisable-{{ this._id }}" class="enableDisable action-sound" 
+                                data-mood-name="{{ ../../name }}" data-path="{{ this.path }}" data-sound-id="{{ this._id }}" data-action="on"
+                                data-type="{{ ../this.title}}">
+                                <i id="enableDisable-btn" class="fas fa-toggle-{{this.status}}"></i>
+                            </a>
+                            {{else}}
+                            <a id="enableDisable-{{ this._id }}" class="enableDisable action-sound" 
+                                data-mood-name="{{ ../../name }}"  data-path="{{ this.path }}" data-sound-id="{{ this._id }}" data-action="off"
+                                data-type="{{ ../this.title}}">
+                                <i id="enableDisable-btn" class="fas fa-toggle-{{this.status}}"></i>
+                            </a>
+                            {{/if}}
+                        {{/if}}
+
+                        <!--button class="random" id="like">
+                            <i class="fas fa-shuffle"></i>
+                        </button-->
+                    </div>
+                </div>
+            {{/eachSoundType}}
+            </div>
+            {{/forSoundType}}
+
+
+            {{!-- FINAL --}}
+        </div>
+        {{/each}}
+    </section>
+</section>
+<footer>
+    <button>Save</button>
+</footer>
+<!--/form-->

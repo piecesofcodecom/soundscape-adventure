@@ -1,0 +1,80 @@
+<div class="soundboardadv">
+    <div class="playlist-ctn">
+        {{#each moods}}
+        <div class="playlist-track-ctn disabled" data-mood-name="{{ this.name }}" data-index="0">
+            <div class="playlist-btn-play">
+                {{#if (eq this.status 'playing')}}
+                    <a style="z-index: 99999 !important;" class="mood-control fa-solid fa-stop soundboardfas" data-action="stop" height="40" width="40" 
+                            data-tooltip="PLAYLIST.SoundCreate" data-mood-name="{{ this.name }}" data-soundboard-name="{{ ../name}}"></a>
+                    </a>
+                {{else}}
+                    <a style="z-index: 99999 !important;" class="mood-control fa-solid fa-play soundboardfas" data-action="play" height="40" width="40" 
+                            data-tooltip="PLAYLIST.SoundCreate" data-mood-name="{{ this.name }}" data-soundboard-name="{{ ../name}}"></a>
+                    </a>
+                {{/if}}
+            </div>
+            <div class="playlist-info-track " data-mood-name="{{ thisl.name }}" >
+                <a data-mood-name="{{ this.name }}" data-action="view-mood" class="mood-control">Mood - {{ this.name }}</a>
+            </div>
+        </div>
+        
+        {{/each}}
+        <button class="mood-control" data-type="mood" data-action="new">Add Mood</button>
+    </div>
+     {{#each moods}}
+        {{#if (eq this.status 'playing')}}
+            <div class="soundboardadv-main mood-active" data-mood-name="{{ this.name }}">
+        {{else}}
+            <div class="soundboardadv-main" data-mood-name="{{ this.name }}">
+        {{/if}}
+            {{#forSoundType }}
+                <div class="sound-div" id="{{ this.name }}">
+                    <h2 class="sound-title">{{ this.title }}</h2>
+                    <div class="sound-grid">
+                        {{#eachSoundType ../this.sounds  this.title }}
+                            <div style="display: grid; grid-template-columns: 1fr 1fr;">
+                                
+                                <div class="action-sound sound-item {{this.status}}"
+                                    data-soundboard-name="{{ ../../../name }}" data-mood-name="{{ ../../name }}" data-path="{{ this.path }}" data-sound-id="{{ this._id }}" data-action="{{opositeAction this.status}}"
+                                    data-type="{{ ../this.title}}">
+                                    
+                                    <div id="sound-bars">
+                                        {{#if (soundStatus ../../this.status this.status) }}
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                            <div class="sound-bar playing-bar"></div>
+                                        {{else}}
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                            <div class="sound-bar"></div>
+                                        {{/if}}
+                                    </div>
+                                    <div data-tooltip="{{ this.name }}">{{shortenString this.name }}</div>
+                                </div>
+                                <div style="width: 10px; border: 1px solid rgba(1,1,1,0)">
+                                    <input class="action-sound sb-slider" type="range" min="0" max="100" value="{{ this.volume }}" data-mood-name="{{  ../../name }}" data-path="{{ this.path }}" data-id="{{ this._id }}"
+                        data-action="volume">
+                                </div>
+                                
+                            </div>
+                        {{/eachSoundType}}
+                    </div>
+                </div>
+            {{/forSoundType}}
+        </div>
+    {{/each}}
+</div>

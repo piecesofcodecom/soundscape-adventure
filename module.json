@@ -1,0 +1,23 @@
+{
+  "id": "soundboard-adventure",
+  "title": "SoundBoard Adventure",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "12",
+    "verified": "12"
+  },
+  "authors": [
+    {
+      "name": "Author 1",
+      "discord": "Snagov",
+      "flags": {}
+    }
+  ],
+  "esmodules": [
+    "./soundboard-init.mjs"
+  ],
+  "persistentStorage": true,
+  "styles": [
+    "./css/soundboard.css"
+  ]
+}
