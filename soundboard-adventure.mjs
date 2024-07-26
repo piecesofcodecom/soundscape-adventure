@@ -1,6 +1,7 @@
 import SoundBoard from "./soundboard.mjs";
 import SoundBoardUI from "./soundboard-ui.mjs";
 import utils from './utils/utils.mjs';
+import constants from "./utils/constants.mjs";
 
 class SoundboardAdventure {
     path;
@@ -15,10 +16,14 @@ class SoundboardAdventure {
     }
 
     async init() {
-        utils.log(utils.getCallerInfo(),"Init SoundboardAdventure");
-        this.path = "./worlds/soundboards";
-        this.soundboards = [];
-        await this.loadConfiguration();
+        if (this.soundboards.length <= 0) {
+            utils.log(utils.getCallerInfo(),"Init SoundboardAdventure");
+            this.path = game.settings.get('soundboard-adventure', 'root-folder');
+            this.soundboards = [];
+            if (this.path.trim().length > 0) {
+                await this.loadConfiguration();
+            }
+        }
     }
 
     async loadConfiguration() {
@@ -32,7 +37,7 @@ class SoundboardAdventure {
                 utils.log(utils.getCallerInfo(),`Soundboard ${name} not found`); 
                 utils.log(utils.getCallerInfo(),`Adding soundboard '${name}' from ${dir}`);
                 const sb = new SoundBoard(dir);
-                await sb.init_soundboard();
+                // await sb.init_soundboard();
                 this.soundboards.push({
                     name: name,
                     path: dir,
@@ -53,43 +58,17 @@ class SoundboardAdventure {
         }
     }
 
-    /*async mapNewSoundboards() {
-        console.log(`Loading new soundboards within ${this.path}`);
-        const folder = await FilePicker.browse('data', this.path, { recursive: true });
-        for (const dir of folder.dirs) {
-            const name = `Soundboard: ${dir.split("/").pop()}`;
-            const soundboard = this.soundboards.filter(el => el.name == name)[0];
-            if (!soundboard) {
-                const sb = new SoundBoard(dir);
-                await sb.build();
-                console.log(`Adding new soundboard '${sb.name}' from ${dir}`);
-                this.soundboards.push({
-                    name: name,
-                    path: dir,
-                    playlistId: sb.playlist._id,
-                    status: "offline",
-                    class: sb
-                })
-                console.log(`New soundboard detected: ${name}`);
-            }
-        }
-        await this._save();
-    }*/
-
     // it builds the playlist for the sourboard
     async loadOfflineSoundboard(name) {
-        console.log(`Loading soundboard that is offline from ${name}`);
-        const soundboard = this.soundboards.filter(el => el.name == name)[0];
-        if(soundboard) {
-            await soundboard.class.buildPlaylist();
-            soundboard.status = "online";
-            soundboard.playlistId = soundboard.class.playlist._id;
+        utils.log(utils.getCallerInfo(),`Loading soundboard that is offline from ${name}`);
+        const sb = this.soundboards.filter(el => el.name == name)[0];
+        if(sb) {
+            await sb.class.init_soundboard();
         }
-        //await this._save();
     }
 
     async _save() {
-        console.log(`Saving Soundboard Adventure configuration to ${this.path}`)
+        utils.log(utils.getCallerInfo(),`Saving Soundboard Adventure configuration to ${this.path}`)
         const soundboardData = [];
         for (let i = 0; i < this.soundboards.length; i++) {
             soundboardData.push({
@@ -103,19 +82,24 @@ class SoundboardAdventure {
             const file = new File([blob], this.configurationFile, { type: 'application/json' });
             await FilePicker.upload('data', this.path, file)
         } catch (error) {
-            console.error(`Error saving Soundboard Adventure configuration to ${this.path}`, error);
+            utils.log(utils.getCallerInfo(),`Error saving Soundboard Adventure configuration to ${this.path}`, constants.LOGLEVEL.ERROR, error);
         }
     }
 
     openSoundboard(soundboardName) {
-        console.log(`Opening ${soundboardName}`)
+        utils.log(utils.getCallerInfo(),`Opening ${soundboardName}`)
         const sb = this.soundboards.filter(el => el.name == soundboardName)[0];
         if (sb) {
-            console.log("Sound board found")
-            console.log(sb)
             const soundboard = new SoundBoardUI(sb);
             soundboard.render(true);
         }
+    }
+    sidebarControls(event) {
+        const dataset = event.currentTarget.dataset;
+        event.currentTarget.setAttribute('data-tooltip',`${event.currentTarget.value}%`)
+        event.currentTarget.setAttribute('value',event.currentTarget.value)
+        //event.currentTarget.setAttribute('data-tooltip',`${event.currentTarget.value}%`)
+
     }
 }
 

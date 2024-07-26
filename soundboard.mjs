@@ -6,6 +6,7 @@ import constants from "./utils/constants.mjs";
 //FIXME (BACK) esta salvando muitas vezes o json
 //FIXME (BACK) o ajude de volume nao volta certo. depois q ajusta o volume de um som em andamento, e faz refresh da tela a barra de som nao aparece no lugar certo.
 //TODO (BACK) Remove sounds not founds in the folders from the soundboard and playlist
+//FIXME se nao tem playlist, so cria a soundboard vazia e deixa ela disponivel para o load SoundBoard
 export default class SoundBoard {
     /* Variables */
     playlist;
@@ -22,6 +23,7 @@ export default class SoundBoard {
 
     constructor(path) {
         this.path = path;
+        this.status = "offline";
         this.playlistId = "";
         this.playlist = null;
         this.soundConfigs = [];
@@ -32,15 +34,33 @@ export default class SoundBoard {
     //FIXME (BACK) Veriy why the board/mood is not syncing with the playlist (change sound name in the playlist doesnt change in the board)
     //FIXME (BACK) soundboard is not loading previous sound volumes
     async init_soundboard() {
-        //process the folder
+        this.status = "online";
         utils.log(utils.getCallerInfo(),`Maping files for '${this.name}' in ${this.path}`);
         const subfolders = await FilePicker.browse('data', this.path, { recursive: true });
+
+        // load all files in each folder
         for (const dir of subfolders.dirs) {
-            await this.loadSoundsOfType(dir, dir.split("/").pop());
+            let sound_type = constants.SOUNDTYPE.INVALID;
+            switch (dir.split("/").pop().toLowerCase()) {
+                case "ambience":
+                    sound_type = constants.SOUNDTYPE.AMBIENCE;
+                    break;
+                case "random":
+                    sound_type = constants.SOUNDTYPE.RANDOM;
+                    break;
+                case "loop":
+                    sound_type = constants.SOUNDTYPE.LOOP;
+                    break;
+                case "soundpad":
+                    sound_type = constants.SOUNDTYPE.SOUNDPAD;
+                    break;
+                default:
+                    sound_type = constants.SOUNDTYPE.INVALID;
+                    break;
+            }
+            await this.loadSoundsOfType(dir, sound_type);
         }
         
-        // validate moods
-        await this.loadMoods();
         // check if a playlist already exists
         utils.log(utils.getCallerInfo(),`Init Soundboard ${this.path}`);
         if (!this.playlistId) {
@@ -50,6 +70,7 @@ export default class SoundBoard {
                     this.playlist = await game.playlists.get(game.playlists._source[i]._id);
                     utils.log(utils.getCallerInfo(),`Found Playlist ${this.playlist.name}`);
                     this.playlistId = this.playlist._id;
+                    //TODO review how the sync happens and its logic
                     this.syncPlaylistToSoundConfig();
                 } 
             }
@@ -58,6 +79,11 @@ export default class SoundBoard {
                 await this._playlistRecreate()
             }
         }
+
+        // validate moods
+        await this.loadMoods();
+        // sync soundboard
+        await this.syncSoundboard()
     }
 
     async loadMoods() {
@@ -123,52 +149,68 @@ export default class SoundBoard {
 
     async syncPlaylistToSoundConfig() {
         const sounds = Array.from(this.playlist.sounds);
-        let has_changes = false;
         for( let i=0; i < sounds.length; i++) {
             const local_config = await this.soundConfigs.find(el => el.path == sounds[i].path);
             if(local_config) {
                 if(local_config.name != sounds[i].name || local_config.volume != sounds[i].volume) {
                     local_config.name = sounds[i].name;
-                    local_config.volume = sounds[i].volume;
                 }
             } else {
                 // TODO: (BACK) need to implement the update soundConfigs and moods with latest files from playlist
                 utils.log("TODO INPLEMENT")
             }
         }
-
-        //Update the sounds in the moods
-        if(has_changes) {
-            for (let i=0; i<this.moods.length;i++) {
-                await this.moods[i].updateSounds(this.soundConfigs);
-            }
-            this.saveMoodsConfig();
-        }
     }
 
-    async updatePlaylist() {
-        console.log(`Updating playlist ${this.playlistId}`);
-        console.log(this.soundConfigs);
-        console.log(this.playlist.sounds);
-        const current_sounds = Array.from(this.playlist.sounds);
+    async _syncNewFilesToPlaylist() {
+        utils.log(utils.getCallerInfo(),`Syncing new files to the playlist ${this.playlistId}`);
+        const playlist_sounds = Array.from(this.playlist.sounds);
         const sounds = this.soundConfigs;
-        for (let i =0; i< sounds.length; i++) {
-            const sd = await current_sounds.find(el => el.path == sounds[i].path);
+        for (let i = 0; i< sounds.length; i++) {
+            const sd = await playlist_sounds.find(el => el.path == sounds[i].path);
             if(!sd) {
-                console.log(`A new sound ${sounds[i].name} needs to be added to the playlist`)
+                utils.log(utils.getCallerInfo(),`A new sound ${sounds[i].path} needs to be added to the playlist`)
                 let newSound = {
                     name: sounds[i].name,
                     path: sounds[i].path,
                     playing: false,
-                    repeat: false,
+                    repeat: sounds[i].repeat,
                     volume: sounds[i].volume
                 };
                 await this.playlist.createEmbeddedDocuments("PlaylistSound", [newSound])
-                /*this.playlist.update({
-                    sounds: [...this.playlist.sounds, newSound]
-                })*/
             }
         }
+    }
+
+    async _syncRemovedFilesToPlaylist() {
+        utils.log(utils.getCallerInfo(),`Syncing removed files to the playlist ${this.playlistId}`);
+        const playlist_sounds = Array.from(this.playlist.sounds);
+        const sounds = this.soundConfigs;
+        for (let i =0; i< playlist_sounds.length; i++) {
+            const sd = await sounds.find(el => el.path == playlist_sounds[i].path);
+            if(!sd) {
+                utils.log(utils.getCallerInfo(),`A removed sound ${playlist_sounds[i].path} needs to be deleted from the playlist`);
+                await this.playlist.deleteEmbeddedDocuments("PlaylistSound", [playlist_sounds[i].id]);
+            }
+        }
+    }
+
+    async syncSoundboard() {
+        await this._syncMood();
+        await this._syncPlaylist();
+    }
+
+    async _syncMood() {
+        for (let i = 0; i < this.moods.length; i++) {
+            utils.log(utils.getCallerInfo(),`Syncing mood ${this.moods[i].name}`);
+            await this.moods[i].syncMood(this.soundConfigs);
+        }
+    }
+
+    async _syncPlaylist() {
+        utils.log(utils.getCallerInfo(),`Syncing playlist ${this.playlistId}`);
+        await this._syncNewFilesToPlaylist();
+        await this._syncRemovedFilesToPlaylist();
     }
     // when the playlist doesnt exist
     async buildPlaylist() {
@@ -187,7 +229,7 @@ export default class SoundBoard {
         console.log(`The playlist ${this.playlist.name} has been created`);
     }
 
-    async _hasConfig() {
+    /*async _hasConfig() {
         console.log("Checking for configuration");
         const folder = await FilePicker.browse('data', this.path, { recursive: true });
         let hasConfig=false;
@@ -204,7 +246,7 @@ export default class SoundBoard {
         }
 
         if(playlistConfig.length && soundsConfigFile.length) {
-            console.log(`Previous configuration has been retrieved '${this.name}'`);
+            utils.log(utils.getCallerInfo(),`Previous configuration has been retrieved '${this.name}'`);
             this.playlist = game.playlists.filter(el => el.name == this.name)[0];
             const response = await fetch(soundsConfigFile);
             const contents = await response.json();
@@ -214,28 +256,28 @@ export default class SoundBoard {
                 hasConfig = true;
             } else {
                 // will need to re-create the playlist
-                console.log("Playlist doesn't exist in this world")
+                utils.log(utils.getCallerInfo(),"Playlist doesn't exist in this world")
                 return await this._playlistRecreate(playlistConfig);
             }
         }
         return hasConfig;
         
-    }
+    }*/
 
     async saveMoodsConfig() {
-        console.log(`Saving moods for ${this.name} to ${this.path}`)
+        utils.log(utils.getCallerInfo(),`Saving moods for ${this.name} to ${this.path}`)
         try {
             const blob = new Blob([JSON.stringify(this.moods, null, 2)], { type: 'application/json' });
             const file = new File([blob], this.moodsConfigFile, { type: 'application/json' });
             await FilePicker.upload('data', this.path, file)
         } catch (error) {
-            console.error(`Error saving moods for ${this.name}:`, error);
+            utils.log(utils.getCallerInfo(),`Error saving moods for ${this.name}:`, constants.LOGLEVEL.ERROR, error);
         }
     }
 
     async loadSoundsOfType(path, type) {
         utils.log(utils.getCallerInfo(),`Loading sounds of type '${type}' from '${path}'`)
-        if (!["Ambience", "Loop", "Random", "Soundpad"].includes(type)) {
+        if (type == constants.SOUNDTYPE.INVALID) {
             console.log(`Sounds of type ${type} aren't supported`);
             return;
         }
@@ -243,23 +285,39 @@ export default class SoundBoard {
             const subfolder = await FilePicker.browse('data', path, { recursive: true });
             for (const file of subfolder.files) {
                 if (file.includes(".mp3")) {
-                    await this.appendSound(file.split("/").pop(), file, type);
+                    if (type == constants.SOUNDTYPE.GROUP_LOOP || type == constants.SOUNDTYPE.GROUP_RANDOM) {
+                        await this.appendSound(file.split("/").pop(), file, type, path.split("/").pop());
+                    } else {
+                        await this.appendSound(file.split("/").pop(), file, type);
+                    }
+                }
+            }
+            if (type == constants.SOUNDTYPE.LOOP || type == constants.SOUNDTYPE.RANDOM) {
+                const subfolderType = (type == constants.SOUNDTYPE.LOOP) ? constants.SOUNDTYPE.GROUP_LOOP : constants.SOUNDTYPE.GROUP_RANDOM;
+                for (const dir of subfolder.dirs) {
+                    this.loadSoundsOfType(dir, subfolderType);
                 }
             }
         } catch (error) {
             utils.log(utils.getCallerInfo(),`Error loading sounds of type ${type}:`, constants.LOGLEVEL.ERROR, error);
         }
     }
-    async appendSound(name, path, type) {
-        utils.log(utils.getCallerInfo(),`Adding new sound ${name} to the ${this.name}`);
+
+    async loadSoundGroups(dir, type) {
+
+    }
+    async appendSound(name, path, type, group="") {
+        utils.log(utils.getCallerInfo(),`Adding new sound ${name} with group '${group}' to the ${this.name}`);
         let soundData = {
             _id: foundry.utils.randomID(16),
             name: name,
             description: "This sound is managed by the Soundboard Adventure",
             path: path, // Path to the sound file
-            repeat: ["Soundpad", "Random"].includes(type) ? false : true,
-            volume: 5.5,
-            type: type
+            repeat: (constants.SOUNDTYPE.LOOP === type || constants.SOUNDTYPE.AMBIENCE === type || constants.SOUNDTYPE.GROUP_LOOP),// ? false : true,
+            volume: 0,
+            type: type,
+            group: group,
+            intensity: 0
         };
         const existing_sound = await this.soundConfigs.find(el => el.path == path);
         if(!existing_sound) {
@@ -270,107 +328,133 @@ export default class SoundBoard {
     }
 
     async newMood(name) {
-        console.log(`Create new mood ${name}`);
-        this.moods.push(new Mood(name, this.soundConfigs));
+        utils.log(utils.getCallerInfo(),`Create new mood ${name}`);
+        const mood = new Mood(name, this.soundConfigs);
+        this.moods.push(mood);
         await this.saveMoodsConfig();
+        Hooks.callAll("SBAdventureNewMood", name, mood);
     }
     async playSound(moodName, path) {
-        console.log("Play sound", path);
-        console.log(this.soundConfigs);
+        utils.log(utils.getCallerInfo(),`Play sound ${path}`);
         const sound = await this.soundConfigs.find(el => el.path == path);
-        console.log(sound);
+        const mood = await this.moods.find(el => el.name == moodName);
         sound.status = "on";
-        //this.saveMoodsConfig();
-        if(sound){
-            const s = await this.playlist.sounds.find(el => el.path == sound.path);
-            //const config = this.soundConfigs.find(el => el.path = sound.path);
-            if(s) {
-                if (sound.type.toLowerCase() == "random") {
-                    console.log("Schedule random sound");
-                    this.playAfterDuration(moodName, s.path, utils.randomWaitTime());
-                } else {
-                    this.playlist.playSound(s);
+        const currentPlaying = await game.settings.get('soundboard-adventure', 'current-playing').split(",");
+
+        if (currentPlaying.length == 2) {
+            if (moodName == currentPlaying[1] &&  this.name == currentPlaying[0]) {
+                if(sound) {
+                    const s = await this.playlist.sounds.find(el => el.path == sound.path);
+                    if(s) {
+                        if (sound.type == constants.SOUNDTYPE.RANDOM || sound.type == constants.SOUNDTYPE.GROUP_RANDOM) {
+                            utils.log(utils.getCallerInfo(),`Schedule random sound ${path} from a group '${sound.group}'`);
+                            this.playAfterDuration(moodName, s.path, sound.group, utils.randomWaitTime());
+                        } else {
+                            // it is a loop or group
+                            this._playSound(s, moodName, sound.group);
+                        }
+                    }
+                Hooks.callAll("SBAdventure-PlayingMood", this.name, moodName, mood);
                 }
             }
         }
     }
 
+    async _playsound(sound, moodName, group) {
+        if (group == '') {
+            this.playlist.playSound(sound);
+        } else {
+            this._playGroup(moodName, group);
+        }
+    }
+
+    async _playGroup(moodName, group) {
+        const mood = this.moods.find(el => el.name == moodName);
+        alert("asd")
+        mood.playFromGroup(group, this.playlist);
+
+    }
+
     async stopSound(moodName, path) {
-        console.log("Play sound", path);
-        console.log(this.soundConfigs);
-        const sound = await this.soundConfigs.find(el => el.path == path);
-        console.log(sound);
-        sound.status = "on";
-        this.saveMoodsConfig();
-        if(sound){
-            const s = await this.playlist.sounds.find(el => el.path == sound.path);
-            //const config = this.soundConfigs.find(el => el.path = sound.path);
-            if(s) {
-                this.playlist.stopSound(s);
-            }
+        utils.log(utils.getCallerInfo(),`Play sound ${path}`);
+        const mood = this.moods(el => el.name == moodName);
+        if (mood) {
+            mood.stopSound(path, this.playlist);
         }
     }
 
     async reScanFolder() {
-        await this.init_soundboard()
+        await this.init_soundboard();
+        await this.saveMoodsConfig();
 
     }
 
     async changeSoundVolume(moodName, path, newVolume) {
-        console.log("NEW VOL?UME")
-        console.log("new volume", newVolume/100);
-        const sound = await this.playlist.sounds.find(el => el.path == path);
-        const mood_config = await this.moods.find(el => el.name == moodName);
-        if(sound  && mood_config) {
-            const sound_config = await mood_config.sounds.find(el => el.path == path);
-            if (sound_config) {
-                sound_config.volume = newVolume;
-                sound.update({ volume: newVolume/100 });
-                this.saveMoodsConfig();
-            }
+        //const sound = await this.playlist.sounds.find(el => el.path == path);
+        const mood = await this.moods.find(el => el.name == moodName);
+        if (mood) {
+            mood.changeSoundVolume(path, newVolume, this.playlist);
         }
     }
 
-    playAfterDuration(name, path, delay) {
-        console.warn(`schedule play ${name}: ${path} with delay ${delay}`);
+    async changeSoundIntensity(moodName, group, value) {
+        const mood = this.moods.find(el => el.name == moodName);
+        if (mood) {
+            mood.changeSoundIntensity(group, value, this.playlist);
+        }
+    }
+    
+    
+
+    playAfterDuration(name, path, group, delay) {
+        console.warn(`schedule to play mood '${name}' of the group '${group}' or the sound '${path}' with delay '${delay}'`);
         setTimeout(async () => {
-            console.warn(`playing ${name}: ${path}`);
             const mood = await this.moods.find(el => el.name === name);
-            const sound = await mood.sounds.find(el => el.path === path);
-            console.warn(`playing delayed sound ${path} from mood ${name} ${mood.status} ${sound.status}`);
-            if (mood.status === "playing" && sound) {
-                if (sound.status === "on") {
-                    const s = await this.playlist.sounds.find(el => el.path === path);
-                    console.warn("PLAYING IT", path, sound);
-                    console.warn(s);
-                    this.playlist.playSound(s);
-                    this.playAfterDuration(name, path, utils.randomWaitTime());
+            const sound = await mood.sounds.filter(el => el.path === path);
+            if (mood.status == "playing" && sound.length > 0) {
+                if (sound[0].status == "on") {
+                    if (group == "") {
+                        const s = await this.playlist.sounds.find(el => el.path === path);
+                        console.warn(`Playing scheduled sound '${path}' for mood '${name}' `);
+                        this.playlist.playSound(s);
+                        // delay to play + duration to avoid play the same sound during current execution
+                        this.playAfterDuration(name, path, utils.randomWaitTime() + s.duration);
+                    } else {
+                        mood.playRandomFromGroup(group, this.playlist);
+                    }
+                    
                 }
+            } else {
+                console.warn(`Canceled scheduled sound '${path}' for mood '${name}' `);
             }
         }, delay);
     }
+
+    async enableSound(moodName, path) {
+        const mood = this.moods.find(el => el.name == moodName);
+        if (mood) {
+            mood.enableSound(path, this.playlist);
+        }
+    }
+
+    async disableSound(moodName, path) {
+        const mood = this.moods.find(el => el.name == moodName);
+        if (mood) {
+            mood.disableSound(path, this.playlist);
+        }
+    }
     
     async playMood(moodName) {
-        console.log(`Playing mood ${moodName}`);
+        const currentconfig = await game.settings.get('soundboard-adventure', 'current-playing').split(",");
+       
+        if (currentconfig.length == 2) {
+            await this.stopMood(currentconfig[1])
+        }
+        await game.settings.set('soundboard-adventure', 'current-playing', `${this.name},${moodName}`);
         this.isPlaying = true;
-        const mood = this.moods.filter(el => el.name == moodName)[0];
+        const mood = this.moods.find(el => el.name == moodName);
         if(mood) {
-            mood.status = "playing";
-            const sounds = mood.sounds.filter(el => el.status == "on");
-            for (let i=0; i<sounds.length; i++) {
-                console.warn(`Processing sound ${sounds[i].path}`);
-                const s = await this.playlist.sounds.find( sound => sound.path == sounds[i].path);
-                console.warn(s);
-                const newVolume = sounds[i].volume;
-                if (sounds[i].type.toLowerCase() == "random") {
-                    console.warn(`Schedule random sound ${s.path}`);
-                    this.playAfterDuration(moodName, s.path, utils.randomWaitTime());
-                } else {
-                    console.warn(`Simple play the sound ${s.path}`);
-                    s.update({ volume: newVolume/100 });
-                    this.playlist.playSound(s);
-                }
-            }
+            mood.play(this.playlist);
         }
     }
 
@@ -381,13 +465,18 @@ export default class SoundBoard {
             this.saveMoodsConfig();
         }
     }
+    async stopMood(moodName) {
+        await game.settings.set('soundboard-adventure', 'current-playing', "");
+        const mood = await this.moods.find(el => el.name == moodName);
+        mood.status = "stop";
+        this.isPlaying = false;
+        await this.playlist.stopAll();
+    }
     async stopAll() {
-        //alert(this.moods.length)
         for (let i=0;i>this.moods.length;i++) {
             this.moods[i].status="stop";
         }
-        console.log(this.moods);
-        this.saveMoodsConfig();
+        this.isPlaying = false;
     }
 }
 

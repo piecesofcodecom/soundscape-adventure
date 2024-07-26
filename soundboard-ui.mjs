@@ -1,9 +1,11 @@
-//FIXME: (UI) Ao interagir com o mood (selecionar ou desabilitar som) a lista de sons desaparecem
-
 import SoundboardAdventure from "./soundboard-adventure.mjs";
+import utils from "./utils/utils.mjs";
+
+//TODO botao salvar, a pessoa tem que salvar os moods
 export default class SoundBoardUI extends Application {
     soundList = []
     soundboard = {}
+    currentMood= "";
 
     static get defaultOptions() {
         const options = super.defaultOptions;
@@ -14,14 +16,11 @@ export default class SoundBoardUI extends Application {
         options.height = 800;
         options.resizable = true;
         return options;
-        //TODO: Look into TabsV2 impl.
     }
 
     constructor(soundboard) {
         super({ title: `🔊 ${soundboard.name}` });
         this.soundboard = soundboard;
-        console.log("Dialog",this.soundboard);
-        console.log("Dialog sounds",this.soundboard.class);
     }
     async render(force = false, options = {}) {
         await super.render(force, options);
@@ -31,39 +30,32 @@ export default class SoundBoardUI extends Application {
         super.activateListeners(html);
         html.on('click', '.mood-control', async (ev) => {
             const dataset = ev.currentTarget.dataset;
-            console.log("dataset", dataset)
             const button = ev.currentTarget;
             if (dataset.action == 'play') {
-                console.log("Play Mood");
                 this.soundboard.isPlaying = true;
                 ev.currentTarget.className="mood-control fa-solid fa-stop";
                 ev.currentTarget.setAttribute("data-action","stop");
                 await this.soundboard.class.playMood(dataset.moodName);
-                await this.soundboard.class.saveMoodsConfig();
                 this.render(true);
+            
             } else if (dataset.action == "new") {
                 await this._dialogNewMood();
+            
             } else if (dataset.action == "stop") {
-                const mood = await this.soundboard.class.moods.find(el => el.name == dataset.moodName);
-                mood.status = "stop";
-                this.soundboard.isPlaying = false;
-                await this.soundboard.class.playlist.stopAll();
-                await this.soundboard.class.saveMoodsConfig();
-                //ev.currentTarget.className="mood-control fa-solid fa-play";
-                //ev.currentTarget.setAttribute("data-action","play");
+                await this.soundboard.class.stopMood(dataset.moodName);
                 this.render(true);
+            
             } else if(dataset.action == "view-mood") {
                 const root = ev.currentTarget.parentNode.parentNode.parentNode.parentNode;
                 const moodName = ev.currentTarget.dataset.moodName;
                 const btns = ev.currentTarget.parentNode.parentNode.parentNode;
-                console.log(btns)
+                this.currentMood = moodName;
 
                 // Find all div elements with the class 'soundboardadv-main' within the root node
                 const soundboardElements = root.querySelectorAll('div.soundboardadv-main');
                 const buttonsElements = btns.querySelectorAll("div.playlist-track-ctn");
 
                 buttonsElements.forEach(element => {
-                    console.log(element)
                     if (element.getAttribute('data-mood-name') === moodName) {
                         // Change the class name to 'soundboardadv-main mood-active'
                         element.className = "playlist-track-ctn active";
@@ -82,49 +74,32 @@ export default class SoundBoardUI extends Application {
                         element.className = 'soundboardadv-main';
                     }
                 });
+            } else if (dataset.action == "save") {
+                this.soundboard.class.saveMoodsConfig();
             }
             return;
         });
 
+        /**
+         * Sound Controls
+         */
         html.on('click', '.action-sound', async (ev) => {
             const dataset = ev.currentTarget.dataset;
-            console.log(dataset);
             if (dataset.action == "on") {
-                const mood = this.soundboard.class.moods.filter(el => el.name == dataset.moodName)[0];
-                if (mood) {
-                    const sound = mood.sounds.filter(el => el._id == dataset.soundId)[0];
-                    if(sound) {
-                        sound.status="on";
-                        if (this.soundboard.isPlaying) {
-                            this.soundboard.class.playSound(dataset.moodName, dataset.path);
-                        }
-                        await this.soundboard.class.saveMoodsConfig();
-                        this.render(true);
-                    }
-                }
+                this.soundboard.class.enableSound(dataset.moodName, dataset.path);
+                this.render(true);
                 
             } else if (dataset.action == "off") {
-                const mood = this.soundboard.class.moods.filter(el => el.name == dataset.moodName)[0];
-                if (mood) {
-                    const sound = mood.sounds.filter(el => el._id == dataset.soundId)[0];
-                    if(sound) {
-                        sound.status="off";
-                        if (this.soundboard.isPlaying) {
-                            this.soundboard.class.stopSound(dataset.moodName, dataset.path);
-                        }
-                        await this.soundboard.class.saveMoodsConfig();
-                        this.render(true);
-                    }
-                }
+                this.soundboard.class.disableSound(dataset.moodName, dataset.path);
+                this.render(true);
             } else if(dataset.action == "volume") {
-                console.log(ev.currentTarget.value);
-                console.log(dataset);
                 this.soundboard.class.changeSoundVolume(dataset.moodName, dataset.path, ev.currentTarget.value);
+            } else if(dataset.action == "intensity") {
+                this.soundboard.class.changeSoundIntensity(dataset.moodName, dataset.group, ev.currentTarget.value);
             }
         });
 
         html.on('contextmenu', '.action-sound', async (ev) => {
-            //console.log(ev.currentTarget);
             const dataset = ev.currentTarget.dataset;
             const sb = await SoundboardAdventure.soundboards.find(el => el.name == dataset.soundboardName)
             if (sb) {
@@ -141,16 +116,28 @@ export default class SoundBoardUI extends Application {
     }
 
     async getData() {
-        console.log(`Loading dialog for ${this.soundboard.name}`)
-        console.log(this.soundboard.class.moods);
+        const currentPlaying = await game.settings.get('soundboard-adventure', 'current-playing').split(",");
+
+        utils.log(utils.getCallerInfo(),`Loading dialog for ${this.soundboard.name}`)
 
         const playlist = await game.playlists.get(this.soundboard.playlistId);
-        //const sounds = Array.from(playlist.sounds);
-        //const soundsData = [];
+        if(currentPlaying.length == 2) {
+            if (currentPlaying[0] == this.soundboard.name) {
+                const mood = this.soundboard.class.moods.find(el => el.name == currentPlaying[1]);
+                if (mood) {
+                    this.currentMood = mood.name;
+                }
+            }
+        }
+        
+        if(this.soundboard.class.moods.length > 0 && this.currentMood == "") {
+            this.currentMood = this.soundboard.class.moods[0].name;
+        }
+
         return {
-            //sounds: sounds,
             name: this.soundboard.class.name,
             moods: this.soundboard.class.moods,
+            activeMood: this.currentMood
         }
     }
 
@@ -169,7 +156,6 @@ export default class SoundBoardUI extends Application {
               callback: (event, button, dialog) => button.form.elements.moodname.value
             }],
             submit: async (result) => {
-              console.log(`User picked name: ${result}`);
               await this.soundboard.class.newMood(result);
               this.render(true);
             }

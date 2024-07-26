@@ -1,4 +1,5 @@
 /* Sidebar */
+
 .playlists-sidebar .soundboard-control {
     display: grid;
     place-content: center;
@@ -128,15 +129,17 @@
       justify-content: center; /* Center content vertically */
   }
 
-  .sound-item.on {
+  .ad-sound-container.on {
     border: 1px solid rgb(168, 240, 168);
     background-color: rgba(185, 241, 185,1);
 }
 
-.sound-item.off {
+.ad-sound-container.off {
     border: 1px solid rgb(243, 76, 76);
     background-color:  rgb(243, 106, 106);
 }
+
+
 
 
   
@@ -145,6 +148,7 @@
       height: 40px;
       width: 40px;
       position: relative;
+      text-align:center; 
   }
   
   .sound-bar {
@@ -180,23 +184,65 @@
   
   /*SOUNDS BAR*/
 
-  .sb-slider {
-    appearance: none; /* removes browser-specific styling */
-    width: 80px !important; /* width of slider */
-    height: 20px; /* height of slider */
-    background: #FF5C35 ; /* orange background */
-    outline: none; /* remove outline */
-    border-radius: 50px; /* round corners */
-    margin-top: 390% !important;
-    transform: rotate(270deg); /* rotate the element */
-    margin-left: -450% !important;
+  .ad-sound-container {
+    display: flex;
+    align-items: center;
+  background-color: #e4f3f8;
 }
 
-.sb-slider::-webkit-slider-thumb {
-  appearance: none; /* removes browser-specific styling */
-  width: 20px; /* handle width */
-  height: 20px; /* handle height */
-  border-radius: 50%; /* make it circular */
-  background: #FFFFFF; /* white color */
-  cursor: pointer; /* cursor on hover */
+.ad-sound-content {
+    width: 80px;
+    height: 120px;
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    margin-right: 10px;
+}
+
+.ad-icon {
+    font-size: 10px;
+}
+
+.ad-sound-name {
+    position: absolute;
+    bottom: 5px;
+    text-align: center;
+    width: 100%;
+    color: #fff;
+}
+
+.ad-sound-sliders {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    height: 100px;
+}
+
+.ad-sound-slider-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 5px;
+}
+
+.ad-sound-slider-icon {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.ad-sound-slider {
+    writing-mode: bt-lr ; /* This is to support vertical orientation in some browsers */
+    -webkit-appearance: slider-vertical !important;
+    width: 10px !important;
+    height: 80px !important;
+}
+
+.ad-sound-slider::-webkit-slider-thumb {
+  -webkit-appearance: none !important;
+  appearance: none!important;
+  width: 1px !important;
+  height: 10px !important;
 }

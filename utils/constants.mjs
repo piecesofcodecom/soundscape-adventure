@@ -11,8 +11,20 @@ const MOOD = {
     }
 }
 
+const SOUNDTYPE = {
+    AMBIENCE: 0,
+    LOOP: 1,
+    RANDOM: 2,
+    SOUNDPAD: 3,
+    GROUP_LOOP: 4,
+    GROUP_RANDOM: 5,
+    INVALID: -1
+
+}
+
 export default {
     LOGLEVEL,
-    MOOD
+    MOOD,
+    SOUNDTYPE
     // Add other constants here
   };
