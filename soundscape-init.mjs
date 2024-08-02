@@ -1,37 +1,39 @@
-import SoundBoardAdventureUI from './soundboard-adventure-ui.mjs';
+import SoundscapeAdventureUI from './soundscape-adventure-ui.mjs';
 import constants from './utils/constants.mjs';
 
 /**
- * HOOKS
+ * FOUNDRY HOOKS
  */
 Hooks.on('renderSidebarTab', (sidebar, html) => {
     if (sidebar instanceof PlaylistDirectory) {
-        console.log(sidebar);
-        SoundBoardAdventureUI.init(html);
+        SoundscapeAdventureUI.init(html);
     }
 })
 
+/**
+ * MODULE HOOKS
+ */
+Hooks.on('SoundscapeAdventure-UpdateSidebar', () => {
+    SoundscapeAdventureUI._updateHtml();
+});
 
 Hooks.on('SBAdventureNewMood', (moodName, mood) => {
     /*if (sidebar instanceof PlaylistDirectory) {*/
-        SoundBoardAdventureUI.updateSoundboards();
+        SoundscapeAdventureUI.updateSoundboards();
     /*}*/
 });
 
 Hooks.on('SBAdventure-PlayingMood', (soundboardName, moodName, mood) => {
     /*if (sidebar instanceof PlaylistDirectory) {*/
     //alert("asd")
-    SoundBoardAdventureUI.updateMoodControlsUI(soundboardName, moodName, mood);
+    SoundscapeAdventureUI.updateMoodControlsUI(soundboardName, moodName, mood);
     /*}*/
 });
 
-Hooks.on("updatePlaylist", (playlist, data, options, userId) => {
-    console.log(`Playlist "${playlist.name}" has been updated`);
-    console.log('Updated data:', data);
-    console.log('Update options:', options);
-    console.log('User ID:', userId);
-    //TODO 
+Hooks.on('SoundscapeAdventure-ChangeSoundVolume', (id, moodId, mood) => {
+    SoundscapeAdventureUI.updateMoodControlsUI(id, moodId, mood);
 });
+
 
 /** AFTER LOAD and Heandlebars */
 Hooks.once('init', () => {
@@ -42,25 +44,24 @@ Hooks.once('init', () => {
         let groups = [];
         array.forEach(el => {
             if (el.type == type) {
-                console.log('porItem e type',el)
                 // for groups we add only a representation for all sounds
                 result += options.fn(el);
             } else if (el.group != "") {
-                    if( (type + 3) == el.type) { 
-                        console.log('tem Group',el)
-                        if (!groups.includes(el.group)) {
-                            groups.push(el.group);
-                            result += options.fn({
-                                name: 'Group: '+el.group,
-                                path: el.path,
-                                _id: el._id,
-                                status: el.status,
-                                type: el.type,
-                                volume: el.volume,
-                                group: el.group
-                            })
-                        }
+                if( (type + 3) == el.type) { 
+                    if (!groups.includes(el.group)) {
+                        groups.push(el.group);
+                        result += options.fn({
+                            name: 'Group: '+el.group,
+                            path: el.path,
+                            id: el.id,
+                            status: el.status,
+                            type: el.type,
+                            volume: el.volume,
+                            group: el.group,
+                            intensity: el.intensity
+                        })
                     }
+                }
             }
         });
         return result;
@@ -109,11 +110,11 @@ Hooks.once('init', () => {
             title: "Random",
             code: constants.SOUNDTYPE.RANDOM
         });
-        result += options.fn({
+        /*result += options.fn({
             name: "none",
             title: "Soundpad",
             code: constants.SOUNDTYPE.SOUNDPAD
-        });
+        });*/
         return result;
     });
 

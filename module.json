@@ -1,6 +1,6 @@
 {
-  "id": "soundboard-adventure",
-  "title": "SoundBoard Adventure",
+  "id": "soundscape-adventure",
+  "title": "Soundscape Adventure",
   "version": "1.0.0",
   "compatibility": {
     "minimum": "12",
@@ -8,17 +8,17 @@
   },
   "authors": [
     {
-      "name": "Author 1",
+      "name": "Snagov",
       "discord": "Snagov",
       "flags": {}
     }
   ],
   "esmodules": [
     "./settings.mjs",
-    "./soundboard-init.mjs"
+    "./soundscape-init.mjs"
   ],
   "persistentStorage": true,
   "styles": [
-    "./css/soundboard.css"
+    "./css/soundscape.css"
   ]
 }

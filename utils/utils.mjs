@@ -10,7 +10,7 @@ function getCallerInfo() {
   
     if (match) {
         const filename = match[2] || match[1];
-        const pattern = /http:\/\/.*\/modules\/soundboard-adventure\//;
+        const pattern = /http:\/\/.*\/modules\/soundscape-adventure\//;
 
       return {
         functionName: match[1],
@@ -24,25 +24,28 @@ function getCallerInfo() {
 }
 
 function log(info, message, level = constants.LOGLEVEL.INFO, error = "") {
-    const init_message = "SoundboardAdventure";
-    switch (level) {
-        case constants.LOGLEVEL.ERROR:
-            console.error(`(${init_message}) Filename: (${info.filename}), Line: ${info.line}, Column: ${info.column}`, message, error);
-            //console.error(`(${metadata}): ${message}`,error);
-            break;
-        case constants.LOGLEVEL.WARN:
-            console.warn(`(${init_message}) Filename: ${info.filename}, Line: ${info.line}, Column: ${info.column}`, message, error);
-            break;
-        case constants.LOGLEVEL.INFO:
-        default:
-            console.info(`(${init_message}) Filename: ${info.filename}, Line: ${info.line}, Column: ${info.column}`, message, error);
+    const init_message = "Soundscape-Adventure";
+    const log_enabled = game.settings.get('soundscape-adventure', 'enable-logs');
+    if (log_enabled) {
+        switch (level) {
+            case constants.LOGLEVEL.ERROR:
+                console.error(`(${init_message}) Filename: (${info.filename}), Line: ${info.line}, Column: ${info.column}`, message, error);
+                break;
+            case constants.LOGLEVEL.WARN:
+                console.warn(`(${init_message}) Filename: ${info.filename}, Line: ${info.line}, Column: ${info.column}`, message, error);
+                break;
+            case constants.LOGLEVEL.INFO:
+            default:
+                console.info(`(${init_message}) Filename: ${info.filename}, Line: ${info.line}, Column: ${info.column}`, message, error);
+        }
     }
 }
 
 function randomWaitTime() {
     //const from = 1000; // 1 sec 
     const from = 10000; // 10 sec 
-    const to = 60000;
+    const to = 60000; // 60 sec
+    //return from;
     return Math.floor(Math.random() * (to - from + 1) + from)
 }
 

@@ -22,9 +22,18 @@ const SOUNDTYPE = {
 
 }
 
+const SOUNDSCAPE_TYPE = {
+    LOCAL: 0,
+    REMOTE_S3: 1
+}
+
+const PREFIX="Soundscape";
+
 export default {
     LOGLEVEL,
     MOOD,
-    SOUNDTYPE
+    SOUNDTYPE,
+    SOUNDSCAPE_TYPE,
+    PREFIX
     // Add other constants here
   };

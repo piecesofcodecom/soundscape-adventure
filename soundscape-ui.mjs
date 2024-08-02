@@ -1,26 +1,26 @@
-import SoundboardAdventure from "./soundboard-adventure.mjs";
+import SoundscapeAdventure from "./soundscape-adventure.mjs";
 import utils from "./utils/utils.mjs";
 
 //TODO botao salvar, a pessoa tem que salvar os moods
-export default class SoundBoardUI extends Application {
+export default class SoundscapeUI extends Application {
     soundList = []
-    soundboard = {}
+    soundscape = {}
     currentMood= "";
 
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.title = "🔊 Sound board name", //`🔊${game.i18n.localize('SOUNDBOARD.app.title')}`;
-            options.id = 'soundboard-app';
-        options.template = 'modules/soundboard-adventure/templates/soundboard.hbs';
-        options.width = 1020;
+        options.title = "🔊 Soundscape name", //`🔊${game.i18n.localize('SOUNDBOARD.app.title')}`;
+        options.id = 'soundscape-app';
+        options.template = 'modules/soundscape-adventure/templates/soundscape.hbs';
+        options.width = 1050;
         options.height = 800;
         options.resizable = true;
         return options;
     }
 
-    constructor(soundboard) {
-        super({ title: `🔊 ${soundboard.name}` });
-        this.soundboard = soundboard;
+    constructor(soundscape) {
+        super({ title: `🔊 ${soundscape.name}` });
+        this.soundscape = soundscape;
     }
     async render(force = false, options = {}) {
         await super.render(force, options);
@@ -32,17 +32,17 @@ export default class SoundBoardUI extends Application {
             const dataset = ev.currentTarget.dataset;
             const button = ev.currentTarget;
             if (dataset.action == 'play') {
-                this.soundboard.isPlaying = true;
+                this.soundscape.isPlaying = true;
                 ev.currentTarget.className="mood-control fa-solid fa-stop";
                 ev.currentTarget.setAttribute("data-action","stop");
-                await this.soundboard.class.playMood(dataset.moodName);
+                await this.soundscape.class.playMood(dataset.moodId);
                 this.render(true);
             
             } else if (dataset.action == "new") {
                 await this._dialogNewMood();
             
             } else if (dataset.action == "stop") {
-                await this.soundboard.class.stopMood(dataset.moodName);
+                await this.soundscape.class.stopMood(dataset.moodId);
                 this.render(true);
             
             } else if(dataset.action == "view-mood") {
@@ -75,7 +75,7 @@ export default class SoundBoardUI extends Application {
                     }
                 });
             } else if (dataset.action == "save") {
-                this.soundboard.class.saveMoodsConfig();
+                this.soundscape.class.saveMoodsConfig();
             }
             return;
         });
@@ -86,57 +86,90 @@ export default class SoundBoardUI extends Application {
         html.on('click', '.action-sound', async (ev) => {
             const dataset = ev.currentTarget.dataset;
             if (dataset.action == "on") {
-                this.soundboard.class.enableSound(dataset.moodName, dataset.path);
+                this.soundscape.class.enableSound(dataset.moodName, dataset.path);
                 this.render(true);
                 
             } else if (dataset.action == "off") {
-                this.soundboard.class.disableSound(dataset.moodName, dataset.path);
+                this.soundscape.class.disableSound(dataset.moodName, dataset.path);
                 this.render(true);
             } else if(dataset.action == "volume") {
-                this.soundboard.class.changeSoundVolume(dataset.moodName, dataset.path, ev.currentTarget.value);
+                const volume_ui = ev.currentTarget.parentNode.querySelector('#volume-value-1');
+                volume_ui.innerText = parseInt(ev.currentTarget.value * 100);
+                if (ev.currentTarget.value > 0) {
+                    ev.currentTarget.parentNode.parentNode.className = "soundscapeadv-element on";
+                } else {
+                    ev.currentTarget.parentNode.parentNode.className = "soundscapeadv-element off";
+                }
+                this.soundscape.class.changeSoundVolume(dataset.moodId, dataset.id, ev.currentTarget.value);
             } else if(dataset.action == "intensity") {
-                this.soundboard.class.changeSoundIntensity(dataset.moodName, dataset.group, ev.currentTarget.value);
+                const intensity_ui = ev.currentTarget.parentNode.querySelector('#intensity-value-1');
+                intensity_ui.innerText = parseInt(ev.currentTarget.value);
+                this.soundscape.class.changeSoundIntensity(dataset.moodId, dataset.group, ev.currentTarget.value);
             }
         });
 
         html.on('contextmenu', '.action-sound', async (ev) => {
             const dataset = ev.currentTarget.dataset;
-            const sb = await SoundboardAdventure.soundboards.find(el => el.name == dataset.soundboardName)
-            if (sb) {
-                const _sounds = Array.from(sb.class.playlist.sounds)
-                const sound = _sounds.find(el => el.path == dataset.path);
-                if (sound) {
-                    const soundConfig = new PlaylistSoundConfig(sound);
-                    //TODO: (UI) reload the soundboard UI with the new name
-                    const dialog = await soundConfig.render(true);
-                }
-            }
+            this.soundEdit(dataset.moodId, dataset.soundId, dataset.group)
         })
         this.render(true)
     }
 
-    async getData() {
-        const currentPlaying = await game.settings.get('soundboard-adventure', 'current-playing').split(",");
-
-        utils.log(utils.getCallerInfo(),`Loading dialog for ${this.soundboard.name}`)
-
-        const playlist = await game.playlists.get(this.soundboard.playlistId);
-        if(currentPlaying.length == 2) {
-            if (currentPlaying[0] == this.soundboard.name) {
-                const mood = this.soundboard.class.moods.find(el => el.name == currentPlaying[1]);
-                if (mood) {
-                    this.currentMood = mood.name;
+    soundEdit(moodId, soundId, group) {
+        if (group == "") {
+            const sound = this.soundscape.class.soundsConfig.find(obj => obj.id == soundId);
+            const options_html = `
+                <input id="soundName" type="text" placeholder="${sound.name}">
+                <input id="soundId" type="hidden" value="${soundId}">
+                <input id="moodId" type="hidden" value="${moodId}">
+            `
+            new Dialog({
+                title: "Edit sound",
+                content: options_html,
+                buttons: {
+                button1: {
+                    label: "Save",
+                    callback: (html) => this.updateSound(html),
+                    icon: `<i class="fas fa-check"></i>`
+                },
+                button2: {
+                    label: "Cancel",
+                    callback: () => {},
+                    icon: `<i class="fas fa-times"></i>`
                 }
-            }
+                }
+            }).render(true);
+
         }
         
-        if(this.soundboard.class.moods.length > 0 && this.currentMood == "") {
-            this.currentMood = this.soundboard.class.moods[0].name;
-        }
+    }
+    async updateSound(html) {
+        const newName = html.find('[id="soundName"]').val();
+        const soundId = html.find('[id="soundId"]').val();
+        await this.soundscape.class.updateSoundName(soundId, newName);
+        this.render(true);
+    }
 
+    async getData() {
+        const currentPlaying = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
+
+        utils.log(utils.getCallerInfo(),`Loading dialog for ${this.soundscape.name}`)
+
+        if(currentPlaying.length == 2) {
+            if (currentPlaying[0] == this.soundscape.class.id) {
+                const mood = this.soundscape.class.moods[currentPlaying[1]];
+                if (mood) {
+                    this.currentMood = mood.id;
+                }
+            }
+        } else if(Object.values(this.soundscape.class.moods).length > 0) {
+            this.currentMood = Object.values(this.soundscape.class.moods)[0].id;
+        } else {
+            this.currentMood = {}
+        }
         return {
-            name: this.soundboard.class.name,
-            moods: this.soundboard.class.moods,
+            name: this.soundscape.class.name,
+            moods: Object.values(this.soundscape.class.moods),
             activeMood: this.currentMood
         }
     }
@@ -156,7 +189,7 @@ export default class SoundBoardUI extends Application {
               callback: (event, button, dialog) => button.form.elements.moodname.value
             }],
             submit: async (result) => {
-              await this.soundboard.class.newMood(result);
+              await this.soundscape.class.newMood(result);
               this.render(true);
             }
           }).render({ force: true });
