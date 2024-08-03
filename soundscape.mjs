@@ -287,6 +287,9 @@ export default class Soundscape {
                         }
                         this.moods[moodconfig.id] = new MoodConfig(moodconfig, this.playlist, status);
                         await this.moods[moodconfig.id].syncSoundIds(this.soundsConfig);
+                        if (status == "playing") {
+                            this.playMood(moodconfig.id, saveconfig=false);
+                        }
                         // update soundscape sound names
                         if (name_update) {
                             name_update = false;
@@ -308,13 +311,15 @@ export default class Soundscape {
         return;
     }
 
-    async playMood(moodId) {
+    async playMood(moodId, saveconfig=true) {
         const currentconfig = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
         if (currentconfig.length == 2) {
             if(currentconfig[0] == this.id && currentconfig[1] != moodId)
                 await this.stopMood(currentconfig[1])
         }
-        await game.settings.set('soundscape-adventure', 'current-playing', `${this.id},${moodId}`);
+        if (saveconfig) {
+            await game.settings.set('soundscape-adventure', 'current-playing', `${this.id},${moodId}`);
+        }
         this.moods[moodId].status = "playing";
         this.isPlaying = true;
         if(this.moods[moodId]) {
