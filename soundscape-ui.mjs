@@ -55,16 +55,16 @@ export default class SoundscapeUI extends Application {
             
             } else if(dataset.action == "view-mood") {
                 const root = ev.currentTarget.parentNode.parentNode.parentNode.parentNode;
-                const moodName = ev.currentTarget.dataset.moodName;
+                const moodId = ev.currentTarget.dataset.moodId;
                 const btns = ev.currentTarget.parentNode.parentNode.parentNode;
-                this.currentMood = moodName;
+                this.currentMood = moodId;
 
                 // Find all div elements with the class 'soundboardadv-main' within the root node
                 const soundboardElements = root.querySelectorAll('div.soundboardadv-main');
                 const buttonsElements = btns.querySelectorAll("div.playlist-track-ctn");
 
                 buttonsElements.forEach(element => {
-                    if (element.getAttribute('data-mood-name') === moodName) {
+                    if (element.getAttribute('data-mood-id') === moodId) {
                         // Change the class name to 'soundboardadv-main mood-active'
                         element.className = "playlist-track-ctn active";
                     } else {
@@ -75,7 +75,7 @@ export default class SoundscapeUI extends Application {
                 // Loop through each found element
                 soundboardElements.forEach(element => {
                     // Check if the 'data-mood-name' attribute matches the 'moodName'
-                    if (element.getAttribute('data-mood-name') === moodName) {
+                    if (element.getAttribute('data-mood-id') === moodId) {
                         // Change the class name to 'soundboardadv-main mood-active'
                         element.className = 'soundboardadv-main mood-active';
                     } else {
@@ -93,14 +93,7 @@ export default class SoundscapeUI extends Application {
          */
         html.on('click', '.action-sound', async (ev) => {
             const dataset = ev.currentTarget.dataset;
-            if (dataset.action == "on") {
-                this.soundscape.class.enableSound(dataset.moodName, dataset.path);
-                this.render(true);
-                
-            } else if (dataset.action == "off") {
-                this.soundscape.class.disableSound(dataset.moodName, dataset.path);
-                this.render(true);
-            } else if(dataset.action == "volume") {
+            if(dataset.action == "volume") {
                 const volume_ui = ev.currentTarget.parentNode.querySelector('#volume-value-1');
                 volume_ui.innerText = parseInt(ev.currentTarget.value * 100);
                 if (ev.currentTarget.value > 0) {
@@ -162,17 +155,19 @@ export default class SoundscapeUI extends Application {
 
         utils.log(utils.getCallerInfo(),`Loading dialog for ${this.soundscape.name}`)
 
-        if(currentPlaying.length == 2) {
-            if (currentPlaying[0] == this.soundscape.class.id) {
-                const mood = this.soundscape.class.moods[currentPlaying[1]];
-                if (mood) {
-                    this.currentMood = mood.id;
+        if (Object.keys(this.currentMood).length === 0) {
+            if(currentPlaying.length == 2) {
+                if (currentPlaying[0] == this.soundscape.class.id) {
+                    const mood = this.soundscape.class.moods[currentPlaying[1]];
+                    if (mood) {
+                        this.currentMood = mood.id;
+                    }
                 }
+            } else if(Object.values(this.soundscape.class.moods).length > 0) {
+                this.currentMood = Object.values(this.soundscape.class.moods)[0].id;
+            } else {
+                this.currentMood = {}
             }
-        } else if(Object.values(this.soundscape.class.moods).length > 0) {
-            this.currentMood = Object.values(this.soundscape.class.moods)[0].id;
-        } else {
-            this.currentMood = {}
         }
         return {
             name: this.soundscape.class.name,

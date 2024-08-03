@@ -7,9 +7,9 @@
         <br />
         {{#each moods}}
         {{#if (eq this.id ../activeMood)}}
-        <div class="playlist-track-ctn active" data-mood-name="{{ this.name }}" data-index="0">
+        <div class="playlist-track-ctn active" data-mood-id="{{ this.id }}" data-index="0">
             {{else}}
-            <div class="playlist-track-ctn disabled" data-mood-name="{{ this.name }}" data-index="0">
+            <div class="playlist-track-ctn disabled" data-mood-id="{{ this.id }}" data-index="0">
                 {{/if}}
                 <div class="playlist-btn-play">
                     {{#if (eq this.status "playing")}}
@@ -24,8 +24,8 @@
                     </a>
                     {{/if}}
                 </div>
-                <div class="mood-control playlist-info-track " data-mood-name="{{ this.name }}" data-action="view-mood" >
-                    <a data-mood-name="{{ this.name }}" >{{ this.name
+                <div class="mood-control playlist-info-track " data-mood-id="{{ this.id }}" data-action="view-mood" >
+                    <a data-mood-id="{{ this.id }}" >{{ this.name
                         }}</a>
                 </div>
                 <div class="playlist-btn-play">
@@ -52,9 +52,9 @@
         </div>
         {{#each moods}}
         {{#if (eq this.id ../activeMood)}}
-        <div class="soundboardadv-main mood-active" data-mood-name="{{ this.name }}">
+        <div class="soundboardadv-main mood-active" data-mood-id="{{ this.id }}">
         {{else}}
-            <div class="soundboardadv-main" data-mood-name="{{ this.name }}">
+            <div class="soundboardadv-main" data-mood-id="{{ this.id }}">
         {{/if}}
         
         {{#forSoundType }}

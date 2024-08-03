@@ -252,6 +252,7 @@ export default class Soundscape {
 
         }
         utils.log(utils.getCallerInfo(),`Create new mood ${name}`);
+        console.warn(_soundsConfig.sounds)
         const mood = new MoodConfig(_soundsConfig, this.playlist);
         this.moods[_soundsConfig.id] = mood;
         await this.saveMoodsConfig();
@@ -271,6 +272,8 @@ export default class Soundscape {
                 utils.log(utils.getCallerInfo(),`Previous mood configuration has been retrieved '${moodConfigFile}'`);
                 const response = await fetch(moodConfigFile);
                 const contents = await response.json();
+                // it allows to run name updates once
+                let name_update = true;
                 for(let key in contents) {
                     const moodconfig = contents[key];
                     if (this.moods[moodconfig.id] == null) {
@@ -284,6 +287,16 @@ export default class Soundscape {
                         }
                         this.moods[moodconfig.id] = new MoodConfig(moodconfig, this.playlist, status);
                         await this.moods[moodconfig.id].syncSoundIds(this.soundsConfig);
+                        // update soundscape sound names
+                        if (name_update) {
+                            name_update = false;
+                            for (let i = 0; i < this.soundsConfig.length; i++) {
+                                const sound = this.moods[moodconfig.id].sounds.find(obj => obj.id == this.soundsConfig[i].id);
+                                if (sound) {
+                                    this.soundsConfig[i].name = sound.name;
+                                }
+                            }
+                        }
                     }
                 }
             } catch (error) {
