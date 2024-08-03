@@ -91,7 +91,7 @@ SOUND CONTROL
 */
 .soundscapeadv-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 10px;
   padding: 10px;
   background-color: #fff;
@@ -120,7 +120,9 @@ SOUND CONTROL
 
 .soundscapeadv-element h3 {
   margin: 0 0 10px 0;
-  font-size: 16px;
+  font-size: 10px;
+  border-style:none;
+
 }
 .soundscapeadv-slider-container {
   width: 100%;

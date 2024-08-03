@@ -12,6 +12,7 @@ export default class Soundscape {
     path; // the soundscape path
     status; // it identifies if the soundscape is loaded (with a playlist)
     moodsConfigFile="moods.json";
+    random_idempotency;
 
     constructor(_path, _type=constants.SOUNDSCAPE_TYPE.LOCAL) {
         this.id = foundry.utils.randomID(16);
@@ -20,6 +21,7 @@ export default class Soundscape {
         this.status = "offline";
         this.playlist = null;
         this.soundsConfig = [];
+        this.random_idempotency = [];
         this.name = `${constants.PREFIX}: ${_path.split("/").pop()}`;
         this.moods = {};
     }
@@ -123,7 +125,7 @@ export default class Soundscape {
                 // need to add the sound
                 await this._addSoundToPlaylist(this.soundsConfig[i]);
              } else if (sound.length > 1) {
-                console.warn("remove duplicated sound "+sound[0].path)
+                //console.warn("remove duplicated sound "+sound[0].path)
                 for( let j = 1; j < sound.length; j++) {
                     // double check that still exists
                     const sound_to_remove = this.playlist.sounds.filter(el => el.id == sound[j].id);
@@ -434,6 +436,7 @@ export default class Soundscape {
             this.playlist.playSound(s);
         } else if (sound.type == constants.SOUNDTYPE.RANDOM) {
             this.moods[moodId].enableSound(sound.id);
+            //console.warn(`Request sound scheduler for a random sound ${sound.path}`);
             this.playAfterDuration2([sound], moodId, sound.group, utils.randomWaitTime());
         }
     }
@@ -442,6 +445,7 @@ export default class Soundscape {
         const soundGroup = this.moods[moodId].getSoundByGroup(group);
         if (soundGroup.length > 0) {
             if (soundGroup[0].type == constants.SOUNDTYPE.GROUP_RANDOM) {
+                //console.warn(`Request sound scheduler for a group random sound ${group}`);
                 this.playAfterDuration2(soundGroup, moodId, group, utils.randomWaitTime());
             } else if(soundGroup[0].type == constants.SOUNDTYPE.GROUP_LOOP) {
                 this._playLoopGroup(soundGroup, soundGroup[0].intensity);
@@ -475,18 +479,25 @@ export default class Soundscape {
         }
     }
 
-    async randomSound(sounds,moodId, group, s) {
+    async randomSound(sounds,moodId, group, s, idempotency) {
+        //console.warn(`Time to play the sound ${s.path}`);
         const config = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
         if (config.length == 2) {
             if (config[0] == this.id && config[1] == moodId) {
                 const index = sounds.findIndex(obj => obj.id == s.id);
                 if (sounds[index].status == "on") {
                     await s.load();
-                    s.update({ volume: sounds[index].volume })
+                    s.update({ volume: sounds[index].volume });
+                    //console.warn(`Playing ${s.path}`);
                     this.playlist.playSound(s);
                     await s.load();
                     s.sound.addEventListener('end',
-                        () => this.playAfterDuration2(sounds,moodId, group, utils.randomWaitTime())
+                        () => {
+                            if (this.random_idempotency.includes(idempotency)) {
+                                this.random_idempotency.pop(idempotency);
+                                this.playAfterDuration2(sounds,moodId, group, utils.randomWaitTime()) 
+                            }
+                        }
                     )
                 }
             }
@@ -494,16 +505,25 @@ export default class Soundscape {
     }
 
     async playAfterDuration2(sounds,moodId, group, delay) {
+        //console.warn(`Scheduling a sound to play in ${parseInt(delay/100)} seconds`);
+        const idempotency = foundry.utils.randomID(16);
+        this.random_idempotency.push(idempotency);
         const config = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
         if (config.length == 2) {
             if (config[0] == this.id && config[1] == moodId) {
                 const randomIndex = Math.floor(Math.random() * sounds.length);
                 if (sounds[randomIndex].status == "on") {
                     const s = await this.playlist.sounds.get(sounds[randomIndex].id);
-                    const timeout = new foundry.audio.AudioTimeout(delay, {callback: () => this.randomSound(sounds,moodId, group, s)});
+                    //console.warn(`Creating the Audio Buffer for ${sounds[randomIndex].name} to play in ${parseInt(delay/100)} seconds`);
+                    const timeout = new foundry.audio.AudioTimeout(delay, {callback: () => this.randomSound(sounds,moodId, group, s, idempotency)});
                 }
-            }
-        }
+            } /*else {
+                console.warn(`Stop scheduling due to this soundboard ${this.id} and mood ${moodId} isn't active`);
+                console.warn(config);
+            }*/
+        } /*else {
+            console.warn(`Stop scheduling due to no soundboard/mood is active`);
+        }*/
     }
 
     updateSoundName(soundId, newName) {

@@ -86,8 +86,8 @@ Hooks.once('init', () => {
     })
 
     Handlebars.registerHelper('shortenString', function(str) {
-        if (str && str.length > 8) {
-            return `${str.substring(0, 8)}...`;
+        if (str && str.length > 26) {
+            return `${str.substring(0, 26)}...`;
         }
         return str;
     });
