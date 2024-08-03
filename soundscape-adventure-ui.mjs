@@ -277,8 +277,8 @@ class SoundscapeAdventureUI {
                     a1.className = 'sound-control fa-solid fa-trash';
                     a1.setAttribute('data-action', 'mood-delete');
                     a1.setAttribute('data-tooltip', 'Delete Sound');
-                    a1.setAttribute('data-soundboard-name', sb.name);
-                    a1.setAttribute('data-mood-name', mood.name);
+                    a1.setAttribute('data-soundscape-id', sb.id);
+                    a1.setAttribute('data-mood-id', mood.id);
                     a1.addEventListener('click', (event) => {
                         const dataset = event.currentTarget.dataset;
                         if (dataset.action == "mood-delete") {
@@ -290,8 +290,8 @@ class SoundscapeAdventureUI {
                                     modal: true
                                     }).then(proceed => {
                                         if ( proceed ) { 
-                                            mood_list.removeChild(li);
                                             sb.class.deleteMood(dataset.moodId);
+                                            mood_list.removeChild(li);
                                         }
                                     });
                             }

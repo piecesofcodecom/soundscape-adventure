@@ -51,7 +51,8 @@ class SoundscapeAdventure {
                 this.soundboards[sb.id] = {
                     name: name,
                     path: dir,
-                    class: sb
+                    class: sb,
+                    openUI: false
                 };
             } else {
                 utils.log(utils.getCallerInfo(),`Soundboard ${name} already exisits`);
@@ -99,9 +100,22 @@ class SoundscapeAdventure {
         const sb = this.soundboards[soundscapeId];
         if (sb) {
             const soundboard = new SoundscapeUI(sb);
+            this.soundboards[soundscapeId].openUI = true;
             soundboard.render(true);
         }
     }
+    closeUI(soundscapeId) {
+        console.log(this.soundboards[soundscapeId])
+        this.soundboards[soundscapeId].openUI = false;
+    }
+    refreshSoundscapeUI(soundscapeId) {
+        const sb = this.soundboards[soundscapeId];
+        if (sb.openUI) {
+            this.openSoundboard(soundscapeId);
+        }
+        
+    }
+
     sidebarControls(dataset, value) {
         if (dataset.action == "volume") {
             this.soundboards[dataset.soundboardId].class.changeSoundVolume(dataset.moodId, dataset.soundId, value);

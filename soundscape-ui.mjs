@@ -26,6 +26,14 @@ export default class SoundscapeUI extends Application {
         await super.render(force, options);
     }
 
+    async close(options={}) {
+        
+        SoundscapeAdventure.closeUI(this.soundscape.class.id);
+    
+        // Call the original close method
+        return super.close(options);
+      }
+
     activateListeners(html) {
         super.activateListeners(html);
         html.on('click', '.mood-control', async (ev) => {
@@ -141,7 +149,6 @@ export default class SoundscapeUI extends Application {
             }).render(true);
 
         }
-        
     }
     async updateSound(html) {
         const newName = html.find('[id="soundName"]').val();

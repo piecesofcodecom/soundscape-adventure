@@ -35,7 +35,7 @@ export default class MoodConfig {
         for (let i = 0; i < _sounds.length; i++) {
             const sound = playlist.sounds.find(el => el.path == _sounds[i].path);
             if (!sound) {
-               // need to remove from playlist
+               // need to remove from mood
                _sounds.splice(i, 1);
             }
        }

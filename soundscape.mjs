@@ -1,7 +1,7 @@
 import MoodConfig from "./moodConfig.mjs";
 import constants from "./utils/constants.mjs";
 import utils from "./utils/utils.mjs";
-
+import SoundscapeAdventure from "./soundscape-adventure.mjs";
 export default class Soundscape {
     id;
     name;
@@ -245,7 +245,7 @@ export default class Soundscape {
      */
     async newMood(name, _soundsConfig={}) {
         if (Object.keys(_soundsConfig).length === 0) {
-            _soundsConfig.sounds = this.soundsConfig;
+            _soundsConfig.sounds = this.soundsConfig.slice();
             _soundsConfig.name = name;
             _soundsConfig.id = foundry.utils.randomID(16);
             _soundsConfig.active_groups = [];
@@ -316,7 +316,8 @@ export default class Soundscape {
     async deleteMood(moodId) {
         if (this.moods[moodId]) {
             delete this.moods[moodId];
-            this.saveMoodsConfig();
+            await this.saveMoodsConfig();
+            SoundscapeAdventure.refreshSoundscapeUI(this.id)
         }
     }
     async stopMood(moodId) {
