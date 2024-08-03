@@ -100,23 +100,49 @@ export default class Soundscape {
         await this.saveMoodsConfig();
     }
 
+    async fileExists(path) {
+        try {
+          const result = await FilePicker.browse("data", path);
+          return result.files.length > 0 || result.dirs.length > 0;
+        } catch (e) {
+          //console.error(e);
+          return false;
+        }
+      }
+
     async reScanFolder() {
         await this.init();
         await this.saveMoodsConfig();
-
     }
 
     async _syncPlaylist() {
         // validates all sounds are in the playlist
         for (let i = 0; i < this.soundsConfig.length; i++) {
-             const sound = this.playlist.sounds.find(el => el.path == this.soundsConfig[i].path);
-             if (!sound) {
+             const sound = this.playlist.sounds.filter(el => el.path == this.soundsConfig[i].path);
+             if (sound.length == 0) {
                 // need to add the sound
                 await this._addSoundToPlaylist(this.soundsConfig[i]);
+             } else if (sound.length > 1) {
+                console.warn("remove duplicated sound "+sound[0].path)
+                for( let j = 1; j < sound.length; j++) {
+                    // double check that still exists
+                    const sound_to_remove = this.playlist.sounds.filter(el => el.id == sound[j].id);
+                    if (sound_to_remove) {
+                        await this.playlist.deleteEmbeddedDocuments("PlaylistSound", [sound_to_remove.id]);
+                    }
+                }
              }
         }
 
         // remove sounds that are in the playlist but aren't mapped in the soundsConfig
+        const sounds = Array.from(this.playlist.sounds);
+        for (let i = 0; i < sounds.length; i++) {
+            const sound = this.soundsConfig.find(el => el.path == sounds[i].path);
+            if (!sound) {
+               // need to remove from playlist
+               await this.playlist.deleteEmbeddedDocuments("PlaylistSound", [sounds[i].id]);
+            }
+       }
     }
 
     async _addSoundToPlaylist(newSound) {

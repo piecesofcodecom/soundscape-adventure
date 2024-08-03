@@ -31,7 +31,16 @@ export default class MoodConfig {
         this.active_groups = [];
         this.sounds = [];
         const _sounds = _soundsConfig.sounds.slice();
-        for (let i = 0; i <_sounds.length; i++) {
+        // remove old sounds that aren't in the playlist anymore
+        for (let i = 0; i < _sounds.length; i++) {
+            const sound = playlist.sounds.find(el => el.path == _sounds[i].path);
+            if (!sound) {
+               // need to remove from playlist
+               _sounds.splice(i, 1);
+            }
+       }
+
+       for (let i = 0; i <_sounds.length; i++) {
             const sound = playlist.sounds.find(el => el.path == _sounds[i].path);
             if (sound) {
                 if(_sounds[i].hasOwnProperty('status')) {

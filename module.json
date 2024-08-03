@@ -1,7 +1,8 @@
 {
   "id": "soundscape-adventure",
   "title": "Soundscape Adventure",
-  "version": "1.0.0",
+  "description": "The Soundscape Adventure module for FoundryVTT enhances your tabletop RPG experience by providing dynamic and immersive soundscapes.",
+  "version": "placeholder",
   "compatibility": {
     "minimum": "12",
     "verified": "12"
@@ -13,6 +14,7 @@
       "flags": {}
     }
   ],
+  "bugs": "https://github.com/piecesofcodecom/soundscape-adventure/issues",
   "esmodules": [
     "./settings.mjs",
     "./soundscape-init.mjs"
@@ -20,5 +22,10 @@
   "persistentStorage": true,
   "styles": [
     "./css/soundscape.css"
-  ]
+  ],
+  "url": "https://github.com/piecesofcodecom/soundscape-adventure",
+  "download": "placeholder",
+  "manifest": "placeholder",
+  "readme": "https://github.com/piecesofcodecom/soundscape-adventure/blob/main/README.md",
+  "allowBugReporter": true
 }
