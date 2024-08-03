@@ -174,18 +174,59 @@ class SoundscapeAdventureUI {
         if (this.moodControlsElement.length == 0) {
             this.moodControls = document.createElement("div");
             this.moodControls.id = "mood-controls";
-            this.moodControls.className = "soundboard-control flexrow"; // Add a class to the new div for styling or identification
-            this.moodControls.innerHTML = `<div id="global-volume" class="global-control flexrow ">
-            <header class="playlist-header flexrow">
-                <h4>Current Mood <i class="collapse fa fa-angle-down"></i></h4>
-            </header>
-            <ol class="playlist-sounds">
-            <li style="width: 100%; text: center">when a mood is playing you can control from here</span>
-            </li>
-                
-            </ol>
+            this.moodControls.className = "global-control flexrow"; // Add a class to the new div for styling or identification
             
-        </div>`;
+            // Create the header element with class
+            var header = document.createElement('header');
+            header.className = 'playlist-header flexrow header-extras';
+            header.addEventListener('click', (event) => {
+                if (event.currentTarget.parentNode.className.includes("collapsed")) {
+                    event.currentTarget.parentNode.className = "global-control flexrow";
+                    const icon2 = event.currentTarget.parentNode.querySelector(".collapse");
+                    icon2.className = 'collapse fa fa-angle-down';
+                } else {
+                    event.currentTarget.parentNode.className = "global-control flexrow collapsed";
+                    const icon2 = event.currentTarget.parentNode.querySelector(".collapse");
+                    icon2.className = 'collapse fa fa-angle-up';
+                }
+
+                event.currentTarget.setAttribute('value',event.currentTarget.dataset);
+                SoundscapeAdventure.sidebarControls(event.currentTarget.dataset, event.currentTarget.value)
+            });
+            
+            // Create the h4 element and its content
+            var h4 = document.createElement('h4');
+            h4.textContent = 'Current Mood ';
+            
+            // Create the i element with class and data-action attribute
+            var icon = document.createElement('i');
+            icon.className = 'collapse fa fa-angle-down';
+            icon.setAttribute('data-action', 'mood-controls-collapse');
+            
+            // Append the i element to the h4 element
+            h4.appendChild(icon);
+            
+            // Append the h4 element to the header element
+            header.appendChild(h4);
+            
+            // Append the header element to the div element
+            this.moodControls.appendChild(header);
+            
+            // Create the ol element with class
+            var ol = document.createElement('ol');
+            ol.className = 'playlist-sounds';
+            
+            // Create the li element with style and text
+            var li = document.createElement('li');
+            li.style.width = '100%';
+            li.style.textAlign = 'center';
+            li.textContent = 'when a mood is playing you can control from here';
+            
+            // Append the li element to the ol element
+            ol.appendChild(li);
+            
+            // Append the ol element to the div element
+            this.moodControls.appendChild(ol);
             const globalVolumeElement = html.find("#global-volume");
             if (globalVolumeElement) {
                 globalVolumeElement[0].parentNode.insertBefore(this.moodControls, globalVolumeElement[0].nextSibling);

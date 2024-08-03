@@ -21,6 +21,9 @@ grid-template-rows: 1fr;
 grid-column-gap: 5px;
 grid-row-gap: 0px;
 }
+.header-extras {
+  background-color: rgba(0,0,0,0.1);
+}
 .playlists-sidebar li.mood {
 margin: 2px 0;
 padding: 0;
