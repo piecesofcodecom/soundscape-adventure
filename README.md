@@ -57,7 +57,7 @@ Contributions are welcome! If you have suggestions, bug reports, or feature requ
 
 ## License
 
-This module is licensed under the MIT License. See the [LICENSE](#) file for more information.
+This module is licensed under the GPL 3.0 License. See the [LICENSE](https://github.com/piecesofcodecom/soundscape-adventure/blob/main/LICENSE) file for more information.
 
 ---
 
