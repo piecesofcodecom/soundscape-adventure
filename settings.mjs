@@ -24,7 +24,7 @@ Hooks.once('init', () => {
       scope: 'world',     // This specifies that the setting is stored at the world level
       config: true,       // This specifies that the setting should appear in the settings configuration UI
       type: String,       // The type of data that is stored (String, Number, Boolean, etc.)
-      default: "",  // The default value of the setting
+      default: "modules/soundscape-adventure/root-soundscapes",  // The default value of the setting
       filePicker: "folder",
       requiresReload: true,
     });
@@ -40,24 +40,6 @@ Hooks.once('init', () => {
 
   
 
-
-  /*async function configureRootFolder() {
-    return new Promise((resolve, reject) => {
-        new FilePicker({
-          type: "folder",
-          callback: (path) => {
-            if (path) {
-              resolve(path);
-             game.settings.set('soundscape-adventure', 'root-folder', this.path);
-            } else {
-              reject("No folder selected");
-            }
-          },
-          top: 100,    // Position the file picker at the top
-          left: 100,   // Position the file picker at the left
-        }).render(true);
-      });
-}*/
 
 // Function to open the file picker for folder selection and return a Promise
 async function selectFolder() {
@@ -119,15 +101,11 @@ async function selectFolder() {
 async function handleFolderSelection() {
   try {
     const rootFolder = game.settings.get('soundscape-adventure', 'root-folder');
-    if (rootFolder.trim().length == 0) {
+    if (rootFolder.trim().length == 0 || rootFolder == "modules/soundscape-adventure/root-soundscapes") {
       await selectFolder();
-      /*game.settings.set('soundscape-adventure', 'root-folder', selectedFolder).then(updatedValue => {
-        location.reload();
-      });*/
     }
   } catch (error) {
     console.error(error);
-    // Handle any errors or cancellations
   }
 }
 
