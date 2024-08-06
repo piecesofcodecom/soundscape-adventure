@@ -25,7 +25,6 @@ Hooks.on('SBAdventureNewMood', (moodName, mood) => {
 
 Hooks.on('SBAdventure-PlayingMood', (soundboardName, moodName, mood) => {
     /*if (sidebar instanceof PlaylistDirectory) {*/
-    //alert("asd")
     SoundscapeAdventureUI.updateMoodControlsUI(soundboardName, moodName, mood);
     /*}*/
 });
@@ -37,7 +36,6 @@ Hooks.on('SoundscapeAdventure-ChangeSoundVolume', (id, moodId, mood) => {
 
 /** AFTER LOAD and Heandlebars */
 Hooks.once('init', () => {
-
     // Register a custom helper named 'customLoop'
     Handlebars.registerHelper('eachSoundType', function (array, type, options) {
         let result = '';

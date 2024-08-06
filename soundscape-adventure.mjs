@@ -6,6 +6,7 @@ import Soundscape from "./soundscape.mjs";
 class SoundscapeAdventure {
     path;
     soundboards = {};
+    globalSoundscape = {};
 
     constructor() {
         if (SoundscapeAdventure.instance) {
@@ -39,25 +40,42 @@ class SoundscapeAdventure {
     async loadConfiguration() {
         utils.log(utils.getCallerInfo(),`Scanning folders within ${this.path}`);
         const folder = await FilePicker.browse('data', this.path, { recursive: true });
+        this.globalSoundscape = await this.getGlobalConfiguration();
         for (const dir of folder.dirs) {
             utils.log(utils.getCallerInfo(),`Found folder ${dir}`);
             const name = `${constants.PREFIX}: ${dir.split("/").pop()}`;
-            const soundboard = this.findSoundscapeByName(name);
-            if (!soundboard) {
-                utils.log(utils.getCallerInfo(),`Soundboard ${name} not found`); 
-                utils.log(utils.getCallerInfo(),`Adding soundboard '${name}' from ${dir}`);
-                const sb = new Soundscape(dir);
-                await sb.init();
-                this.soundboards[sb.id] = {
-                    name: name,
-                    path: dir,
-                    class: sb,
-                    openUI: false
-                };
-            } else {
-                utils.log(utils.getCallerInfo(),`Soundboard ${name} already exisits`);
+            if (name != `${constants.PREFIX}: Global`) {
+                const soundboard = this.findSoundscapeByName(name);
+                if (!soundboard) {
+                    utils.log(utils.getCallerInfo(),`Soundboard ${name} not found`); 
+                    utils.log(utils.getCallerInfo(),`Adding soundboard '${name}' from ${dir}`);
+                    const sb = new Soundscape(dir);
+                    await sb.init(this.globalSoundscape.soundsConfig);
+                    this.soundboards[sb.id] = {
+                        name: name,
+                        path: dir,
+                        class: sb,
+                        openUI: false
+                    };
+                } else {
+                    utils.log(utils.getCallerInfo(),`Soundboard ${name} already exisits`);
+                }
             }
         }
+    }
+
+    async getGlobalConfiguration() {
+        try {
+            // Attempt to browse the given path using FilePicker
+            const result = await FilePicker.browse("data", `${this.path}/Global`);
+            console.log(`Global soundscape exists`);
+            const sb = new Soundscape(`${this.path}/Global`);
+            await sb.init();
+            return sb;
+          } catch (error) {
+            // there is no global sounds
+            return { soundsConfig: [] };
+          }
     }
 
     async scanFiles(id) {

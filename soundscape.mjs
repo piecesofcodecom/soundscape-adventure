@@ -28,7 +28,7 @@ export default class Soundscape {
 
     /** Soundscape configuration */
 
-    async init() {
+    async init(globalSounds = []) {
         if (this.type == constants.SOUNDSCAPE_TYPE.LOCAL) {
             // if there is a playlist with same name, we initialize the soundscape
             for(let i=0; i < game.playlists._source.length; i++) {
@@ -49,7 +49,11 @@ export default class Soundscape {
                     }
                 }
             }
-            await this.init_local()
+            for (let i=0; i < globalSounds.length; i++) {
+                this._newLocalSound(globalSounds[i].name, globalSounds[i].path, globalSounds[i].type, globalSounds[i].group);
+            }
+            
+            await this.init_local();
         } else {
             utils.log(utils.getCallerInfo(),`The type '${this.type}' isn't implemented yet`, constants.LOGLEVEL.ERROR);
         }
@@ -187,7 +191,9 @@ export default class Soundscape {
         try {
             const subfolder = await FilePicker.browse('data', path, { recursive: true });
             for (const file of subfolder.files) {
-                if (file.includes(".mp3")) {
+                const re = /(\.mp3|\.ogg)$/i;
+                if (re.exec(file)) {
+                //if (file.includes(".mp3")) {
                     if (type == constants.SOUNDTYPE.GROUP_LOOP || type == constants.SOUNDTYPE.GROUP_RANDOM) {
                         await this._newLocalSound(file.split("/").pop(), file, type, path.split("/").pop());
                     } else {
@@ -198,7 +204,7 @@ export default class Soundscape {
             if (type == constants.SOUNDTYPE.LOOP || type == constants.SOUNDTYPE.RANDOM) {
                 const subfolderType = (type == constants.SOUNDTYPE.LOOP) ? constants.SOUNDTYPE.GROUP_LOOP : constants.SOUNDTYPE.GROUP_RANDOM;
                 for (const dir of subfolder.dirs) {
-                    this._loadLocalSounds(dir, subfolderType);
+                    await this._loadLocalSounds(dir, subfolderType);
                 }
             }
         } catch (error) {
@@ -252,7 +258,6 @@ export default class Soundscape {
 
         }
         utils.log(utils.getCallerInfo(),`Create new mood ${name}`);
-        console.warn(_soundsConfig.sounds)
         const mood = new MoodConfig(_soundsConfig, this.playlist);
         this.moods[_soundsConfig.id] = mood;
         await this.saveMoodsConfig();

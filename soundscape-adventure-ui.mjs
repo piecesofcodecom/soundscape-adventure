@@ -262,9 +262,9 @@ class SoundscapeAdventureUI {
                     sb.isPlaying = false;
                     await sb.class.stopAll();
                 }
-                utils.log(utils.getCallerInfo(),`Playlist ${play.name} associated to the soundboard '${sb.name}'`);
-                sb.playlistId = play.dataset.documentId;
-                sb.class.playlistId = play.dataset.documentId;
+                utils.log(utils.getCallerInfo(),`Playlist ${pl.name} associated to the soundboard '${sb.name}'`);
+                sb.playlistId = pl.id;
+                sb.class.playlistId = pl.id;
                 sb.class.playlist = pl;
                 sb.status = "online";
                 const controls = play.querySelector('.playlist-controls');
@@ -444,10 +444,20 @@ class SoundscapeAdventureUI {
             `;
 
         // Create and render the dialog
-        new Dialog({
-            title: "Load Soundboard",
+        //game.settings.set('soundscape-adventure', 'root-folder', "");
+        foundry.applications.api.DialogV2.prompt({
+            window: { title: "Load Soundboard" },
             content: content,
-            buttons: {
+            ok: {
+                icon: "fas fa-check",
+                    label: "Create",
+                    callback: async (event, button, dialog) => {
+                        const soundboardId = button.form.elements.playlist.value;
+                        await SoundscapeAdventure.loadOfflineSoundboard(soundboardId);
+                        ui.notifications.warn(soundboardId);
+                    }
+            },
+            /*buttons: {
                 create: {
                     icon: '<i class="fas fa-check"></i>',
                     label: "Create",
@@ -461,9 +471,9 @@ class SoundscapeAdventureUI {
                     icon: '<i class="fas fa-times"></i>',
                     label: "Cancel"
                 }
-            },
+            },*/
             default: "create"
-        }).render(true);
+        });
     }
 }
 

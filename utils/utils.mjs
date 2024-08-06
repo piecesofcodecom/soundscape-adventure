@@ -45,7 +45,7 @@ function randomWaitTime() {
     //const from = 1000; // 1 sec 
     const from = 10000; // 10 sec 
     const to = 60000; // 60 sec
-    //return from;
+    return from;
     return Math.floor(Math.random() * (to - from + 1) + from)
 }
 
