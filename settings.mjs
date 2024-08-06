@@ -101,7 +101,7 @@ async function selectFolder() {
 async function handleFolderSelection() {
   try {
     const rootFolder = game.settings.get('soundscape-adventure', 'root-folder');
-    if (rootFolder.trim().length == 0 || rootFolder == "modules/soundscape-adventure/sample-root-soundscapes") {
+    if (rootFolder.trim().length == 0 || rootFolder.trim() == "modules/soundscape-adventure/sample-root-soundscapes") {
       await selectFolder();
     }
   } catch (error) {
