@@ -80,7 +80,7 @@ To configure these sounds, create a folder within the respective folders. To cre
 
 ### Using Global Sounds
 
-The soundboard also allows you to have global sounds. Organize the global sounds like a soundscape, naming the folder "global." Soundscape Adventure will automatically share the sounds within the global folder to all soundscapes.
+The soundboard also allows you to have global sounds. Organize the global sounds like a soundscape, naming the folder "Global" (capital G) Soundscape Adventure will automatically share the sounds within the global folder to all soundscapes.
 
 ### Conclusion
 
