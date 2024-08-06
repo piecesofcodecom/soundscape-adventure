@@ -24,7 +24,7 @@ Hooks.once('init', () => {
       scope: 'world',     // This specifies that the setting is stored at the world level
       config: true,       // This specifies that the setting should appear in the settings configuration UI
       type: String,       // The type of data that is stored (String, Number, Boolean, etc.)
-      default: "modules/soundscape-adventure/root-soundscapes",  // The default value of the setting
+      default: "modules/soundscape-adventure/sample-root-soundscapes",  // The default value of the setting
       filePicker: "folder",
       requiresReload: true,
     });
@@ -101,7 +101,7 @@ async function selectFolder() {
 async function handleFolderSelection() {
   try {
     const rootFolder = game.settings.get('soundscape-adventure', 'root-folder');
-    if (rootFolder.trim().length == 0 || rootFolder == "modules/soundscape-adventure/root-soundscapes") {
+    if (rootFolder.trim().length == 0 || rootFolder == "modules/soundscape-adventure/sample-root-soundscapes") {
       await selectFolder();
     }
   } catch (error) {
