@@ -2,7 +2,8 @@
 
 Welcome to the Soundscape Adventure tutorial! In this guide, we will cover how the module works, initial configuration, creating soundscapes, setting up moods, and creating sounds that can be used by all soundscapes.
 
-You can find a complete example of a soundscape within the module folder, in the folder named `root-soundscapes`.
+> [!IMPORTANT]  
+> You can find a complete example of a soundscape within the module folder, in the folder named `root-soundscapes`.
 
 ### How the Module Works
 
