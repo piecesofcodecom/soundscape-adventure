@@ -71,7 +71,7 @@ async function selectFolder() {
       window: { title: "Soundscape Adventure Directory Setup" },
       content: `
         <p>Welcome to the Soundscape Adventure!</p>
-        <p>Please select the root folder for your soundscapes. If you are new to this module, consider read <a href="http://adsad.com">the tutorial</a> before proceed.</p>
+        <p>Please select the root folder for your soundscapes. If you are new to this module, consider read <a href="https://github.com/piecesofcodecom/soundscape-adventure/blob/main/TUTORIAL.md">the tutorial</a> before proceed.</p>
         <br /><br />
         <div class="form-group">
           <label>Selected Folder:</label>
