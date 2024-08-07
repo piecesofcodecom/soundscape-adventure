@@ -60,6 +60,7 @@ Contributions are welcome! If you have suggestions, bug reports, or feature requ
 ## License
 
 This module is licensed under the GPL 3.0 License. See the [LICENSE](https://github.com/piecesofcodecom/soundscape-adventure/blob/main/LICENSE) file for more information.
+The sounds available in the sample folder (sample-root-soundscapes) are from [Pixabay](http://www.pixabay.com) and the GPL doesn't apply to those sounds, please visit the [Pixabay license summary](https://pixabay.com/service/license-summary/) for more details. They have many sounds that you can use in your games.
 
 ---
 
