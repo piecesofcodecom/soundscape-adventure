@@ -111,7 +111,6 @@ export default class Soundscape {
           const result = await FilePicker.browse("data", path);
           return result.files.length > 0 || result.dirs.length > 0;
         } catch (e) {
-          //console.error(e);
           return false;
         }
       }
@@ -121,6 +120,9 @@ export default class Soundscape {
         await this.saveMoodsConfig();
     }
 
+    //TODO sync playlist needs to be within the moodConfig
+    // in the future, drag and drop will allow moods to have
+    /// sounds from other soundscapes
     async _syncPlaylist() {
         // validates all sounds are in the playlist
         for (let i = 0; i < this.soundsConfig.length; i++) {
@@ -129,12 +131,11 @@ export default class Soundscape {
                 // need to add the sound
                 await this._addSoundToPlaylist(this.soundsConfig[i]);
              } else if (sound.length > 1) {
-                //console.warn("remove duplicated sound "+sound[0].path)
                 for( let j = 1; j < sound.length; j++) {
                     // double check that still exists
-                    const sound_to_remove = this.playlist.sounds.filter(el => el.id == sound[j].id);
+                    const sound_to_remove = this.playlist.sounds.find(el => el.id == sound[j].id);
                     if (sound_to_remove) {
-                        await this.playlist.deleteEmbeddedDocuments("PlaylistSound", [sound_to_remove.id]);
+                        await this.playlist.deleteEmbeddedDocuments("PlaylistSound", [sound_to_remove._id]);
                     }
                 }
              }
@@ -160,7 +161,7 @@ export default class Soundscape {
         utils.log(utils.getCallerInfo(),`Creating playlist '${this.name}'`);
         let newPlaylistData = {
             name: this.name,
-            description: "This is a playlist managed by SBAdventure",
+            description: "This is a playlist managed by Soundscape Adventure",
             folder: null,  // If you have a specific folder, provide its ID
             sorting: "a",  // Sorting method: "a" for alphabetic, "m" for manual
             mode: 2,  // Play mode: 0 for sequential, 1 for shuffle, 2 for simultaneous
@@ -460,7 +461,6 @@ export default class Soundscape {
             this.playlist.playSound(s);
         } else if (sound.type == constants.SOUNDTYPE.RANDOM) {
             this.moods[moodId].enableSound(sound.id);
-            //console.warn(`Request sound scheduler for a random sound ${sound.path}`);
             this.playAfterDuration2([sound], moodId, sound.group, utils.randomWaitTime());
         }
     }
@@ -469,7 +469,6 @@ export default class Soundscape {
         const soundGroup = this.moods[moodId].getSoundByGroup(group);
         if (soundGroup.length > 0) {
             if (soundGroup[0].type == constants.SOUNDTYPE.GROUP_RANDOM) {
-                //console.warn(`Request sound scheduler for a group random sound ${group}`);
                 this.playAfterDuration2(soundGroup, moodId, group, utils.randomWaitTime());
             } else if(soundGroup[0].type == constants.SOUNDTYPE.GROUP_LOOP) {
                 this._playLoopGroup(soundGroup, soundGroup[0].intensity);
@@ -504,7 +503,6 @@ export default class Soundscape {
     }
 
     async randomSound(sounds,moodId, group, s, idempotency) {
-        //console.warn(`Time to play the sound ${s.path}`);
         const config = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
         if (config.length == 2) {
             if (config[0] == this.id && config[1] == moodId) {
@@ -512,7 +510,6 @@ export default class Soundscape {
                 if (sounds[index].status == "on") {
                     await s.load();
                     s.update({ volume: sounds[index].volume });
-                    //console.warn(`Playing ${s.path}`);
                     this.playlist.playSound(s);
                     await s.load();
                     s.sound.addEventListener('end',
@@ -529,7 +526,6 @@ export default class Soundscape {
     }
 
     async playAfterDuration2(sounds,moodId, group, delay) {
-        //console.warn(`Scheduling a sound to play in ${parseInt(delay/100)} seconds`);
         const idempotency = foundry.utils.randomID(16);
         this.random_idempotency.push(idempotency);
         const config = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
@@ -538,16 +534,10 @@ export default class Soundscape {
                 const randomIndex = Math.floor(Math.random() * sounds.length);
                 if (sounds[randomIndex].status == "on") {
                     const s = await this.playlist.sounds.get(sounds[randomIndex].id);
-                    //console.warn(`Creating the Audio Buffer for ${sounds[randomIndex].name} to play in ${parseInt(delay/100)} seconds`);
                     const timeout = new foundry.audio.AudioTimeout(delay, {callback: () => this.randomSound(sounds,moodId, group, s, idempotency)});
                 }
-            } /*else {
-                console.warn(`Stop scheduling due to this soundboard ${this.id} and mood ${moodId} isn't active`);
-                console.warn(config);
-            }*/
-        } /*else {
-            console.warn(`Stop scheduling due to no soundboard/mood is active`);
-        }*/
+            }
+        }
     }
 
     updateSoundName(soundId, newName) {

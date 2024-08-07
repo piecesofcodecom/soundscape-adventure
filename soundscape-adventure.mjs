@@ -34,7 +34,7 @@ class SoundscapeAdventure {
             return this.soundboards[key];
           }
         }
-        return null; // Return null if no element is found
+        return null;
       }
 
     async loadConfiguration() {

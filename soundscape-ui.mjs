@@ -9,7 +9,7 @@ export default class SoundscapeUI extends Application {
 
     static get defaultOptions() {
         const options = super.defaultOptions;
-        options.title = "🔊 Soundscape name", //`🔊${game.i18n.localize('SOUNDBOARD.app.title')}`;
+        options.title = "🔊 Soundscape name",
         options.id = 'soundscape-app';
         options.template = 'modules/soundscape-adventure/templates/soundscape.hbs';
         options.width = 1050;

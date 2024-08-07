@@ -116,7 +116,8 @@ export default class MoodConfig {
     }
 
     getSound(soundId) {
-        return this.sounds.find(obj => obj.id == soundId);
+        const sound = this.sounds.find(obj => obj.id == soundId);
+        return sound;
     }
     getSoundByGroup(group) {
         return this.sounds.filter(obj => obj.group == group);

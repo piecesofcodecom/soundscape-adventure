@@ -1,9 +1,7 @@
 import SoundscapeAdventure from "./soundscape-adventure.mjs";
 import utils from './utils/utils.mjs';
 import constants from "./utils/constants.mjs";
-//FIXME Implementar confirmacao antes de deletar mood
 class SoundscapeAdventureUI {
-    //playlists;
     constructor() {
         if (SoundscapeAdventureUI.instance) {
             return SoundscapeAdventureUI.instance;
@@ -272,7 +270,7 @@ class SoundscapeAdventureUI {
                 const newControl = document.createElement('a');
                 newControl.classList.add('soundboard-control', 'fa-solid', 'fa-speaker');
                 newControl.dataset.action = 'sound-create';
-                newControl.dataset.tooltip = 'PLAYLIST.SoundCreate';
+                newControl.dataset.tooltip = 'Open Soundscape';
                 newControl.dataset.soundboardId = sb.class.id;
                 newControl.addEventListener('click', (event) => {
                     SoundscapeAdventure.openSoundboard(event.currentTarget.dataset.soundboardId)
@@ -281,7 +279,7 @@ class SoundscapeAdventureUI {
                 const newControl2 = document.createElement('a');
                 newControl2.classList.add('soundboard-control', 'fa-solid', 'fa-rotate-right');
                 newControl2.dataset.action = 'sound-reload';
-                newControl2.dataset.tooltip = 'Reload Soundboard';
+                newControl2.dataset.tooltip = 'Reload Soundscape';
                 newControl2.dataset.soundboardId = sb.class.id;
                 newControl2.addEventListener('click', (event) => {
                     SoundscapeAdventure.scanFiles(event.currentTarget.dataset.soundboardId);
@@ -317,7 +315,7 @@ class SoundscapeAdventureUI {
                     let a1 = document.createElement('a');
                     a1.className = 'sound-control fa-solid fa-trash';
                     a1.setAttribute('data-action', 'mood-delete');
-                    a1.setAttribute('data-tooltip', 'Delete Sound');
+                    a1.setAttribute('data-tooltip', 'Delete Mood');
                     a1.setAttribute('data-soundscape-id', sb.id);
                     a1.setAttribute('data-mood-id', mood.id);
                     a1.addEventListener('click', (event) => {
@@ -329,12 +327,12 @@ class SoundscapeAdventureUI {
                                     content: "Are you sure?",
                                     rejectClose: false,
                                     modal: true
-                                    }).then(proceed => {
-                                        if ( proceed ) { 
-                                            sb.class.deleteMood(dataset.moodId);
-                                            mood_list.removeChild(li);
-                                        }
-                                    });
+                                }).then(proceed => {
+                                    if ( proceed ) { 
+                                        sb.class.deleteMood(dataset.moodId);
+                                        mood_list.removeChild(li);
+                                    }
+                                });
                             }
                         }
                     });
@@ -344,12 +342,12 @@ class SoundscapeAdventureUI {
                     if (currentPlaying.soundboard == sb.class.id && currentPlaying.mood == mood.id) {
                         a2.className = 'soundboard-control fas fa-stop';
                         a2.setAttribute('data-action', 'sound-stop');
-                        a2.setAttribute('data-tooltip', 'PLAYLIST.SoundStop');
+                        a2.setAttribute('data-tooltip', 'Stop Mood');
                         this.updateMoodControlsUI(sb.class.id, mood.id, mood);
                     } else {
                         a2.className = 'soundboard-control fas fa-play';
                         a2.setAttribute('data-action', 'sound-play');
-                        a2.setAttribute('data-tooltip', 'PLAYLIST.SoundPlay');
+                        a2.setAttribute('data-tooltip', 'Play Mood');
                     }
                     
                     a2.setAttribute('data-soundboard-id', sb.class.id);
@@ -358,7 +356,6 @@ class SoundscapeAdventureUI {
                         const dataset = event.currentTarget.dataset;
                         if (dataset.action == "sound-play") {
                             if(sb) {
-                                // TODO se tem outra tocando, precisa parar
                                 sb.class.playMood(dataset.moodId);
                                 const md = sb.class.moods[dataset.moodId];
                                 if(md) {
@@ -444,7 +441,6 @@ class SoundscapeAdventureUI {
             `;
 
         // Create and render the dialog
-        //game.settings.set('soundscape-adventure', 'root-folder', "");
         foundry.applications.api.DialogV2.prompt({
             window: { title: "Load Soundboard" },
             content: content,
@@ -457,21 +453,6 @@ class SoundscapeAdventureUI {
                         ui.notifications.warn(soundboardId);
                     }
             },
-            /*buttons: {
-                create: {
-                    icon: '<i class="fas fa-check"></i>',
-                    label: "Create",
-                    callback: async (html) => {
-                        const soundboardId = html.find('[name="playlist"]').val();
-                        await SoundscapeAdventure.loadOfflineSoundboard(soundboardId);
-                        ui.notifications.warn(soundboardId);
-                    }
-                },
-                cancel: {
-                    icon: '<i class="fas fa-times"></i>',
-                    label: "Cancel"
-                }
-            },*/
             default: "create"
         });
     }

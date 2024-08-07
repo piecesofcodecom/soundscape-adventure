@@ -29,14 +29,14 @@ function log(info, message, level = constants.LOGLEVEL.INFO, error = "") {
     if (log_enabled) {
         switch (level) {
             case constants.LOGLEVEL.ERROR:
-                console.error(`(${init_message}) Filename: (${info.filename}), Line: ${info.line}, Column: ${info.column}`, message, error);
+                console.error(`(${init_message}) Filename: (${info.filename}):`, message, error);
                 break;
             case constants.LOGLEVEL.WARN:
-                console.warn(`(${init_message}) Filename: ${info.filename}, Line: ${info.line}, Column: ${info.column}`, message, error);
+                console.warn(`(${init_message}) Filename: ${info.filename}:${info.line}`, message, error);
                 break;
             case constants.LOGLEVEL.INFO:
             default:
-                console.info(`(${init_message}) Filename: ${info.filename}, Line: ${info.line}, Column: ${info.column}`, message, error);
+                console.info(`(${init_message}) Filename: ${info.filename}:${info.line}`, message, error);
         }
     }
 }
