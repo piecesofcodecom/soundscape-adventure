@@ -2,7 +2,7 @@
 [![Current Version](https://img.shields.io/github/v/release/piecesofcodecom/soundscape-adventure?style=for-the-badge&label=Current%20Version)]() [![Latest Release Download Count](https://img.shields.io/github/downloads/piecesofcodecom/soundscape-adventure/latest/module.zip?label=Downloads&style=for-the-badge)]() [![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fsoundscape-adventure&colorB=03ff1c&style=for-the-badge)](https://forge-vtt.com/bazaar#package=soundscape-adventure)
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/snagov)
-![](./logo.webp)
+
 ## Overview
 
 The Soundscape Adventure module for FoundryVTT enhances your tabletop RPG experience by providing dynamic and immersive soundscapes. This module automates the organization and playback of ambient, random, and looped sounds, allowing you to create rich audio environments with minimal effort.
