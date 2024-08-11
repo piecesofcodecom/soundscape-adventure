@@ -56,7 +56,11 @@ Hooks.once('init', () => {
                             type: el.type,
                             volume: el.volume,
                             group: el.group,
-                            intensity: el.intensity
+                            intensity: el.intensity,
+                            fadeIn: el.fadeIn,
+                            fadeOut: el.fadeOut,
+                            from: el.from,
+                            to: el.to
                         })
                     }
                 }
@@ -80,7 +84,7 @@ Hooks.once('init', () => {
     });
 
     Handlebars.registerHelper('volumeUI', function(volume) {
-        return volume * 100;
+        return parseInt(volume * 100) + "%";
     })
 
     Handlebars.registerHelper('shortenString', function(str) {
@@ -108,11 +112,11 @@ Hooks.once('init', () => {
             title: "Random",
             code: constants.SOUNDTYPE.RANDOM
         });
-        /*result += options.fn({
+        result += options.fn({
             name: "none",
             title: "Soundpad",
             code: constants.SOUNDTYPE.SOUNDPAD
-        });*/
+        });
         return result;
     });
 

@@ -1,3 +1,5 @@
+import constants from "./utils/constants.mjs";
+import utils from "./utils/utils.mjs";
 class SoundConfig {
     
     constructor(obj) {
@@ -13,6 +15,12 @@ class SoundConfig {
         this.type = obj.type
         this.group = obj.group
         this.intensity = obj.intensity
+        this.to = Object.hasOwn(obj, 'to') ? obj.to : 60,
+        this.from = Object.hasOwn(obj, 'from') ? obj.from : 10,
+        this.fadeIn = Object.hasOwn(obj, 'fadeIn') ? obj.fadeIn : 0,
+        this.fadeOut = Object.hasOwn(obj, 'fadeOut') ? obj.fadeOut : 0,
+        this.playOnce = Object.hasOwn(obj, 'playOnce') ? obj.playOnce : false
+        this.category = Object.hasOwn(obj, 'category') ? obj.category : ""
     }
 }
 
@@ -31,18 +39,10 @@ export default class MoodConfig {
         this.active_groups = [];
         this.sounds = [];
         const _sounds = _soundsConfig.sounds.slice();
-        // remove old sounds that aren't in the playlist anymore
-        for (let i = 0; i < _sounds.length; i++) {
-            const sound = playlist.sounds.find(el => el.path == _sounds[i].path);
-            if (!sound) {
-               // need to remove from mood
-               _sounds.splice(i, 1);
-            }
-       }
-
-       for (let i = 0; i <_sounds.length; i++) {
+        for (let i = 0; i <_sounds.length; i++) {
             const sound = playlist.sounds.find(el => el.path == _sounds[i].path);
             if (sound) {
+                _sounds[i].id = sound.id;
                 if(_sounds[i].hasOwnProperty('status')) {
                     if (_sounds[i].status == "on") {
                         this.sounds.push(new SoundConfig(_sounds[i]));
@@ -53,14 +53,51 @@ export default class MoodConfig {
                     _sounds[i].status = "off";
                     this.sounds.push(new SoundConfig(_sounds[i]));
                 }
+            } else {
+                utils.log("Sound doesn't exist in the playlist yet", constants.LOGLEVEL.ERROR)
+            }
+        }
+        this.consistence();
+    }
+
+    // validate files for sounds in the mood exist
+    async consistence() {
+        for (let i=0; i < this.sounds.length; i++) {
+            const fileExists = await this.validateFileExists(this.sounds[i].path);
+            if (!fileExists) {
+                // Remove the item from the array
+                this.sounds.splice(i, 1);
+                i--; // Adjust index after removal
             }
         }
     }
 
-    // sync sound in the mood with available sounds
-    // old sounds are not populated in the contructor
-    // no need to remove those
-    syncSoundIds(soundsConfig) {
+    async validateFileExists(filePath) {
+        const directory = filePath.substring(0, filePath.lastIndexOf('/'));
+        const fileName = filePath.substring(filePath.lastIndexOf('/') + 1);
+      
+        try {
+          const result = await FilePicker.browse("data", directory);
+
+          if (result.files.includes(filePath)) {
+            return true;
+          } else {
+            return false;
+          }
+        } catch (error) {
+          return false;
+        }
+      }
+
+    // adds to the playlist custom sounds
+    // sounds that aren't part of the folder
+    async updatePlaylist(playlist) {
+        utils.log("Not implemented yet", constants.LOGLEVEL.INFO);
+    }
+
+    // sync sound within the folder
+    // add new sounds
+    async syncFolderSounds(soundsConfig) {
         // add new sounds
         for (let i = 0; i < soundsConfig.length; i++) {
             const sound = this.sounds.find(el => el.path == soundsConfig[i].path);
@@ -76,14 +113,17 @@ export default class MoodConfig {
                     repeat: soundsConfig[i].repeat,
                     volume: soundsConfig[i].volume,
                     type: soundsConfig[i].type,
-                    group: soundsConfig[i].group,
-                    intensity: soundsConfig[i].intensity
+                    intensity: soundsConfig[i].intensity,
+                    to: Object.hasOwn(soundsConfig[i], 'to') ? soundsConfig[i].to : 60,
+                    from: Object.hasOwn(soundsConfig[i], 'from') ? soundsConfig[i].from : 10,
+                    fadeIn: Object.hasOwn(soundsConfig[i], 'fadeIn') ? soundsConfig[i].fadeIn : 0,
+                    fadeOut: Object.hasOwn(soundsConfig[i], 'fadeOut') ? soundsConfig[i].fadeOut : 0,
+                    playOnce: Object.hasOwn(soundsConfig[i], 'playOnce') ? soundsConfig[i].playOnce : false,
+                    category: Object.hasOwn(soundsConfig[i], 'category') ? soundsConfig[i].category : ""
                 }));
-            } else {
-                sound.id = soundsConfig[i].id;
-                sound._id = soundsConfig[i]._id;
             }
         }
+        await this.consistence();
     }
 
     isSoundOn(soundId) {

@@ -23,9 +23,18 @@
   "styles": [
     "./css/soundscape.css"
   ],
+  "media": [
+      {
+        "type": "setup",
+        "url": "./modules/soundscape-adventure/logo.webp",
+        "thumbnail": "./modules/soundscape-adventure/logo.webp"
+      }
+    ],
   "url": "https://github.com/piecesofcodecom/soundscape-adventure",
   "download": "placeholder",
   "manifest": "placeholder",
   "readme": "https://github.com/piecesofcodecom/soundscape-adventure/blob/main/README.md",
-  "allowBugReporter": true
+  "flags": {
+    "allowBugReporter": true
+  }
 }

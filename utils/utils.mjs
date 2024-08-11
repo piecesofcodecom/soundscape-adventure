@@ -41,11 +41,9 @@ function log(info, message, level = constants.LOGLEVEL.INFO, error = "") {
     }
 }
 
-function randomWaitTime() {
-    //const from = 1000; // 1 sec 
-    const from = 10000; // 10 sec 
-    const to = 60000; // 60 sec
-    return from;
+function randomWaitTime(_from, _to) {
+    const from = _from * 1000; 
+    const to = _to * 1000;
     return Math.floor(Math.random() * (to - from + 1) + from)
 }
 

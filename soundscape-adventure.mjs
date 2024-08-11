@@ -7,6 +7,7 @@ class SoundscapeAdventure {
     path;
     soundboards = {};
     globalSoundscape = {};
+    ui_soundscape_messages = [];
 
     constructor() {
         if (SoundscapeAdventure.instance) {
@@ -39,7 +40,7 @@ class SoundscapeAdventure {
 
     async loadConfiguration() {
         utils.log(utils.getCallerInfo(),`Scanning folders within ${this.path}`);
-        const folder = await FilePicker.browse('data', this.path, { recursive: true });
+        const folder = await FilePicker.browse('data', this.path, { recursive: false });
         this.globalSoundscape = await this.getGlobalConfiguration();
         for (const dir of folder.dirs) {
             utils.log(utils.getCallerInfo(),`Found folder ${dir}`);
@@ -55,7 +56,7 @@ class SoundscapeAdventure {
                         name: name,
                         path: dir,
                         class: sb,
-                        openUI: false
+                        openUI: null
                     };
                 } else {
                     utils.log(utils.getCallerInfo(),`Soundboard ${name} already exisits`);
@@ -68,7 +69,6 @@ class SoundscapeAdventure {
         try {
             // Attempt to browse the given path using FilePicker
             const result = await FilePicker.browse("data", `${this.path}/Global`);
-            console.log(`Global soundscape exists`);
             const sb = new Soundscape(`${this.path}/Global`);
             await sb.init();
             return sb;
@@ -81,6 +81,7 @@ class SoundscapeAdventure {
     async scanFiles(id) {
         if (id in this.soundboards) {
             await this.soundboards[id].class.reScanFolder();
+            this.soundboards[id].openUI.render(true);
         }
     }
 
@@ -117,14 +118,13 @@ class SoundscapeAdventure {
         utils.log(utils.getCallerInfo(),`Opening ${soundscapeId}`)
         const sb = this.soundboards[soundscapeId];
         if (sb) {
-            const soundboard = new SoundscapeUI(sb);
-            this.soundboards[soundscapeId].openUI = true;
-            soundboard.render(true);
+            const ui = new SoundscapeUI(sb);
+            this.soundboards[soundscapeId].openUI = ui;
+            ui.render(true);
         }
     }
     closeUI(soundscapeId) {
-        console.log(this.soundboards[soundscapeId])
-        this.soundboards[soundscapeId].openUI = false;
+        this.soundboards[soundscapeId].openUI = null;
     }
     refreshSoundscapeUI(soundscapeId) {
         const sb = this.soundboards[soundscapeId];

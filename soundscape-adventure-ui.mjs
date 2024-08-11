@@ -450,7 +450,6 @@ class SoundscapeAdventureUI {
                     callback: async (event, button, dialog) => {
                         const soundboardId = button.form.elements.playlist.value;
                         await SoundscapeAdventure.loadOfflineSoundboard(soundboardId);
-                        ui.notifications.warn(soundboardId);
                     }
             },
             default: "create"
