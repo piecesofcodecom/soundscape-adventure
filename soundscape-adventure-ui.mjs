@@ -422,6 +422,7 @@ class SoundscapeAdventureUI {
 
     loadListSoundbarsDialog() {
         // Create playlist options for the dialog
+        //alert(Object.values(SoundscapeAdventure.soundboards).length)
         const playlistOptions = Object.values(SoundscapeAdventure.soundboards)
             .filter(el => el.class.status == "offline")
             .map(playlist => { return `<option value="${playlist.class.id}">${playlist.name}</option>`; })

@@ -4,7 +4,7 @@
     "name": "Night",
     "sounds": [
       {
-        "id": "ZznWoxUpbjiJK8F2",
+        "id": "rgiQC9xm8UoGX9NG",
         "_id": "mAAdq60KLW3gWkJ8",
         "status": "on",
         "group": "Rain",
@@ -23,7 +23,7 @@
         "category": ""
       },
       {
-        "id": "FBFul8TwWSi0Nbvy",
+        "id": "ZxfMLNdNQSzaFfXF",
         "_id": "2gt8hONDEJNoP1Au",
         "status": "on",
         "group": "Rain",
@@ -42,7 +42,7 @@
         "category": ""
       },
       {
-        "id": "w9r6l6zN5Z02on5Z",
+        "id": "turvhVEvvGxzSpqi",
         "_id": "eYcP4cYeCEBQAhzY",
         "status": "on",
         "group": "Rain",
@@ -61,7 +61,7 @@
         "category": ""
       },
       {
-        "id": "PfIs581uqjbrvTlM",
+        "id": "bkkGmAudT3eLHbik",
         "_id": "RWlP9PZDPz8R7Ztm",
         "status": "on",
         "group": "Rain",
@@ -80,7 +80,7 @@
         "category": ""
       },
       {
-        "id": "mw3xRjVGS9FlRM5x",
+        "id": "70sJPECHOWDsGG9z",
         "_id": "lP5VfCWJg4zP3EDq",
         "status": "on",
         "group": "Rain",
@@ -99,26 +99,7 @@
         "category": ""
       },
       {
-        "id": "TvEtpONbIXjBx2po",
-        "_id": "0mIcSsm3UVVqpelu",
-        "status": "on",
-        "group": "",
-        "name": "Piano Solo",
-        "description": "This sound is managed by the Soundscape Adventure",
-        "path": "modules/soundscape-adventure/sample-root-soundscapes/Forest/Ambience/afternoon-ambient-piano-solo-24367.mp3",
-        "repeat": true,
-        "volume": "0.5",
-        "type": 0,
-        "intensity": 0,
-        "to": 60,
-        "from": 10,
-        "fadeIn": "15",
-        "fadeOut": "0",
-        "playOnce": false,
-        "category": ""
-      },
-      {
-        "id": "oxgpBtO1Ous0VWls",
+        "id": "9vIOGtYwKh9qrrx0",
         "_id": "6HjVK2ohxSeuoQf2",
         "status": "off",
         "group": "",
@@ -137,7 +118,7 @@
         "category": ""
       },
       {
-        "id": "yZnsdb4dT9Sm2wOh",
+        "id": "r8yATsZ4ISIvRNbP",
         "_id": "ce1Q721h04agyHnM",
         "status": "off",
         "group": "",
@@ -156,7 +137,7 @@
         "category": ""
       },
       {
-        "id": "R7TdJ4aKWtCUZw3a",
+        "id": "AFz9B4IA83rQW1Wj",
         "_id": "6ckwk1qoZpMj7Cy2",
         "status": "off",
         "group": "",
@@ -175,7 +156,7 @@
         "category": ""
       },
       {
-        "id": "LoXOqWR9G8pGLAWN",
+        "id": "gdhGM0bHnKDzc0Fo",
         "_id": "PYDF7WstVROausxa",
         "status": "off",
         "group": "NighAnimals",
@@ -194,7 +175,7 @@
         "category": ""
       },
       {
-        "id": "kiHEj5ePLfjg9E2U",
+        "id": "9sBXFuMRP2yjTErD",
         "_id": "qiq3Qbwo3K1GNLyb",
         "status": "off",
         "group": "NighAnimals",
@@ -213,16 +194,35 @@
         "category": ""
       },
       {
-        "id": "X8jqP4FZL7GmNGlw",
+        "id": "bRXQioIherhAxLZW",
         "_id": "HDmqgj0dNuB12GQo",
         "status": "on",
         "group": "",
-        "name": "wolf-howl-6310.mp3",
+        "name": "Wolf howl",
         "description": "This sound is managed by the Soundscape Adventure",
         "path": "modules/soundscape-adventure/sample-root-soundscapes/Forest/Soundpad/wolf-howl-6310.mp3",
         "repeat": false,
         "volume": "0.1",
         "type": 3,
+        "intensity": 0,
+        "to": 60,
+        "from": 10,
+        "fadeIn": 0,
+        "fadeOut": 0,
+        "playOnce": false,
+        "category": ""
+      },
+      {
+        "id": "2wyPzt2zOeoKvP3T",
+        "_id": "2wyPzt2zOeoKvP3T",
+        "status": "off",
+        "group": "",
+        "name": "Piano Solo",
+        "description": "This sound is managed by the Soundscape Adventure",
+        "path": "modules/soundscape-adventure/sample-root-soundscapes/Forest/Ambience/afternoon-ambient-piano-solo-24367.mp3",
+        "repeat": true,
+        "volume": 0,
+        "type": 0,
         "intensity": 0,
         "to": 60,
         "from": 10,
@@ -238,7 +238,7 @@
     "name": "Night Raining",
     "sounds": [
       {
-        "id": "ZznWoxUpbjiJK8F2",
+        "id": "rgiQC9xm8UoGX9NG",
         "_id": "mAAdq60KLW3gWkJ8",
         "status": "on",
         "group": "Rain",
@@ -257,7 +257,7 @@
         "category": ""
       },
       {
-        "id": "FBFul8TwWSi0Nbvy",
+        "id": "ZxfMLNdNQSzaFfXF",
         "_id": "2gt8hONDEJNoP1Au",
         "status": "on",
         "group": "Rain",
@@ -276,7 +276,7 @@
         "category": ""
       },
       {
-        "id": "w9r6l6zN5Z02on5Z",
+        "id": "turvhVEvvGxzSpqi",
         "_id": "eYcP4cYeCEBQAhzY",
         "status": "on",
         "group": "Rain",
@@ -295,7 +295,7 @@
         "category": ""
       },
       {
-        "id": "PfIs581uqjbrvTlM",
+        "id": "bkkGmAudT3eLHbik",
         "_id": "RWlP9PZDPz8R7Ztm",
         "status": "on",
         "group": "Rain",
@@ -314,7 +314,7 @@
         "category": ""
       },
       {
-        "id": "mw3xRjVGS9FlRM5x",
+        "id": "70sJPECHOWDsGG9z",
         "_id": "lP5VfCWJg4zP3EDq",
         "status": "on",
         "group": "Rain",
@@ -333,26 +333,7 @@
         "category": ""
       },
       {
-        "id": "TvEtpONbIXjBx2po",
-        "_id": "0mIcSsm3UVVqpelu",
-        "status": "on",
-        "group": "",
-        "name": "Piano Solo",
-        "description": "This sound is managed by the Soundscape Adventure",
-        "path": "modules/soundscape-adventure/sample-root-soundscapes/Forest/Ambience/afternoon-ambient-piano-solo-24367.mp3",
-        "repeat": true,
-        "volume": "0.2",
-        "type": 0,
-        "intensity": 0,
-        "to": 60,
-        "from": 10,
-        "fadeIn": 0,
-        "fadeOut": 0,
-        "playOnce": false,
-        "category": ""
-      },
-      {
-        "id": "oxgpBtO1Ous0VWls",
+        "id": "9vIOGtYwKh9qrrx0",
         "_id": "6HjVK2ohxSeuoQf2",
         "status": "on",
         "group": "",
@@ -371,7 +352,7 @@
         "category": ""
       },
       {
-        "id": "yZnsdb4dT9Sm2wOh",
+        "id": "r8yATsZ4ISIvRNbP",
         "_id": "ce1Q721h04agyHnM",
         "status": "on",
         "group": "",
@@ -390,7 +371,7 @@
         "category": ""
       },
       {
-        "id": "R7TdJ4aKWtCUZw3a",
+        "id": "AFz9B4IA83rQW1Wj",
         "_id": "6ckwk1qoZpMj7Cy2",
         "status": "on",
         "group": "",
@@ -409,7 +390,7 @@
         "category": ""
       },
       {
-        "id": "LoXOqWR9G8pGLAWN",
+        "id": "gdhGM0bHnKDzc0Fo",
         "_id": "PYDF7WstVROausxa",
         "status": "off",
         "group": "NighAnimals",
@@ -428,7 +409,7 @@
         "category": ""
       },
       {
-        "id": "kiHEj5ePLfjg9E2U",
+        "id": "9sBXFuMRP2yjTErD",
         "_id": "qiq3Qbwo3K1GNLyb",
         "status": "off",
         "group": "NighAnimals",
@@ -447,16 +428,35 @@
         "category": ""
       },
       {
-        "id": "X8jqP4FZL7GmNGlw",
+        "id": "bRXQioIherhAxLZW",
         "_id": "HDmqgj0dNuB12GQo",
         "status": "on",
         "group": "",
-        "name": "wolf-howl-6310.mp3",
+        "name": "Wolf howl",
         "description": "This sound is managed by the Soundscape Adventure",
         "path": "modules/soundscape-adventure/sample-root-soundscapes/Forest/Soundpad/wolf-howl-6310.mp3",
         "repeat": false,
         "volume": "0.7",
         "type": 3,
+        "intensity": 0,
+        "to": 60,
+        "from": 10,
+        "fadeIn": 0,
+        "fadeOut": 0,
+        "playOnce": false,
+        "category": ""
+      },
+      {
+        "id": "2wyPzt2zOeoKvP3T",
+        "_id": "2wyPzt2zOeoKvP3T",
+        "status": "off",
+        "group": "",
+        "name": "Piano Solo",
+        "description": "This sound is managed by the Soundscape Adventure",
+        "path": "modules/soundscape-adventure/sample-root-soundscapes/Forest/Ambience/afternoon-ambient-piano-solo-24367.mp3",
+        "repeat": true,
+        "volume": 0,
+        "type": 0,
         "intensity": 0,
         "to": 60,
         "from": 10,

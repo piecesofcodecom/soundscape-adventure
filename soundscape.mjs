@@ -95,7 +95,7 @@ export default class Soundscape {
         if (missing_folders.length && !SoundscapeAdventure.ui_soundscape_messages.includes(this.name)) {
             SoundscapeAdventure.ui_soundscape_messages.push(this.name);
             const message = `
-            <p>The soundscape directory supports the directories below:</p>
+            <p>The soundscape's directory supports the directories below:</p>
             <ul>
             <li>Ambience: Continuous sounds that play in the background, creating an immersive atmosphere.</li>
             <li>Loop: These sounds also play continuously but are typically shorter and repeat more frequently compared to ambience sounds.</li>
@@ -107,7 +107,7 @@ export default class Soundscape {
             ${missing_folders}
             </ul>`;
             //const randomNumberInRange = (min, max) => Math.random() * (max - min) + min;
-            const advice = await foundry.applications.api.DialogV2.prompt({
+           foundry.applications.api.DialogV2.prompt({
                 window: { title: this.name  },
                 position: {
                     width: 550, 
