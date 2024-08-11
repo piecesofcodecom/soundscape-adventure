@@ -53,6 +53,16 @@ For the Forest soundscape, you might want something different. For instance, you
 
 For the Forest soundscape, follow the same steps as for the Tavern soundscape. However, for the rain sounds, create a new folder within the Loop folder named Rain. Now, your soundscape will display a loop group named Rain and an extra bar that allows you to select the intensity of the rain.
 
+## Where find sounds
+Musics and SFXs can be found on internet for free from the sites below:
+- [Pixabay SFX](https://pixabay.com/sound-effects) and [Pixabay Music](https://pixabay.com/music) login is required.
+- [Free archive of sound effects from the BBC](https://sound-effects.bbcrewind.co.uk/)
+- [Free sound effects from Adobe](https://www.adobe.com/products/audition/offers/AdobeAuditionDLCSFX.html)
+- [Reddit list of additional free gamedev sound effects](https://www.reddit.com/r/gamedev/comments/3b2hym/16_great_websites_featuring_free_game_sounds_for/) 
+- [Zapsplat free but limited sound effects](https://www.zapsplat.com/) 
+- [Music, sound effects, and more!](https://superdevresources.com/free-music-sound-effects-games/)
+- [Curated collection of copyright-free sounds by Igor Teuri](https://igorteuri.itch.io/pacote-de-musicas-para-rpg-sem-copyright)
+
 ## Contributing
 
 Contributions are welcome! If you have suggestions, bug reports, or feature requests, please open an issue or submit a pull request on the [GitHub repository](#).
