@@ -2,10 +2,7 @@
 
 Welcome to the Soundscape Adventure tutorial! In this guide, we will cover how the module works, initial configuration, creating soundscapes, setting up moods, and creating sounds that can be used by all soundscapes.
 
-> [!IMPORTANT]  
-> Crucial information necessary for users to succeed.
-
-> **_NOTE:_** The note content.
+> **_NOTE:_**
 You can find a complete example of a soundscape within the module folder, in the folder named `root-soundscapes`.
 
 ### How the Module Works
@@ -17,8 +14,9 @@ Soundscapes are collections of sounds that exhibit specific behaviors. There are
 1. **Ambience Sounds**: Continuous sounds that play in the background, creating an immersive atmosphere.
 2. **Loop Sounds**: These sounds also play continuously but are typically shorter and repeat more frequently compared to ambience sounds.
 3. **Random Sounds**: These sounds play at random intervals, adding an element of unpredictability and variety to the soundscape.
+4. **Soundpad**:  This is the type of sound that where you can play sounds on an ad hoc basis.
 
-Both Loop and Random sounds can be grouped. Detailed instructions on how to group sounds are covered in the "Groups of Sounds" section of this tutorial.
+Both Loop and Random sounds support groups. Detailed instructions on how to group sounds are covered in the "Groups of Sounds" section of this tutorial.
 
 Select the root folder to see an example of a soundscape.
 
@@ -39,11 +37,13 @@ For this example, we will create a soundscape named "Forest." Follow these steps
    - **Loop**
    - **Random**
    - **Ambience**
+   - **Soundpad**
 
 These subfolders categorize the sounds based on their behavior:
 - **Loop:** Sounds in this folder will play in a continuous loop.
 - **Random:** Sounds in this folder will play at random intervals.
 - **Ambience:** Sounds in this folder will play as background ambience.
+- **Soundpad:** Sounds that you can play ad hoc.
 
 At the end, your soundscape folder structure should look like this:
 
