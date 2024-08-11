@@ -631,7 +631,6 @@ export default class Soundscape {
        // if sound is random or random group, i need to schedule a play again
        // need to update the config for all sounds within a group
        if (soundConfig.group != "") {
-        //alert(soundConfig.group)
         const sounds = this.moods[moodId].getSoundByGroup(soundConfig.group);
         for (let i=0; i < sounds.length; i++) {
             Object.assign(sounds[i], new_interval);

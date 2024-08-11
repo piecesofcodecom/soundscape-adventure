@@ -213,7 +213,6 @@ export default class SoundscapeUI extends Application {
                 this.soundscape.class.changeSoundIntensity(dataset.moodId, dataset.group, ev.currentTarget.value);
             } else if(dataset.action == "collapse") {
                 const icon = ev.currentTarget.querySelector("i");
-                console.log(ev.currentTarget.parentNode)
                 const random_extra = ev.currentTarget.parentNode.querySelector(".random_extra");
                 const random_once_extra = ev.currentTarget.parentNode.querySelector(".random_once_extra");
                 const fade_extra = ev.currentTarget.parentNode.querySelector(".fade_extra");
