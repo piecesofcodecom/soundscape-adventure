@@ -14,6 +14,7 @@ The Soundscape Adventure module for FoundryVTT enhances your tabletop RPG experi
 - **Cross-World Configuration**: Once configured, your soundscapes and moods are saved and can be used across any world in FoundryVTT, eliminating the need for reconfiguration.
 - **Random Sound Playback**: Play sounds randomly from a designated group, adding variety and unpredictability to your soundscapes.
 - **Loop Sound Groups**: Organize loop sounds into groups where each sound represents a different intensity. For example, create a loop group for rain sounds ranging from a light drizzle to a heavy storm and adjust the intensity within your mood settings.
+- **Triggers**: Select to play a mood or a sound based on region's behaviours, combats, and scenes.
 
 ## Installation
 

@@ -1,0 +1,12 @@
+<form>
+  <!-- Aba básica existente -->
+  {{> sceneConfigBase }}
+  
+  <!-- Minha aba personalizada -->
+  <div class="tab" data-tab="my-custom-tab">
+    <div class="form-group">
+      <label>Minha Configuração Personalizada</label>
+      <input type="checkbox" name="myCustomSetting" {{#if myCustomSetting}}checked{{/if}}>
+    </div>
+  </div>
+</form>

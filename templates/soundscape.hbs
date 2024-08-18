@@ -2,173 +2,145 @@
     <div class="playlist-ctn">
         <h2>Moods</h2>
         <button class="mood-control" data-type="mood" data-action="new">
-                <i class="fas fa-plus"></i> Add Mood</button>
+            <i class="fas fa-plus"></i> Add Mood</button>
         <br />
         <br />
         {{#each moods}}
-        {{#if (eq this.id ../activeMood)}}
-        <div class="playlist-track-ctn active" data-mood-id="{{ this.id }}" data-index="0">
-            {{else}}
-            <div class="playlist-track-ctn disabled" data-mood-id="{{ this.id }}" data-index="0">
-                {{/if}}
-                <div class="playlist-btn-play">
-                    {{#if (eq this.status "playing")}}
-                    <a style="z-index: 99999 !important;" class="mood-control fa-solid fa-stop soundboardfas"
-                        data-action="stop" height="40" width="40" data-tooltip="PLAYLIST.SoundStop"
-                        data-mood-id="{{ this.id }}" data-soundboard-id="{{ ../id}}"></a>
-                    </a>
-                    {{else}}
-                    <a style="z-index: 99999 !important;" class="mood-control fa-solid fa-play soundboardfas"
-                        data-action="play" height="40" width="40" data-tooltip="PLAYLIST.SoundPlay"
-                        data-mood-id="{{ this.id }}" data-soundboard-name="{{ ../id}}"></a>
-                    </a>
-                    {{/if}}
-                </div>
-                
-                <div class="mood-control playlist-info-track "  data-mood-id="{{ this.id }}" data-action="view-mood" >
-                    <a data-mood-id="{{ this.id }}" >{{ this.name}}</a>
-                </div>
-                {{#unless (eq this.status "playing")}}
-                <div class="playlist-btn-play">
-                    <a data-mood-id="{{ this.id }}" style="z-index: 99999 !important;" data-action="change-name" class="mood-control fa-light fa-pen-to-square soundboardfas">
-                    </a>
-                </div>
-                {{/unless}}
-                <div class="playlist-btn-play">
-                     {{#if (eq this.status "playing")}}
-                        <div id="sound-bars">
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            <div class="sound-bar playing-bar"></div>
-                            </div>
-                    {{else}}
-                        <div style="">
-                        <a style="z-index: 99999 !important; " class="mood-control fa-solid fa-trash soundboardfas"
-                    data-action="delete" height="20" width="20" data-tooltip="Delete Mood"
+
+        <div class="playlist-track-ctn {{#if (eq this.id ../activeMood)}} active {{else}}disabled {{/if}}"
+            data-mood-id="{{ this.id }}" data-index="0">
+
+            <div class="playlist-btn-play">
+                {{#if (eq this.status "playing")}}
+                <a style="z-index: 99999 !important;" class="mood-control fa-solid fa-stop soundboardfas"
+                    data-action="stop" height="40" width="40" data-tooltip="PLAYLIST.SoundStop"
                     data-mood-id="{{ this.id }}" data-soundboard-id="{{ ../id}}"></a>
-                    </div>
-                    {{/if}}
-                </div>
+                </a>
+                {{else}}
+                <a style="z-index: 99999 !important;" class="mood-control fa-solid fa-play soundboardfas"
+                    data-action="play" height="40" width="40" data-tooltip="PLAYLIST.SoundPlay"
+                    data-mood-id="{{ this.id }}" data-soundboard-name="{{ ../id}}"></a>
+                </a>
+                {{/if}}
             </div>
-            {{/each}}
-            <br />
-            <button class="mood-control" data-type="mood" data-action="save">
-                 <i class="fa fa-floppy-disk"></i> Save Soundscape</button>
+
+            <div class="mood-control playlist-info-track " data-mood-id="{{ this.id }}" data-action="view-mood">
+                <a data-mood-id="{{ this.id }}">{{ this.name}}</a>
+            </div>
+            {{#unless (eq this.status "playing")}}
+            <div class="playlist-btn-play">
+                <a data-mood-id="{{ this.id }}" style="z-index: 99999 !important;" data-action="change-name"
+                    class="mood-control fa-light fa-pen-to-square soundboardfas">
+                </a>
+            </div>
+            {{/unless}}
+            <div class="playlist-btn-play">
+                {{#if (eq this.status "playing")}}
+                <div id="sound-bars">
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                    <div class="sound-bar playing-bar"></div>
+                </div>
+                {{else}}
+                <div style="">
+                    <a style="z-index: 99999 !important; " class="mood-control fa-solid fa-trash soundboardfas"
+                        data-action="delete" height="20" width="20" data-tooltip="Delete Mood"
+                        data-mood-id="{{ this.id }}" data-soundboard-id="{{ ../id}}"></a>
+                </div>
+                {{/if}}
+            </div>
         </div>
-        {{#each moods}}
-        {{#if (eq this.id ../activeMood)}}
-        <div class="soundboardadv-main mood-active" data-mood-id="{{ this.id }}">
-        {{else}}
-            <div class="soundboardadv-main" data-mood-id="{{ this.id }}">
-        {{/if}}
+        {{/each}}
+        <br />
+        <button class="mood-control" data-type="mood" data-action="save">
+            <i class="fa fa-floppy-disk"></i> Save Soundscape</button>
+
+    </div>
+    <div class="mood-general-config"> &nbsp;
+        <span class="sound-control" data-action="hidde-sound"
+            data-tooltip="Hide sounds that are not active/playing" style="font-size: 14px; vertical-align: middle;">
+            {{#if off_visible}}
+            <i class="fa-solid fa-eye-slash"></i>
+            {{else}}
+            <i class="fa-solid fa-eye"></i>
+            {{/if}}
+        </span>
         
+    </div>
+    {{#each moods}}
+    <div class="soundboardadv-main {{#if (eq this.id ../activeMood)}} mood-active {{/if}}" data-mood-id="{{ this.id }}">
+
         {{#forSoundType }}
-                <h2>{{ this.title }}</h2>
-                <div class="soundscapeadv-container">
-                    {{#eachSoundType ../this.sounds  this.code }}
-                    <div class="soundscapeadv-element {{this.status}}">
-                        <h3 >
-                        {{shortenString this.name }}
-                        {{#unless (or (eq this.type 4) (eq this.type 5) )}}
-                        &nbsp;<i data-action="change-name" data-tooltip="{{ this.name }}" data-mood-id="{{ ../../id }}" data-sound-id="{{ this.id }}" data-group="{{ this.group }}" class="action-sound fa-light fa-pen-to-square"></i>
-                        {{/unless}}
-                        </h3>
-                        <div class="soundscapeadv-slider-container">
-                            <div class="soundscapeadv-slider-label">
-                                <span>Volume</span>
-                                <span id="volume-value-1">{{volumeUI this.volume }}</span>
-                            </div>
-                            <input type="range" min="0" max="1" step="0.05" value="{{this.volume }}" class="action-sound  soundscapeadv-slider"
-                                data-mood-id="{{  ../../id }}" data-id="{{ this.id }}" data-action="volume">
-                        </div>
-                        {{#if (eq this.type 4)}}
-                        <div class="soundscapeadv-slider-container">
-                            <div class="soundscapeadv-slider-label">
-                                <span>Intensity</span>
-                                <span id="intensity-value-1">{{this.intensity }}</span>
-                            </div>
-                            <input type="range" min="0" max="100" step="5" value="{{this.intensity }}" class="action-sound  soundscapeadv-slider"
-                                id="intensity-slider-1" data-mood-id="{{  ../../id }}" data-id="{{ this.id }}" data-action="intensity" data-group="{{ this.group }}">
-                        </div>
-                        {{/if}}
-                        <div class="action-sound extras-config" data-action="collapse">
-                            <span>Extras<i class="fa fa-angle-up"></i></span>
-                        </div>
-                        {{#if (or (eq this.type 2) (eq this.type 5) )}}
-                            <div style="display: none" class="random_extra soundscapeadv-slider-container extras-collapsed ">
-                                <div class="interval_form_control">
-                                     <div class="interval_form_control_container">
-                                        <div class="interval form_control_container__time" data-tooltip="Set the interval range for sound playback. Choose a minimum and maximum value (in seconds) to determine how often a sound will play. A random value between the selected range will be used to trigger each sound.">Interval</div>
-                                        <span style="width: 100%" >(in seconds)</span>
-                                    </div>
-                                    <div class="interval_form_control_container">
-                                        <div class="interval form_control_container__time">From</div>
-                                        <input class="interval form_control_container__time__input" type="number" id="fromInput" value="{{ this.from }}" min="0" max="500"/>
-                                    </div>
-                                    <div class="interval_form_control_container">
-                                        <div class="interval form_control_container__time">To</div>
-                                        <input class="interval form_control_container__time__input" type="number" id="toInput" value="{{ this.to }}" min="0" max="500"/>
-                                    </div>
-                                </div>
-                                <!-- # INTERVAL SLIDERS -->
-                            </div>
-                        {{/if}}
-                        <!-- FADE -->
-                        <div style="display: none" class="fade_extra soundscapeadv-slider-container extras-collapsed  ">
-                            
-                            <div class="interval_form_control">
-                                <div class="interval_form_control_container">
-                                        <div class="interval form_control_container__time" data-tooltip="Set the fade-in and fade-out duration. Choose a value (in seconds) to determine the time it takes for a sound to gradually increase (fade-in) or decrease (fade-out) in volume.">Fade</div>
-                                        <span style="width: 100%" >(in seconds)</span>
-                                    </div>
-                                <div class="interval_form_control_container">
-                                    <div class="interval form_control_container__time" data-tooltip="Fade-in is applied when the sound starts for the first time">Fade In</div>
-                                    <input class="interval form_control_container__time__input" type="number" id="fadeIn" value="{{ this.fadeIn }}" min="0" max="500"/>
-                                </div>
-                                <div class="interval_form_control_container">
-                                    <div class="interval form_control_container__time" data-tooltip="Fade-out is applied when the sound stops">Fade Out</div>
-                                    <input class="interval form_control_container__time__input" type="number" id="fadeOut" value="{{ this.fadeOut }}" min="0" max="500"/>
-                                </div>
-                            </div>
-                            <!-- # INTERVAL SLIDERS -->
-                        </div>
-                        <!-- # FADE -->
-                        <!-- PLAY ONCE -->
-                        {{#if (or (eq this.type 2) (eq this.type 5) )}}
-                        <div style="display: none" class="random_once_extra soundscapeadv-slider-container extras-collapsed ">
-                            <div class="interval_form_control">
-                                <div class="interval_form_control_container">
-                                    <div class="interval form_control_container__time" data-tooltip="If enabled, the sound will play only once. To play it again you need to stop and play the mood.">Play once</div>
-                                </div>
-                                <div class="interval_form_control_container">
-                                    <input type="checkbox" id="playOnce" value="" {{#if this.playOnce}}checked {{/if}}>
-                                </div>
-                            </div>
-                        </div>
-                        {{/if}}
-                        <!-- # play once -->
-                         <div style="display: none" class="extra_btn_div extras-collapsed ">
-                            <button class="action-sound" type="button" data-action="save-extras" data-sound-id="{{ this.id }}" data-mood-id="{{ ../../id }}">Apply</button>
-                            <br /><br />
-                        </div>
-                        {{#if (eq this.type 3) }}
-                        <div class="extra_btn_div">
-                            <div class="soundpad-player">
-                                <span role="play" class="action-sound soundpad-play" data-action="play" data-sound-id="{{ this.id }}" data-mood-id="{{ ../../id }}"><i class="fa-solid fa-play"></i></span>
-                            </div>
-                        </div>
-                        {{/if}}
+        <h2>{{ this.title }}</h2>
+        <div id="{{ this.title }}" class="soundscapeadv-container">
+            {{#eachSoundType ../this.sounds this.code }}
+            <div class="soundscapeadv-element {{ this.status }}  {{#if (and (eq this.status "off") ../../../off_visible) }} hidden {{/if}}">
+                <h3>
+                    {{shortenString this.name }}
+                    &nbsp;<i data-action="edit-sound" data-tooltip="{{ this.name }}" data-mood-id="{{ ../../id }}"
+                        data-sound-id="{{ this.id }}" data-group="{{ this.group }}"
+                        class="sound-control fa-light fa-pen-to-square"></i>
+                </h3>
+                <div class="soundscapeadv-slider-container">
+                    <div class="soundscapeadv-slider-label">
+                        <span>Volume</span>
+                        <span id="volume-value-1">{{volumeUI this.volume }}</span>
                     </div>
-                    {{/eachSoundType}}
+                    <input type="range" min="0" max="1" step="0.05" value="{{this.volume }}"
+                        class="sound-control  soundscapeadv-slider" data-mood-id="{{  ../../id }}"
+                        data-id="{{ this.id }}" data-action="volume">
                 </div>
-        {{/forSoundType }}                
+                {{#if (eq this.type 4)}}
+                <div class="soundscapeadv-slider-container">
+                    <div class="soundscapeadv-slider-label">
+                        <span>Intensity</span>
+                        <span id="intensity-value-1">{{this.intensity }}</span>
+                    </div>
+                    <input type="range" min="0" max="100" step="5" value="{{this.intensity }}"
+                        class="sound-control  soundscapeadv-slider" id="intensity-slider-1"
+                        data-mood-id="{{  ../../id }}" data-id="{{ this.id }}" data-action="intensity"
+                        data-group="{{ this.group }}">
+                </div>
+                {{/if}}
+
+                <div class="extra_btn_div">
+                     {{#if (or (eq this.type 6) (eq this.type 3)) }}
+                        {{#isPlaying this.id ../../../soundscapeId ../../id }}
+                        <span role=" stop" class="sound-control soundpad-play" data-action="play"
+                                data-sound-id="{{ this.id }}" data-mood-id="{{ ../../id }}">
+                            <i class="fa-solid fa-stop icon-rounded"></i>
+                        </span>
+                        {{else}}
+                        <span role="play" class="sound-control soundpad-play" data-action="play"
+                            data-sound-id="{{ this.id }}" data-mood-id="{{ ../../id }}">
+                            <i class="fa-solid fa-play icon-rounded"></i>
+                        </span>
+                        {{/isPlaying}}
+                        
+                    {{/if}}
+
+                    {{#unless (or (eq this.type 6) (eq this.type 3)) }}
+                    <span role="enable" class="sound-control soundpad-play" data-action="enable"
+                            data-sound-id="{{ this.id }}" data-mood-id="{{ ../../id }}">
+                        {{#if (eq this.status "on")}}
+                        <i class="fa-solid fa-microphone icon-rounded"></i>
+                        {{else}}
+                        <i class="fa-solid fa-microphone-slash icon-rounded"></i>
+                        {{/if}}
+                    </span>
+                    {{/unless}}
+                </div>
             </div>
-            {{/each}}
+            {{/eachSoundType}}
         </div>
+        {{/forSoundType }}
+    </div>
+    {{/each}}
+</div>
