@@ -488,7 +488,7 @@ export default class Soundscape {
                 }
         } else {
             const s = await this.playlist.sounds.get(soundConfig.id);
-            if (sound) {
+            if (s) {
                 await s.load();
                 if (!stop_mood)
                     this.moods[moodId].disableSound(soundConfig.id);
@@ -574,8 +574,8 @@ export default class Soundscape {
         if (index >= soundGroup.length) index = soundGroup.length-1;
         soundGroup.sort((a, b) => a.path.localeCompare(b.path));
         let soundConfig_to_stop = {};
-        let soundConfig_to_play = {};
-        let sound_to_play = {};
+        let soundConfig_to_play = soundGroup[index];
+        let sound_to_play = this.playlist.sounds.get(soundConfig_to_play.id);
         console.warn(soundGroup[index]);
         for (let i=0; i < soundGroup.length; i++) {
             soundGroup[i].intensity = intensity;
@@ -585,10 +585,6 @@ export default class Soundscape {
             if (s.playing && i != index) {
                 soundConfig_to_stop = soundGroup;
                 //this.stopSound(soundGroup[i], moodId);
-            } else if(i == index) {
-                soundConfig_to_play = soundGroup[i];
-                sound_to_play = s;
-                //this._playSound(soundGroup[i], s)
             }
 
             if (Object.keys(soundConfig_to_stop).length !== 0) {
@@ -598,8 +594,8 @@ export default class Soundscape {
                 console.warn("NO sound to stop")
             }
             await this.moods[moodId].enableSound(soundConfig_to_play.id);
-            console.warn("PLAY", sound_to_play);
-            await this._playSound(soundConfig_to_play[i], sound_to_play);
+            console.warn("PLAY:", sound_to_play);
+            await this._playSound(soundConfig_to_play, sound_to_play);
         }
     }
 
