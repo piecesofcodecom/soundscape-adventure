@@ -16,9 +16,20 @@
   ],
   "bugs": "https://github.com/piecesofcodecom/soundscape-adventure/issues",
   "esmodules": [
-    "./settings.mjs",
-    "./soundscape-init.mjs"
+    "./scripts/settings.mjs",
+    "./scripts/soundscape-init.mjs"
   ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+  }],
+  "documentTypes": {
+    "RegionBehavior": {
+      "moodPlayEvents": {}
+    }
+  },
   "persistentStorage": true,
   "styles": [
     "./css/soundscape.css"

@@ -121,6 +121,10 @@ SOUND CONTROL
   background-color:  rgb(250, 206, 206);
 }
 
+.soundscapeadv-element.hidden {
+ display: none;
+}
+
 .soundscapeadv-element h3 {
   margin: 0 0 10px 0;
   font-size: 14px;
@@ -171,6 +175,13 @@ SOUND CONTROL
   background: #4CAF50;
   cursor: pointer;
   border-radius: 50%;
+}
+
+.mood-general-config {
+  position: absolute;
+  width: 1050px;
+  text-align: end;
+  padding-right: 50px;
 }
 
 .extra_btn_div {
@@ -378,8 +389,39 @@ cursor:pointer;
 
 }
 
-.action-sound {
+.icon-rounded {
+  display: inline-block;
+  border-radius: 60px;
+  box-shadow: 0 0 2px #888;
+  padding: 0.5em 0.6em;
+}
+
+.sound-control {
   cursor: pointer;
+}
+
+.soundconfig-slider input {
+  --start: 20%;
+  --stop: 50%;
+  -webkit-appearance: none;
+  appearance: none;
+  background: none;
+  pointer-events: none;
+  position: absolute;
+  height: 4px;
+}
+
+.soundconfig-slider input:first-of-type {
+  background-image: linear-gradient(to right, lightgrey var(--start), dodgerblue var(--start), dodgerblue var(--stop), lightgrey  var(--stop));
+}
+
+.soundconfig-slider ::-moz-range-thumb {
+  cursor: pointer;
+  pointer-events: auto;
+}
+.soundconfig-slider ::-webkit-slider-thumb {
+  cursor: pointer;
+  pointer-events: auto;
 }
 
 

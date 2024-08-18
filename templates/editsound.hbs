@@ -1,0 +1,87 @@
+<div class="container">
+    {{#if (eq sound.group "")}}
+        <h1>Sound Settings: {{ sound.name }}</h1>
+    {{else}}
+        <h1>Sound Settings: {{ sound.group }}</h1>
+    {{/if}}
+
+        <!-- Sound Name -->
+        {{#if (eq sound.group "")}}
+        <div class="form-group">
+            <label for="soundName">Sound Name:</label>
+            <input type="text" id="soundName" name="soundName" placeholder="Enter sound name" value="{{ sound.name }}"/>
+        </div>
+        <br />
+        {{/if}}
+        <!-- Fade In / Out -->
+        <div class="form-group inline-group">            
+            <div class="fade-group">
+                <label for="fadeIn">Fade In (seconds):</label>
+                <input type="number" id="fadeIn" name="fadeIn"value="{{ sound.fadeIn }}">
+            </div>
+            <div class="fade-group">
+                <label for="fadeOut">Fade Out (seconds):</label>
+                <input type="number" id="fadeOut" name="fadeOut" value="{{ sound.fadeOut }}">
+            </div>
+        </div>
+        <br />
+        <!-- Random Interval -->
+        {{#if (or (eq sound.type 2) (eq sound.type 5))}}
+        <div class="form-group inline-group">            
+            <div class="fade-group">
+                <label for="from">Interval From (seconds):</label>
+                <input type="number" id="from" name="from"value="{{ sound.from }}">
+            </div>
+            <div class="fade-group">
+                <label for="to">Interval To (seconds):</label>
+                <input type="number" id="to" name="to" value="{{ sound.to }}">
+            </div>
+        </div>
+        <br />
+        
+        <div class="form-group inline-group">            
+            <label for="soundName">Play once:</label>
+            <input type="checkbox" id="playOnce" name="playOnce" {{#if sound.playOnce }} checked {{/if}} />
+        </div>
+        <br />
+        {{/if}}
+        <!-- Region Trigger -->
+        <h3>Triggers</h3>
+        <div class="form-group inline-group">
+            {{#each triggers}}
+            <div class="trigger_group">
+                <h4 style="text-align: center">Trigger {{ @index }}</h4>
+                <div class="form-group">
+                    <label for="triggerAction{{ @index }}">Action</label>
+                    <select id="triggerAction{{ @index }}" name="triggerAction">
+                        <option value="">Select</option>
+                        {{#each this.actions}}
+                            <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="triggerOn{{ @index }}">On</label>
+                    <select class="onElement" id="triggerOn{{ @index }}" name="triggerOn">
+                        <option value="">Select</option>
+                        {{#each this.on}}
+                            <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <br />
+                <div class="form-group">
+                    <label for="triggerEvent{{ @index }}">Event</label>
+                    <select class="eventElement" id="triggerEvent{{ @index }}" name="triggerEvent">
+                        <option value="">Select</option>
+                        {{#each this.events}}
+                            <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div> <!-- trigger group -->
+            {{/each}}
+        </div>
+        <!-- # Region Triggers -->
+</div>
