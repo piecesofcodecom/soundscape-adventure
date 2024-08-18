@@ -2,7 +2,6 @@ import SoundscapeAdventureUI from './soundscape-adventure-ui.mjs';
 import constants from './utils/constants.mjs';
 import { init as coreInit } from "./regions.mjs";
 import SoundscapeAdventure from "./soundscape-adventure.mjs";
-import TriggersSceneConfig from "./scene_triggers.js";
 /**
  * FOUNDRY HOOKS
  */
@@ -87,12 +86,10 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
             current.soundscape = trig.on.split(":")[0];
         }
     }
-    // Adicionar nova aba à navegação das abas existentes
     const tabs = html.find(".tabs");
     tabs.append($('<a class="item" data-tab="my-custom-tab"><i class="fa-solid fa-speaker"></i>&nbsp;Soundscape Adventure</a>'));
 
-    // Adicionar novo conteúdo da aba
-    const content = html.find("form");
+    const content = html.find("div.tab[data-group='main'][data-tab='basic']")[0]; //html.find("form");
     const title = document.createElement("h3");
     title.textContent = "Play/Stop a mood when a scene is activate";
 
@@ -101,16 +98,15 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
     newNode.setAttribute("data-group", "main")
     newNode.setAttribute("data-tab", "my-custom-tab")
     const soundscapes = SoundscapeAdventure.soundboards;
+    content.insertAdjacentElement('afterend', newNode);
 
     const formGroup1 = document.createElement('div');
     formGroup1.className = 'form-group';
 
-    // Create and append the label for Soundscape
     const label1 = document.createElement('label');
     label1.textContent = 'Soundscape';
     formGroup1.appendChild(label1);
 
-    // Create and append the select element for Soundscape
     const select1 = document.createElement('select');
     select1.name = 'soundscape';
     select1.className="soundscape-adventure-soundscape";
@@ -218,6 +214,7 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
     newNode.appendChild(formGroup1);
     newNode.appendChild(formGroup2);
     newNode.appendChild(actionForm);
+
 });
 
 Hooks.on('updateScene', (scene, data, modified, sceneId) => {

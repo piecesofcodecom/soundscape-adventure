@@ -31,16 +31,11 @@ const SOUNDSCAPE_TYPE = {
 const PREFIX="Soundscape";
 
 const STORAGETRIGGERSETTINGS = "soundscape-adventure.triggerSettings";
-/* trigger config example
-const triggerData = {
-  type: SOUND | GROUP | THEME,
-  triggerScope: "scene",
-  triggerName: "",
-  
-};
 
-*/
-
+const MODULE = {
+    name: "soundscape-adventure",
+    version: "0.2.0"
+}
 
 export default {
     LOGLEVEL,
@@ -48,6 +43,7 @@ export default {
     SOUNDTYPE,
     SOUNDSCAPE_TYPE,
     PREFIX,
-    STORAGETRIGGERSETTINGS
+    STORAGETRIGGERSETTINGS,
+    MODULE
     // Add other constants here
   };

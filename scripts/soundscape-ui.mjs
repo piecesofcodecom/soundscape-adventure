@@ -114,18 +114,6 @@ export default class SoundscapeUI extends Application {
 
     activateListeners(html) {
         super.activateListeners(html);
-        /*const fromSlider = html[0].querySelectorAll('#fromSlider');
-        const toSlider = html[0].querySelectorAll('#toSlider');
-        const fromInput = html[0].querySelectorAll('#fromInput');
-        const toInput = html[0].querySelectorAll('#toInput');
-        for (let i=0; i < fromSlider.length; i++) {
-            fillSlider(fromSlider[i], toSlider[i], '#C6C6C6', '#25daa5', toSlider[i]);
-            setToggleAccessible(toSlider[i]);
-            fromSlider[i].oninput = () => controlFromSlider(fromSlider[i], toSlider[i], fromInput[i]);
-            toSlider[i].oninput = () => controlToSlider(fromSlider[i], toSlider[i], toInput[i]);
-            fromInput[i].oninput = () => controlFromInput(fromSlider[i], fromInput[i], toInput[i], toSlider[i]);
-            toInput[i].oninput = () => controlToInput(toSlider[i], fromInput[i], toInput[i], toSlider[i]);
-        }*/
 
         html.on('click', '.mood-control', async (ev) => {
             const dataset = ev.currentTarget.dataset;
@@ -135,7 +123,6 @@ export default class SoundscapeUI extends Application {
                 ev.currentTarget.className="mood-control fa-solid fa-stop";
                 ev.currentTarget.setAttribute("data-action","stop");
                 const elements = ev.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelectorAll(".on");
-                //alert(elements.length)
                 await this.soundscape.class.playMood(dataset.moodId);
                 this.render(true);
             
@@ -256,15 +243,9 @@ export default class SoundscapeUI extends Application {
                     const sound = await this.soundscape.class.playlist.sounds.get(dataset.soundId);
                     await sound.load();
                     sound.sound.addEventListener("end", ()=> {
-                        //this.render(this);
-                        //alert("asd")
                         ev.currentTarget.role = "stop";
                         ev.currentTarget.innerHTML = '<i class="fa-solid fa-stop icon-rounded"></i>';
                     });
-                    /*sound.sound.addEventListener("stop", ()=> {
-                        ev.currentTarget.role = "play";
-                        ev.currentTarget.innerHTML = '<i class="fa-solid fa-play icon-rounded"></i>';
-                    });*/
                     await this.soundscape.class.playSound(soundConfig, dataset.moodId)
                 } else {
                     await this.soundscape.class.stopSound(await this.soundscape.class.moods[dataset.moodId].getSound(dataset.soundId), dataset.moodId);

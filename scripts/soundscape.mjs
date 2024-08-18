@@ -2,6 +2,7 @@ import MoodConfig from "./moodConfig.mjs";
 import constants from "./utils/constants.mjs";
 import utils from "./utils/utils.mjs";
 import SoundscapeAdventure from "./soundscape-adventure.mjs";
+import SoundscapeAdventureUI from "./soundscape-adventure-ui.mjs";
 export default class Soundscape {
     id;
     name;
@@ -14,6 +15,7 @@ export default class Soundscape {
     moodsConfigFile="moods.json";
     random_idempotency;
     advice;
+    version=1;
     visible_off_sounds=false;
 
     constructor(_path, _type=constants.SOUNDSCAPE_TYPE.LOCAL) {
@@ -335,6 +337,11 @@ export default class Soundscape {
                 utils.log(utils.getCallerInfo(),`Previous mood configuration has been retrieved '${moodConfigFile}'`);
                 const response = await fetch(moodConfigFile);
                 const contents = await response.json();
+                if (contents["version"] != this.version) {
+                    ui.notification.error(`"The supported soundscape version ${this.version} does not match the previous configuration version found: ${content["version"]}.`)
+                    return;
+                }
+                delete contents["version"];
                 let name_update = true;
                 for(let key in contents) {
                     const moodconfig = contents[key];
@@ -421,6 +428,7 @@ export default class Soundscape {
     async saveMoodsConfig() {
         utils.log(utils.getCallerInfo(),`Saving moods for ${this.name} to ${this.path}`)
         let moodsCopy = JSON.parse(JSON.stringify(this.moods));
+        moodsCopy.version = this.version;
 
         for (let key in moodsCopy) {
             if (moodsCopy.hasOwnProperty(key)) {
@@ -687,7 +695,7 @@ export default class Soundscape {
                     for (let i=0; i < triggers.length; i++) {
                         if (triggers[i].on == event.region.id && triggers[i].event == event.name) {
                             if (triggers[i].action == "play") {
-                                this.playMood(moodId, false);
+                                this.playMood(moodId, true);
                             } else if (triggers[i].action == "stop") {
                                 this.stopMood(moodId);
                             }

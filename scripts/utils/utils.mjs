@@ -26,10 +26,11 @@ function getCallerInfo() {
 function log(info, message, level = constants.LOGLEVEL.INFO, error = "") {
     const init_message = "Soundscape-Adventure";
     const log_enabled = game.settings.get('soundscape-adventure', 'enable-logs');
+
     if (log_enabled || level == constants.LOGLEVEL.ERROR) {
         switch (level) {
             case constants.LOGLEVEL.ERROR:
-                console.error(`(${init_message}) Filename: (${info.filename}):`, message, error);
+                console.error(`(${init_message}) Filename: (${info.filename}):${info.line}`, message, error);
                 break;
             case constants.LOGLEVEL.WARN:
                 console.warn(`(${init_message}) Filename: ${info.filename}:${info.line}`, message, error);

@@ -45,29 +45,51 @@ Hooks.once('init', () => {
       default: {},
       type: Object
     });
+
+    game.settings.register('soundscape-adventure', "newsDialog", {
+      name: "News Dialog",
+      scope: "world",  // Can be "world" or "client" depending on whether the data should be global or per-user
+      config: false,  // Set to true if you want this setting to be accessible via the Foundry UI
+      default: "",
+      type: String
+    });
   });
 
   
-
+  async function newsDialog() {
+    const version = game.settings.get('soundscape-adventure', "newsDialog");
+    if (version != constants.MODULE.version) {
+      const templatePath = "/modules/soundscape-adventure/templates/news.html";
+      const html_content = await renderTemplate(templatePath, {});
+      
+      let dialog = new foundry.applications.api.DialogV2({
+        window: { title: "Soundscape Adventure NEWS" },
+        content: html_content,
+        buttons: [{
+            action: "choice",
+            label: "Confirm",
+            callback: (event,button, dialog) => {
+              game.settings.set('soundscape-adventure', "newsDialog", constants.MODULE.version);
+            }
+        }]
+      });
+      await dialog.render(true);
+    }
+  }
 
 // Function to open the file picker for folder selection and return a Promise
 async function selectFolder() {
-  if (!game.settings.get('soundscape-adventure', 'root-folder')) {
-    const myDialogOptions = {
-      width: 400,
-      height: 300,
-    };
     
     let dialog = new foundry.applications.api.DialogV2({
       window: { title: "Soundscape Adventure Directory Setup" },
       content: `
         <p>Welcome to the Soundscape Adventure!</p>
-        <p>Please select the root folder for your soundscapes. If you are new to this module, consider read <a href="https://github.com/piecesofcodecom/soundscape-adventure/blob/main/TUTORIAL.md">the tutorial</a> before proceed.</p>
+        <p>Please select the root folder for your soundscapes.</p><p>If you are new to this module, consider read <a href="https://github.com/piecesofcodecom/soundscape-adventure/blob/main/TUTORIAL.md">the tutorial</a> before proceed.</p>
         <br /><br />
         <div class="form-group">
-          <label>Selected Folder:</label>
+          <label>Select Folder:</label>
           <br />
-          <input type="text" id="foldername" name="folder" value="" data-dtype="String" readonly>
+          <input type="text" id="foldername" name="folder" value="modules/soundscape-adventure/sample-root-soundscapes" data-dtype="String" readonly>
           <br /><br />
           <button type="button" id="soundscape-picker" >Browse</button>
           <br /><br />
@@ -81,7 +103,7 @@ async function selectFolder() {
             game.settings.set('soundscape-adventure', 'root-folder', dir);
           }
       }]
-    }, myDialogOptions);
+    });
     await dialog.render(true);
     const browser = dialog.element.querySelector('#soundscape-picker');
     const input = dialog.element.querySelector('#foldername');
@@ -103,7 +125,7 @@ async function selectFolder() {
       input.value = path;
     });
     
-  }
+  //}
 }
 
 // Function to handle the folder selection process
@@ -118,7 +140,7 @@ async function handleFolderSelection() {
   }
 }
 
-
 Hooks.once('ready', () => {
-  handleFolderSelection(); 
+  handleFolderSelection();
+  newsDialog();
 });

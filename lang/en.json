@@ -17,7 +17,7 @@
       "FIELDS.overlay.hint": "Display the Mood Play as an overlay."
     },
     "RAE.TYPES.moodPlayEvents": {
-      "FIELDS.action.choices.custom": "Play (custom)",
+      "FIELDS.action.choices.custom": "Custom (within the mood)",
       "FIELDS.action.choices.play": "Play",
       "FIELDS.action.choices.stop": "Stop",
       "FIELDS.action.label": "Action",

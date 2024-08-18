@@ -424,6 +424,126 @@ cursor:pointer;
   pointer-events: auto;
 }
 
+/**
+changelog
+*/
+.changelog {
+  /*background-color: #fff;*/
+  border-radius: 4px;
+  box-shadow: 0 1px 8px 0 rgba(0,0,0,.2), 0 3px 4px 0 rgba(0,0,0,.14), 0 3px 3px -2px rgba(0,0,0,.12);
+  /*color: #757575;*/
+  /*padding: 80px 114px;*/
+  position: relative;
+  z-index: 1;
+}
+
+.changelog h2 {
+  border-color: #CFD8DC;
+  /*color: #424242;*/
+  font-size: 32px;
+  font-weight: 300;
+  line-height: 40px;
+  /*margin-bottom: 26px;
+  padding-bottom: 15px;*/
+}
+
+.changelog {
+  .badge {
+    position: relative;
+    top: -3px;
+    border-radius: 16px;
+    display: inline-block;
+    width: 90px;
+    height: 32px;
+    line-height: 32px;
+    margin-right: 10px;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .badge-fixed {
+    background-color: #dd4b39;
+    color: #fff;
+}
+
+.badge-added {
+    background-color: #0F9D58;
+    color: #fff;
+}
+
+.badge-changed {
+    background-color: #F4B400;
+    color: #fff;
+}
+
+h1, h2, h3 {
+    overflow: hidden;
+    padding: 0;
+    text-overflow: ellipsis;
+}
+
+h1 {
+    font: 400 32px/40px Google Sans,sans-serif;
+    letter-spacing: 0;
+    margin: 48px 0 24px;
+}
+
+h2 {
+    border-bottom: 0;
+    font: 400 22px/30px Google Sans,sans-serif;
+    margin: 48px 0 24px;
+    padding-bottom: 0;
+    letter-spacing: -.01em;
+}
+
+h2 .date {
+  color: #4285F4;
+}
+
+h3 {
+      font: 400 18px/30px Google Sans,sans-serif;
+      margin: 32px 0 16px;
+}
+
+p {
+    margin: 16px 0;
+    padding: 0;
+}
+
+code, pre, .pre-style {
+    background: #f7f7f7;
+    color: #37474f;
+    font: 400 100%/1 Roboto Mono,monospace;
+    padding: 1px 4px;
+    font: 500 90%/1 Roboto Mono,monospace;
+    word-break: break-word;
+}
+
+ul {
+    display: block;
+    list-style: disc outside;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
+    margin: 0;
+    padding-left: 0;
+}
+
+li {
+    list-style-type: none;
+    margin: 8px 0 8px 22px;
+    padding: 0;
+}
+
+:link, :visited {
+    color: #039be5;
+    outline: 0;
+    text-decoration: none;
+}
+}
 
 
 

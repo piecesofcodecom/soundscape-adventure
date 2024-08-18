@@ -250,7 +250,6 @@ class SoundscapeAdventureUI {
             mood: "",
             soundboard: ""
         }
-
         if (currentconfig.length == 2) {
             currentPlaying.mood = currentconfig[1];
             currentPlaying.soundboard = currentconfig[0];
