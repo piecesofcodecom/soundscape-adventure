@@ -58,11 +58,22 @@ export default class Soundscape {
             }
             
             await this.init_local();
+            await this.save_soundboard();
         } else {
             utils.log(utils.getCallerInfo(),`The type '${this.type}' isn't implemented yet`, constants.LOGLEVEL.ERROR);
         }
     }
 
+    async save_soundboard() {
+        let obj = {};
+        for (let mood in this.moods) {
+            obj[`${this.id}:${mood}`] = `${this.name} -> ${this.moods[mood].name}`
+        }
+        let soundscapes = await game.settings.get(`soundscape-adventure`, "regionSoundscapes");
+        soundscapes = Object.assign(obj, soundscapes)
+        game.settings.set(`soundscape-adventure`, "regionSoundscapes",soundscapes);
+        
+    }
     async init_local() {
         utils.log(utils.getCallerInfo(),`Init Soundspace '${this.name}' within ${this.path}`);
         let missing_folders = "<li>Ambience</li><li>Loop</li><li>Random</li><li>Soundpad</li>";

@@ -53,6 +53,14 @@ Hooks.once('init', () => {
       default: "",
       type: String
     });
+
+    game.settings.register(`soundscape-adventure`, "regionSoundscapes", {
+      name: "Soundscapes for regions",
+      scope: "world",
+      config: false,
+      default: {},
+      type: Object
+    })
   });
 
   
