@@ -364,6 +364,12 @@ class SoundscapeAdventureUI {
                     a2.addEventListener('click', async (event) => {
                         const dataset = event.currentTarget.dataset;
                         if (dataset.action == "sound-play") {
+                            const currentconfig = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
+                            if (currentconfig.length == 2) {
+                                const currentSoundscapeId = currentconfig[0];
+                                const currentMoodId = currentconfig[1];
+                                SoundscapeAdventure.soundboards[currentSoundscapeId].class.stopMood(currentMoodId);
+                            }
                             if(sb) {
                                 sb.class.playMood(dataset.moodId);
                                 const md = sb.class.moods[dataset.moodId];

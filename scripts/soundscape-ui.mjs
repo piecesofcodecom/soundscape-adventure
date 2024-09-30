@@ -123,6 +123,12 @@ export default class SoundscapeUI extends Application {
                 ev.currentTarget.className="mood-control fa-solid fa-stop";
                 ev.currentTarget.setAttribute("data-action","stop");
                 const elements = ev.currentTarget.parentNode.parentNode.parentNode.parentNode.querySelectorAll(".on");
+                const currentconfig = await game.settings.get('soundscape-adventure', 'current-playing').split(",");
+                if (currentconfig.length == 2) {
+                    const currentSoundscapeId = currentconfig[0];
+                    const currentMoodId = currentconfig[1];
+                    SoundscapeAdventure.soundboards[currentSoundscapeId].class.stopMood(currentMoodId);
+                }
                 await this.soundscape.class.playMood(dataset.moodId);
                 this.render(true);
             

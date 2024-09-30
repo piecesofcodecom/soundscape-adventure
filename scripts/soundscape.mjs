@@ -3,6 +3,12 @@ import constants from "./utils/constants.mjs";
 import utils from "./utils/utils.mjs";
 import SoundscapeAdventure from "./soundscape-adventure.mjs";
 import SoundscapeAdventureUI from "./soundscape-adventure-ui.mjs";
+
+//TODO new behavior:
+// - select global soundscape
+// - load each soundscape from a folder
+
+// TODO random needs to be improved
 export default class Soundscape {
     id;
     name;
@@ -514,7 +520,14 @@ export default class Soundscape {
                 if (s.playing) {
                     await s.sound.load();
                     if (soundConfig.fadeOut > 0 && s.sound.currentTime > soundConfig.fadeIn) {
-                        s.sound.fade(0, { duration: soundConfig.fadeOut * 1000, from: s.sound.volume }).then( () => {
+                        const remaining_time = s.sound.duration - s.sound.currentTime;
+                        let fadeOut = soundConfig.fadeOut;
+                        // if the remaining time for the soundtrack is shorter than the fade i want to apply
+                        // we need to reduce the fadeout to the duration of the remaining time
+                        if (remaining_time < soundConfig.fadeOut) {
+                            fadeOut = remaining_time;
+                        }
+                        s.sound.fade(0, { duration: fadeOut * 1000, from: s.sound.volume }).then( () => {
                             this.playlist.stopSound(s);
                         })
                     } else {
@@ -577,8 +590,10 @@ export default class Soundscape {
         const soundGroup = this.moods[moodId].getSoundByGroup(group);
         if (soundGroup.length > 0) {
             if (soundGroup[0].type == constants.SOUNDTYPE.GROUP_RANDOM) {
+                this.moods[moodId].enableSoundByGroup(soundGroup[0].group);
                 this.playAfterDuration2(soundGroup, moodId, group, utils.randomWaitTime(soundGroup[0].from, soundGroup[0].to));
             } else if(soundGroup[0].type == constants.SOUNDTYPE.GROUP_LOOP) {
+                //this.moods[moodId].enableSoundByGroup(soundGroup[0].group);
                 this._playLoopGroup(soundGroup, soundGroup[0].intensity, moodId);
             }
         }
@@ -598,9 +613,8 @@ export default class Soundscape {
             const s = this.playlist.sounds.get(soundGroup[i].id);
             await s.load()
             if (s.playing && i != index) {
-                soundConfig_to_stop = soundGroup;
+                soundConfig_to_stop = soundGroup[i];
             }
-
             if (Object.keys(soundConfig_to_stop).length !== 0) {
                 await this.stopSound(soundConfig_to_stop, moodId);
             }
@@ -649,7 +663,9 @@ export default class Soundscape {
                 const randomIndex = Math.floor(Math.random() * sounds.length);
                 if (sounds[randomIndex].status == "on") {
                     const s = await this.playlist.sounds.get(sounds[randomIndex].id);
-                    const timeout = new foundry.audio.AudioTimeout(delay, {callback: () => this.randomSound(sounds,moodId, group, s, idempotency)});
+                    const timeout = new foundry.audio.AudioTimeout(delay, {
+                        callback: () => this.randomSound(sounds,moodId, group, s, idempotency)
+                    });
                 }
             }
         }

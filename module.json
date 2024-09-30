@@ -31,7 +31,6 @@
     }
   },
   "persistentStorage": true,
-  "requires": [],
   "styles": [
     "./css/soundscape.css"
   ],

@@ -51,26 +51,26 @@ Hooks.on('SoundscapeAdventure-ChangeSoundVolume', (id, moodId, mood) => {
 Hooks.on("renderSceneConfig", (app, html, data) => {
     const originalUpdateObject = app._updateObject.bind(app);
 
-  app._updateObject = async function(event, formData) {
-    const moduleName = "soundscape-adventure"; // Ensure this matches your module name
-    const scene_id = app.object._id;
-    const mood = formData.mood;
-    const soundscape = formData.soundscape;
-    const action = formData.action;
-    const trigger = {
-        action: action,
-        event: "scene",
-        on: `${soundscape}:${mood}`
-    };
-    let triggerSettings = game.settings.get(constants.STORAGETRIGGERSETTINGS, "triggerSettings");
-    if (!triggerSettings["scenes"]) {
-        triggerSettings["scenes"] = {}
-    }
+    app._updateObject = async function (event, formData) {
+        const moduleName = "soundscape-adventure"; // Ensure this matches your module name
+        const scene_id = app.object._id;
+        const mood = formData.mood;
+        const soundscape = formData.soundscape;
+        const action = formData.action;
+        const trigger = {
+            action: action,
+            event: "scene",
+            on: `${soundscape}:${mood}`
+        };
+        let triggerSettings = game.settings.get(constants.STORAGETRIGGERSETTINGS, "triggerSettings");
+        if (!triggerSettings["scenes"]) {
+            triggerSettings["scenes"] = {}
+        }
 
-    triggerSettings["scenes"][app.object._id] = trigger;
-    game.settings.set(constants.STORAGETRIGGERSETTINGS, "triggerSettings", triggerSettings);
-    await originalUpdateObject(event, formData);
-  };
+        triggerSettings["scenes"][app.object._id] = trigger;
+        game.settings.set(constants.STORAGETRIGGERSETTINGS, "triggerSettings", triggerSettings);
+        await originalUpdateObject(event, formData);
+    };
     const moduleName = "soundscape-adventure"; // Certifique-se de que o nome do módulo corresponde ao nome em module.json
     let triggerSettings = game.settings.get(constants.STORAGETRIGGERSETTINGS, "triggerSettings");
     const current = {
@@ -109,7 +109,7 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
 
     const select1 = document.createElement('select');
     select1.name = 'soundscape';
-    select1.className="soundscape-adventure-soundscape";
+    select1.className = "soundscape-adventure-soundscape";
     const option1 = document.createElement('option');
     option1.value = '';
     option1.textContent = 'Select';
@@ -138,7 +138,7 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
 
     // Create and append the select element for Mood
     const select2 = document.createElement('select');
-    select2.className="soundscape-adventure-mood";
+    select2.className = "soundscape-adventure-mood";
     select2.name = 'mood';
 
     // Create and append the options for Mood
@@ -160,27 +160,29 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
         }
     }
 
-    
+
 
     select1.addEventListener('change', function () {
         while (select2.firstChild) {
             select2.removeChild(select2.firstChild);
         }
         const soundboard = SoundscapeAdventure.soundboards[select1.value];
-        const moods = soundboard.class.moods;
-        const soption = document.createElement('option');
-        soption.value = "";
-        soption.textContent = "Select a mood";
-        select2.appendChild(soption);
-        for (let key in moods) {
-            const option = document.createElement('option');
-            option.value = moods[key].id;
-            option.textContent = moods[key].name;
-            select2.appendChild(option);
+        if (soundboard) {
+            const moods = soundboard.class.moods;
+            const soption = document.createElement('option');
+            soption.value = "";
+            soption.textContent = "Select a mood";
+            select2.appendChild(soption);
+            for (let key in moods) {
+                const option = document.createElement('option');
+                option.value = moods[key].id;
+                option.textContent = moods[key].name;
+                select2.appendChild(option);
+            }
         }
     });
     formGroup2.appendChild(select2);
-    
+
     // Action Form
     const actionForm = document.createElement('div');
     actionForm.className = 'form-group';
@@ -190,7 +192,7 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
     actionForm.appendChild(actionLabel);
 
     const actionSelect = document.createElement('select');
-    actionSelect.className="soundscape-adventure-action";
+    actionSelect.className = "soundscape-adventure-action";
     actionSelect.name = 'action';
     const action_option_0 = document.createElement('option');
     action_option_0.value = '';
@@ -241,6 +243,14 @@ Hooks.on('updateScene', (scene, data, modified, sceneId) => {
     }
 });
 
+Hooks.on('preUpdateScene', (scene, data, modified, sceneId) => {
+    if (data._id != game.scenes.active._id) {
+        if (data.active == true) {
+            console.log("placeholder to stop mood when scene is deactivated: " + game.scenes.active.name);
+        }
+    }
+});
+
 /**
  * Custom Handlebars
  */
@@ -258,7 +268,7 @@ Hooks.once('init', () => {
                         groups.push(el.group);
                         const clone = structuredClone(el);
                         clone.name = 'Group: ' + el.group,
-                        result += options.fn(clone);
+                            result += options.fn(clone);
                     }
                 }
             }
@@ -285,10 +295,12 @@ Hooks.once('init', () => {
     })
 
     Handlebars.registerHelper('shortenString', function (str) {
-        if (str && str.length > 26) {
-            return `${str.substring(0, 26)}...`;
+        let decodedFileName = decodeURIComponent(str);
+        let fileNameWithoutExtension = decodedFileName.replace(/\.[^/.]+$/, "");
+        if (fileNameWithoutExtension && fileNameWithoutExtension.length > 26) {
+            return `${fileNameWithoutExtension.substring(0, 26)}...`;
         }
-        return str;
+        return fileNameWithoutExtension;
     });
 
     Handlebars.registerHelper('forSoundType', function (options) {
@@ -327,10 +339,10 @@ Hooks.once('init', () => {
         if (soundConfig.group == "") {
             sound = SoundscapeAdventure.soundboards[soundscapeId].class.playlist.sounds.get(soundId);
         } else {
-           
+
             const listSounds = SoundscapeAdventure.soundboards[soundscapeId].class.moods[moodId].getSoundByGroup(soundConfig.group);
             sound.playing = false;
-            for (let i=0; i < listSounds.length; i++) {
+            for (let i = 0; i < listSounds.length; i++) {
                 if (SoundscapeAdventure.soundboards[soundscapeId].class.playlist.sounds.get(listSounds[i].id).playing) {
                     sound.playing = true;
                     break;
