@@ -1,6 +1,6 @@
 <div class="container">
     {{#if (eq sound.group "")}}
-        <h1>Sound Settings: {{ sound.name }}</h1>
+        <h1>Sound Settings: {{shortenString sound.name }}</h1>
     {{else}}
         <h1>Sound Settings: {{ sound.group }}</h1>
     {{/if}}
