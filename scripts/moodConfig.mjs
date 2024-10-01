@@ -31,7 +31,7 @@ export default class MoodConfig {
     status;
     sounds;
     active_groups;
-
+    // TODO update file sound path
     constructor(_soundsConfig, playlist, _status="stop") {
         this.id = _soundsConfig.id;
         this.name = _soundsConfig.name;
@@ -40,15 +40,16 @@ export default class MoodConfig {
         this.sounds = [];
         const _sounds = _soundsConfig.sounds.slice();
         for (let i = 0; i <_sounds.length; i++) {
-            const sound = playlist.sounds.find(el => el.path == _sounds[i].path);
+            const file_name = _sounds[i].path.split('/').pop();
+            const sound = playlist.sounds.find(el => el.path.includes(file_name));
+            // update path if it is wrong
+            if (sound.path != _sounds[i].path) {
+                _sounds[i].path = sound.path;
+            }
             if (sound) {
                 _sounds[i].id = sound.id;
                 if(_sounds[i].hasOwnProperty('status')) {
-                    if (_sounds[i].status == "on") {
-                        this.sounds.push(new SoundConfig(_sounds[i]));
-                    } else {
-                        this.sounds.push(new SoundConfig(_sounds[i]));
-                    }
+                    this.sounds.push(new SoundConfig(_sounds[i]));
                 } else {
                     _sounds[i].status = "off";
                     this.sounds.push(new SoundConfig(_sounds[i]));
