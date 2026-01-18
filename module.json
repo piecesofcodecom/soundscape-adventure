@@ -31,8 +31,7 @@
     "packs": ["migrate-soundscape-v1-to-v2"]
   }],
   "esmodules": [
-    "./scripts/settings.mjs",
-    "./scripts/soundscape-init.mjs"
+    "./dist/soundscape-adventure.min.js"
   ],
   "languages": [
     {

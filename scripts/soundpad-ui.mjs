@@ -23,21 +23,6 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
         this.isUpdating = false;
     }
 
-    // static get defaultOptions() {
-    //     return foundry.utils.mergeObject(super.defaultOptions, {
-    //         id: "soundpad-ui",
-    //         template: "modules/soundscape-adventure/templates/soundpad-ui.hbs",
-    //         classes: ["soundpad-ui"],
-    //         popOut: false,
-    //         width: 400,
-    //         height: "auto",
-    //         left: 0,
-    //         top: 500, // TODO: make configurable
-    //         zIndex: 1000,
-    //         resizable: false,
-    //     });
-    // }
-
     async _preparePartContext(partId, context) {
         context.partId = `${this.id}-${partId}`;
         return context;
@@ -54,7 +39,7 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
             const soundscape = soundscapes[soundscapeId];
             if (soundscape.class.isPlaying) {
                 const mood = soundscape.class.moods[soundscape.class.activeMoodId];
-                if(mood) {
+                if (mood) {
                     sounds = mood.sounds.filter(sound => sound.type === constants.SOUNDTYPE.SOUNDPADUI);
                     name = mood.name;
                     this.soundscape = soundscape.class;
@@ -81,15 +66,16 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
             button.addEventListener('click', async (event) => {
                 if (!this.soundscape.activeMoodId) return;
                 const btn = event.currentTarget;
+                const dataset = btn.closest('.sa-dataset').dataset;
                 btn.style.opacity = 1;
-                const idx = parseInt(event.currentTarget.dataset.idx);
-                const sound = context.sounds[idx];
+                //const idx = parseInt(event.currentTarget.dataset.idx);
+                const sound = context.sounds.find(s => s.id === dataset.soundId);
                 const playlist = this.soundscape.playlist;
-                const playlistSound = await playlist.sounds.find(s => s.id === sound.id);
+                const playlistSound = await playlist.sounds.find(s => s.id === dataset.soundId);
                 await playlistSound.load();
                 const icon = btn.querySelector('i');
                 if (!playlistSound) {
-                    utils.log(utils.getCallerInfo(),`Sound not found in the playlist ${this.soundscape.playlist.name}: ${sound.path}`, constants.LOGLEVEL.WARN);
+                    utils.log(utils.getCallerInfo(), `Sound not found in the playlist ${this.soundscape.playlist.name}: ${sound.path}`, constants.LOGLEVEL.WARN);
                     return;
                 }
                 if (sound && !playlistSound.playing) {
@@ -158,32 +144,32 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
                 slider.style.transform = "rotate(270deg)";
                 slider.style.width = "200px";
                 slider.style.boxShadow = "rgb(243 240 240 / 35%) 0px 0px 5px 0px";
-                
+
                 let volume_label = currentBar.querySelector('.soundpad-volume-label');
                 if (!volume_label) {
                     volume_label = document.createElement('span');
-                volume_label.className = 'soundpad-volume-label';
-                volume_label.style.display = 'block';
-                volume_label.style.textAlign = 'center';
-                volume_label.textContent = `Volume`;
-                currentBar.appendChild(volume_label);
+                    volume_label.className = 'soundpad-volume-label';
+                    volume_label.style.display = 'block';
+                    volume_label.style.textAlign = 'center';
+                    volume_label.textContent = `Volume`;
+                    currentBar.appendChild(volume_label);
                 }
-                
+
 
                 currentBar.appendChild(slider);
                 let volume_value = currentBar.querySelector('.soundpad-volume-value');
                 if (!volume_value) {
                     volume_value = document.createElement('span');
-                volume_value.className = 'soundpad-volume-value';
-                volume_value.style.display = 'block';
-                volume_value.style.textAlign = 'center';
-                volume_value.style.marginTop = "100px";
+                    volume_value.className = 'soundpad-volume-value';
+                    volume_value.style.display = 'block';
+                    volume_value.style.textAlign = 'center';
+                    volume_value.style.marginTop = "100px";
                 }
                 volume_value.textContent = `${parseInt(sound.volume * 100)} %`;
                 currentBar.appendChild(volume_value);
-                
+
                 let label = this.element.querySelector('.soundpad-label');
-                label.style.whiteSpace= "nowrap";
+                label.style.whiteSpace = "nowrap";
                 label.style.display = 'block';
                 label.style.textAlign = 'center';
                 label.textContent = playlistSound.name;
@@ -192,13 +178,34 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
                     if (playlistSound) {
                         this.soundscape.changeSoundVolume(this.soundscape.activeMoodId, sound.id, parseFloat(slider.value));
                         await playlistSound.update({ volume: parseFloat(slider.value) });
-                        volume_value.textContent = `${parseInt(slider.value * 100)} %`;   
+                        volume_value.textContent = `${parseInt(slider.value * 100)} %`;
                     }
                 }
                 slider.value = parseFloat(sound?.volume) ?? 1;
                 slider.addEventListener('input', listener, false);
             });
         });
+
+        const volumes = this.element.querySelectorAll(".volume.sound-control");
+        volumes.forEach(button => {
+            button.addEventListener("click", async (event) => {
+                const action = button.dataset.action;
+                // Find the closest parent with data attributes
+                const dataset = button.closest(".sa-dataset").dataset;
+                // Call appropriate method
+                switch (action) {
+                    case "volume":
+                        const playlist = this.soundscape.playlist;
+                        const sound = await context.sounds.find(s => s.id === dataset.soundId);
+                        const playlistSound = await playlist.sounds.find(s => s.id === sound.id);
+                        this.soundscape.changeSoundVolume(this.soundscape.activeMoodId, sound.id, parseFloat(button.value));
+                        await playlistSound.update({ volume: parseFloat(button.value) });
+                        button.dataset.tooltip = `Volume ${parseInt(button.value * 100)} %`;
+                        break;
+                }
+            });
+
+        })
         return context;
     }
 }

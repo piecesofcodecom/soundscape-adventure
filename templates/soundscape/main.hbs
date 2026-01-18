@@ -1,0 +1,15 @@
+<div class="sa-app {{#if (not libraryIsOpen) }}library-hidden{{/if}}">
+    {{> "modules/soundscape-adventure/templates/soundscape/parts/left-menu.hbs" moods=moods  libraryIsOpen=libraryIsOpen }}
+        <!-- CENTER: Sound Groups -->
+        <main class="sa-content">
+            {{#each selected_mood.sounds as |group|}}
+            {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-group.hbs" group=group}}
+            {{/each}}
+        </main>
+        <!-- RIGHT: Sound Library -->
+        {{#if libraryIsOpen}}
+        <aside class="sa-library drop-zone" data-drop-zone-type="3" data-drop-zone-category="">
+            {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-library.hbs" library=library }}
+        </aside>
+        {{/if}}
+    </div>

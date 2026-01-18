@@ -1,54 +1,74 @@
-<div class="container">
-    <h1>Mood Settings: {{ mood.name }}</h1>
-
-        <!-- Mood Name -->
-        <div class="form-group">
-            <label for="moodName">Mood Name:</label>
-            <input type="text" id="moodName" name="moodName" placeholder="Enter mood name" value="{{ mood.name }}"/>
+<div class="sound-editor">
+    <!-- Identity -->
+    <section class="editor-section">
+        <h2>Identity</h2>
+        <div class="identity-grid">
+            
+            <div class="field">
+                <label>Mood Name</label>
+                <input type="text" id="moodName" name="moodName" value="{{ mood.name }}">
+            </div>
         </div>
-        <br />
-        <!-- Trigger -->
-        <h3>Triggers<i class="fa-solid fa-block-question" data-tooltip="For region triggers you need to go to the region's behaviour"></i></h3>
-        <div class="form-group inline-group">
+    </section>
+
+
+    <!-- Triggers -->
+    <section class="editor-section">
+        <h2>Triggers</h2>
+
+        <div class="trigger-list">
+            <!-- Trigger Card -->
             {{#each triggers}}
-            <div class="trigger_group">
-                <h4>Trigger {{ @index }}</h4>
-                <div class="form-group">
+            <div class="trigger-card">
+                <header>
+                    <span>Trigger {{ @index }}</span>
+                    {{!-- <button class="remove">✕</button> --}}
+                </header>
+
+                <div class="field">
                     <label for="triggerAction{{ @index }}">Action</label>
                     <select id="triggerAction{{ @index }}" name="triggerAction">
-                        <option value="">Select</option>
+                        <option>Select</option>
                         {{#each this.actions}}
-                            <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
                         {{/each}}
                     </select>
                 </div>
-                <br />
-                <div class="form-group">
+
+                <div class="field">
                     <label for="triggerOn{{ @index }}">On</label>
-                    <select class="onElement" id="triggerOn{{ @index }}" name="triggerOn">
-                        <option value="">Select</option>
+                    <select id="triggerOn{{ @index }}" name="triggerOn">
+                        <option>Select</option>
                         {{#each this.on}}
-                            <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
                         {{/each}}
                     </select>
                 </div>
-                <br />
-                <div class="form-group">
+
+                <div class="field">
                     <label for="triggerEvent{{ @index }}">Event</label>
-                    <select class="eventElement" id="triggerEvent{{ @index }}" name="triggerEvent">
-                        <option value="">Select</option>
+                    <select id="triggerEvent{{ @index }}" name="triggerEvent">
+                        <option>Select</option>
                         {{#each this.events}}
-                            <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
                         {{/each}}
                     </select>
                 </div>
-            </div> <!-- trigger group -->
+            </div>
             {{/each}}
+            <!-- Add Trigger -->
+            {{!-- <button class="add-trigger">➕ Add Trigger</button> --}}
         </div>
-        <!-- # Region Triggers -->
-        <br />
-        <br />
-        <button class="removeAllTriggers" data-mood-id="{{ mood.id }}">
-            <i class="fa-solid fa-broom"></i>Remove all triggers for this mood
-        </button>
+        <div style="width: 100%; text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    padding-top: 1em;">
+            <button class="removeAllTriggers" data-mood-id="{{ mood.id }}">
+                <i class="fa-solid fa-broom"></i>Remove all triggers for this mood
+            </button>
+        </div>
+
+    </section>
+
 </div>

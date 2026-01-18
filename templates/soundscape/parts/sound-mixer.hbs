@@ -1,0 +1,51 @@
+<div class="channel sa-dataset {{#if (gteZero sound.volume)}}playing{{else}}stopped{{/if}}"
+    data-mood-id="{{@root.selected_mood.id}}" data-sound-id="{{ sound.id }}" data-group="{{ sound.group }}" data-sound-type="{{ sound.type }}">
+    <div class="channel-name data-drag">{{sound.name}}</div>
+    {{!-- <header>
+        {{#ifEquals sound.group '' }}
+        <span class="channel-number">Single Sound</span>
+        {{else}}
+        <span class="channel-number">Group Sound</span>
+        {{/ifEquals}}
+
+        <span class="channel-type">Future Channel Selection</span>
+    </header> --}}
+    {{!-- <div class="data-drag"> --}}
+        <div class="channel-body">
+            <div class="icon data-drag">
+                {{#ifNotEquals sound.soundIcon ''}}
+                <img style="width: 26px; height: 26px; box-shadow: rgb(255 255 255 / 2%) 0px 1px 3px 0px, rgb(208 230 251 / 15%) 0px 0px 0px 1px;" src="{{sound.soundIcon}}" >
+                {{else}}
+                 {{#if (or (eq sound.type 4) (eq sound.type 5))}}
+                <i class="fas fa-speakers" data-tooltip="Group Sound"></i>
+                {{else}}
+                <i class="fas fa-speaker" data-tooltip="Single Sound"></i>
+                {{/if}}
+                {{/ifNotEquals}}
+            </div>
+            {{!--
+        </div> --}}
+        <div class="sliders">
+            <div class="slider-group">
+                {{!-- <label>VOL</label> --}}
+                <input type="range" class="volume sound-control" draggable="false" data-action="volume"
+                    data-tooltip="Volume {{volumeUI sound.volume}}" min="0" max="1" step="0.05" value="{{sound.volume}}"
+                    data-current-value="{{sound.volume}}" orient="vertical" />
+            </div>
+
+            {{#if (eq sound.type 4)}}
+            <div class="slider-group">
+                <input type="range" class="volume sound-control" min="0" max="100" step="5" value="{{sound.intensity }}"
+                    data-action="intensity" data-tooltip="Intensity {{sound.intensity}}%" draggable="false"
+                    orient="vertical" />
+            </div>
+            {{/if}}
+            <!-- <div class="slider-group"> <label>INT</label> <input type="range" min="0" max="100" value="50" orient="vertical"> </div> -->
+
+        </div>
+        {{!-- <button class="mute">Mute</button> <button class="settings">⚙</button> --}}
+        <button class="sound-control sa-btn-simple" data-tooltip="Configuration" data-action="edit-sound">
+            <i class="fas fa-cog"></i>
+        </button>
+    </div>
+</div>

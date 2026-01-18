@@ -51,8 +51,9 @@ export class RandomSoundManager {
     if (!playlistSound) return;
 
     // Play the sound
-    
-    await playlist.playSound(playlistSound, { volume });
+
+    await playlistSound.update({ volume: parseFloat(volume) })
+    await playlist.playSound(playlistSound);
 
     // Wait for the internal Sound instance to be ready
     const audioSound = playlistSound.sound;

@@ -1,0 +1,117 @@
+<div class="sound-editor">
+
+    <!-- Header -->
+    {{!-- <header class="editor-header">
+        <div class="title">
+            <span class="icon">🎵</span>
+            <h1>Sound Editor</h1>
+        </div>
+        <button class="close-btn">✕</button>
+    </header> --}}
+
+    <!-- Identity -->
+    <section class="editor-section">
+        <h2>Identity</h2>
+        <div class="identity-grid">
+            <div class="field">
+                <label>Sound Name</label>
+                <input type="text" value="Crowd4">
+            </div>
+
+            <div class="field">
+                <label>Sound Group</label>
+                <select>
+                    <option>-- Please choose an option --</option>
+                </select>
+            </div>
+
+            <div class="field icon-field">
+                <label>Icon</label>
+                <button class="icon-picker">🎭</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="editor-section">
+  <h2>Timing</h2>
+
+  <div class="timing-grid">
+    <div class="field">
+      <label>Fade In (seconds)</label>
+      <div class="range-field">
+        <input type="range" min="0" max="10" step="0.5" value="0">
+        <span class="value">0s</span>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Fade Out (seconds)</label>
+      <div class="range-field">
+        <input type="range" min="0" max="10" step="0.5" value="0">
+        <span class="value">0s</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Random Playback -->
+  <div class="random-block">
+    <label class="checkbox">
+      <input type="checkbox">
+      Play randomly
+    </label>
+
+    <div class="random-interval">
+      <div class="field">
+        <label>Interval From (seconds)</label>
+        <input type="number" min="0" value="0">
+      </div>
+
+      <div class="field">
+        <label>Interval To (seconds)</label>
+        <input type="number" min="0" value="0">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+    <!-- Triggers -->
+    <section class="editor-section">
+        <h2>Triggers</h2>
+
+        <div class="trigger-list">
+            <!-- Trigger Card -->
+            <div class="trigger-card">
+                <header>
+                    <span>Trigger</span>
+                    <button class="remove">✕</button>
+                </header>
+
+                <div class="field">
+                    <label>Action</label>
+                    <select>
+                        <option>Select</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>On</label>
+                    <select>
+                        <option>Select</option>
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label>Event</label>
+                    <select>
+                        <option>Select</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Add Trigger -->
+            <button class="add-trigger">➕ Add Trigger</button>
+        </div>
+    </section>
+
+</div>

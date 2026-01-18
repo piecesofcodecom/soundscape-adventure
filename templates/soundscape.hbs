@@ -77,13 +77,14 @@
                     <div class="sound-category grid flexcol"
                          {{#if (ne ../this.type 7)}}style="border: 1px solid rgba(0,0,0,0.2); padding-bottom: 0.7em;"{{/if}}>
                         {{#if (ne ../this.type 7)}}
-                        <div class="flexrow" style="background-color: rgba(0,0,0,0.2); ">
-                            
+                        <div class="grid grid-4col" style="background-color: rgba(0,0,0,0.2); ">
+                            <div class="grid">
                             <h4 class="category-title" style="color: #000; flex: 2"  data-category-id="{{this.id}}" data-category-type="{{this.type}}">
                                 <i class="fa fa-angle-{{#if this.collapsed}}up{{else}}down{{/if}}"></i>&nbsp;Category:{{this.name}}
                             </h4>
-                            
-                            <span class="grid flexrow"
+                            </div>
+                            <div class="grid" style="grid-template-columns: auto;">
+                            <span class="flexrow"
                                 style="align-items: center; text-align: center; color: black; font-size: medium; justify-content: flex-end; margin-right: 10px;     flex: 2;">
                                 {{#unless (eq this.name "None") }}
                                 <i class="fa-solid fa-trash category-control" style="max-width: 40px"
@@ -100,6 +101,7 @@
                                     data-category-id="{{this.id}}" data-mood-id="{{../../id}}" data-action="stop"
                                     data-tooltip="Stop all enabled sounds in the category {{this.name}}"></i>
                             </span>
+                            </div>
 
                         </div>
                         {{/if}}
@@ -153,6 +155,9 @@
                         {{!-- Keep the original card view for other categories --}}
                         <div class="soundscapeadv-container drop-zone" data-drop-zone-type="{{ ../this.type }}" {{#if
                             this.collapsed}} style="display: none" {{/if}} data-drop-zone-category="{{this.id}}">
+                            {{#ifEmptyArray this.sounds}}
+                            <span> Drop sounds here</span>
+                            {{/ifEmptyArray}}
                             {{#each this.sounds}}
                             <div class="soundscape-sound-card {{#unless (eq this.group "")}}group{{/unless}} data-drag"
                                 data-sound-id="{{ this.id }}" data-mood-id="{{ ../../../id }}">

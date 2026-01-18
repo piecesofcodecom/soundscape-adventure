@@ -1,133 +1,160 @@
-<div class="container">
-    {{#if (eq sound.group "")}}
-    <h1>Sound Settings: {{shortenString sound.name }}</h1>
-    {{else}}
-    <h1>Sound Settings: Group {{ sound.group }}</h1>
-    {{/if}}
-
-    <!-- Sound Name -->
-    {{#if (eq sound.group "")}}
-    <div class="form-group inline-group">
-        <div>
-            <label for="soundName">Sound Name:</label>
-            <input type="text" id="soundName" name="soundName" placeholder="Enter sound name"
-                value="{{ sound.name }}" />
-        </div>
-        <div>
-            <label for="soundName">Sound Group:</label>
-            <select name="group" id="group-id" class="sound-add-group" data-sound-id="{{ sound.id }}">
-                <option value="">--Please choose an option--</option>
-                {{#each groups}}
-                <option value="{{ this }}">{{ this }}</option>
+<div class="sound-editor">
+    <!-- Identity -->
+    <section class="editor-section">
+        <h2>Identity</h2>
+        <div class="identity-grid{{#if (or (eq sound.type 4) (eq sound.type 5))}}-group{{/if}}">
+            {{#if (or (eq sound.type 4) (eq sound.type 5))}}
+            <div class="group-names">
+                {{#each sounds}}
+                <a class="sound-remove-group" data-sound-id="{{this.id}}" data-group-id="{{@root.sound.id}}"
+                    data-tooltip="Remove from the group">
+                    <span class="sound-group-name">{{this.name}}
+                        <i style="font-size: smaller;" class="fa-solid fa-xmark">
+                        </i></a>
+                </span>
                 {{/each}}
-                <option value="NewGroup">Create a New Group</option>
-            </select>
-        </div>
-        <div>
-            <label for="soundName">Sound Icon:</label>
-            <div class="form-fields">
+            </div>
+            {{else}}
+            <div class="field">
+                <label>Sound Name</label>
+                <input type="text" id="soundName" name="soundName" value="{{ sound.name }}">
+            </div>
+
+            <div class="field">
+                <label>Sound Group</label>
+                <select name="group" id="group-id" data-sound-id="{{ sound.id }}" data-sound-name="{{ sound.name }}"
+                    data-sound-type="{{ sound.type }}" class="sound-add-group">
+                    <option>-- Please choose an option --</option>
+                    {{#each groups as |group|}}
+                    <option value="{{ group.id }}">{{ group.name }}</option>
+                    {{/each}}
+                    <option value="NewGroup">Create a New Group</option>
+                </select>
+            </div>
+            {{/if}}
+            <div class="field icon-field">
+                <label>Icon</label>
                 <input type="text" id="soundIcon" name="soundIcon" placeholder="Select an icon"
-                    value="{{ sound.soundIcon }}" data-dtype="String" />
-                <button type="button" class="file-picker" data-type="image" data-target="input[name='soundIcon']" tabindex="-1" title="Browse Files">
-                    <i class="fas fa-file-import fa-fw"></i>
+                    value="{{ sound.soundIcon }}" data-dtype="String" style="display: none" />
+                <button type="button" class="file-picker sound-icon-button" data-type="image" data-target="input[name='soundIcon']"
+                    tabindex="-1" title="Browse Files">
+                    {{#ifNotEquals sound.soundIcon ''}}
+                    <img class="sound-icon" style="width: 32px; height: 32px;" src="{{sound.soundIcon}}" />
+                    {{else}}
+                    {{#if (or (eq sound.type 4) (eq sound.type 5))}}
+                    <i class="fas fa-speakers" data-tooltip="Group Sound"></i>
+                    {{else}}
+                    <i class="fas fa-speaker" data-tooltip="Single Sound"></i>
+                    {{/if}}
+                    {{/ifNotEquals}}
                 </button>
             </div>
         </div>
-    </div>
-    <br />
-    {{else}}
-    <div class="sound-element-group" style="display: flex; flex-wrap: wrap; gap: 1rem;" >
-        {{!-- <label for="ice-cream-choice">Choose a sound:</label>
-<input list="ice-cream-flavors" id="ice-cream-choice" name="ice-cream-choice" /> --}}
-<!--datalist id="ice-cream-flavors"-->
-        {{#each sounds}}
-        <!--option value="{{this.id}}">{{this.name}}</option-->
-        <div style="width: calc(100% / 3 - 0.67rem); " class="sound-element">
-            <label for="soundName"><b>Sound Name</b>: {{this.name}}  
-            </label>
-    <a data-sound-id="{{this.id}}" class="sound-remove-group" style="border: 1px solid #000000;
-    background: #7b0303;
-    border-radius: 25px;
-    overflow: hidden;
-    position: relative;
-    transition: width 0.2s ease-in-out;
-    padding: 3px;" data-tooltip="Remove from the group"><i class="fa-solid fa-xmark"></i></a>
-        </div>
-        {{/each}}
-        <!--/datalist-->
-    </div>
-    <br />
-    {{/if}}
-    <!-- Fade In / Out -->
-    <div class="form-group inline-group">
-        <div class="fade-group">
-            <label for="fadeIn">Fade In (seconds):</label>
-            <input type="number" id="fadeIn" name="fadeIn" value="{{ sound.fadeIn }}">
-        </div>
-        <div class="fade-group">
-            <label for="fadeOut">Fade Out (seconds):</label>
-            <input type="number" id="fadeOut" name="fadeOut" value="{{ sound.fadeOut }}">
-        </div>
-    </div>
-    <br />
-    
-    <!-- Random Interval -->
-    {{#if (or (eq sound.type 2) (eq sound.type 5))}}
-    <div class="form-group inline-group">
-        <div class="fade-group">
-            <label for="from">Interval From (seconds):</label>
-            <input type="number" id="from" name="from" value="{{ sound.from }}">
-        </div>
-        <div class="fade-group">
-            <label for="to">Interval To (seconds):</label>
-            <input type="number" id="to" name="to" value="{{ sound.to }}">
-        </div>
-    </div>
-    <br />
+    </section>
 
-    <div class="form-group inline-group">
-        <label for="soundName">Play once:</label>
-        <input type="checkbox" id="playOnce" name="playOnce" {{#if sound.playOnce }} checked {{/if}} />
-    </div>
-    <br />
-    {{/if}}
-    <!-- Region Trigger -->
-    <h3>Triggers</h3>
-    <div class="form-group inline-group">
-        {{#each triggers}}
-        <div class="trigger_group">
-            <h4 style="text-align: center">Trigger {{ @index }}</h4>
-            <div class="form-group">
-                <label for="triggerAction{{ @index }}">Action</label>
-                <select id="triggerAction{{ @index }}" name="triggerAction">
-                    <option value="">Select</option>
-                    {{#each this.actions}}
-                    <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
-                    {{/each}}
-                </select>
+    <section class="editor-section">
+        <h2>Timing</h2>
+
+        <div class="timing-grid">
+            <div class="field">
+                <label>Fade In (seconds)</label>
+                <div class="range-field fadeIn">
+                    <input type="range" min="0" max="60" step="1" class="fadeIn-range" id="fadeIn" name="fadeIn"
+                        value="{{ sound.fadeIn }}">
+                    <span class="value fadeIn-value">{{ sound.fadeIn }}s</span>
+                </div>
             </div>
-            <br />
-            <div class="form-group">
-                <label for="triggerOn{{ @index }}">On</label>
-                <select class="onElement" id="triggerOn{{ @index }}" name="triggerOn">
-                    <option value="">Select</option>
-                    {{#each this.on}}
-                    <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
-                    {{/each}}
-                </select>
+
+            <div class="field">
+                <label>Fade Out (seconds)</label>
+                <div class="range-field fadeOut">
+                    <input type="range" min="0" max="60" step="1" class="fadeOut-range" id="fadeOut" name="fadeOut"
+                        value="{{ sound.fadeOut }}">
+                    <span class="value fadeOut-value">{{ sound.fadeOut }}s</span>
+                </div>
             </div>
-            <br />
-            <div class="form-group">
-                <label for="triggerEvent{{ @index }}">Event</label>
-                <select class="eventElement" id="triggerEvent{{ @index }}" name="triggerEvent">
-                    <option value="">Select</option>
-                    {{#each this.events}}
-                    <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
-                    {{/each}}
-                </select>
+        </div>
+
+        <!-- Random Playback -->
+        {{#if (or (eq sound.type 2) (eq sound.type 5))}}
+        <div class="random-block">
+            <label class="checkbox">
+                <input type="checkbox" id="playOnce" name="playOnce" {{#if sound.playOnce }} checked {{/if}}>
+                Play once
+            </label>
+
+            <div class="random-interval">
+                <div class="field">
+                    <label>Interval From (seconds)</label>
+                    {{#if (eq sound.type 5)}}
+                    <input type="number" id="from" name="from" min="0" value="{{sound.random.from}}">
+                    {{else}}
+                    <input type="number" id="from" name="from" min="0" value="{{sound.from}}">
+                    {{/if}}
+                </div>
+
+                <div class="field">
+                    <label>Interval To (seconds)</label>
+                    {{#if (eq sound.type 5)}}
+                    <input type="number" id="to" name="to" min="0" value="{{sound.random.to}}">
+                    {{else}}
+                    <input type="number" id="to" name="to" min="0" value="{{sound.to}}">
+                    {{/if}}
+                </div>
             </div>
-        </div> <!-- trigger group -->
-        {{/each}}
-    </div>
-    <!-- # Region Triggers -->
+        </div>
+        {{/if}}
+    </section>
+
+
+    <!-- Triggers -->
+    <section class="editor-section">
+        <h2>Triggers</h2>
+
+        <div class="trigger-list">
+            <!-- Trigger Card -->
+            {{#each triggers}}
+            <div class="trigger-card">
+                <header>
+                    <span>Trigger {{ @index }}</span>
+                    <button class="remove">✕</button>
+                </header>
+
+                <div class="field">
+                    <label for="triggerAction{{ @index }}">Action</label>
+                    <select id="triggerAction{{ @index }}" name="triggerAction">
+                        <option>Select</option>
+                        {{#each this.actions}}
+                        <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="triggerOn{{ @index }}">On</label>
+                    <select id="triggerOn{{ @index }}" name="triggerOn">
+                        <option>Select</option>
+                        {{#each this.on}}
+                        <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        {{/each}}
+                    </select>
+                </div>
+
+                <div class="field">
+                    <label for="triggerEvent{{ @index }}">Event</label>
+                    <select id="triggerEvent{{ @index }}" name="triggerEvent">
+                        <option>Select</option>
+                        {{#each this.events}}
+                        <option value="{{ this.id }}" {{#if this.selected }}selected {{/if}}>{{ this.name }}</option>
+                        {{/each}}
+                    </select>
+                </div>
+            </div>
+            {{/each}}
+            <!-- Add Trigger -->
+            {{!-- <button class="add-trigger">➕ Add Trigger</button> --}}
+        </div>
+
+    </section>
+
 </div>

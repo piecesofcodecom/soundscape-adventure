@@ -24,6 +24,11 @@ const SOUNDTYPE = {
 
 }
 
+const SOUNDVIEW = {
+    CARDVIEW: 0,
+    MIXERVIEW: 1
+}
+
 const SOUNDSCAPE_TYPE = {
     LOCAL: 0,
     REMOTE_S3: 1
@@ -45,5 +50,6 @@ export default {
     SOUNDSCAPE_TYPE,
     PREFIX,
     STORAGETRIGGERSETTINGS,
-    MODULE
+    MODULE,
+    SOUNDVIEW
   };

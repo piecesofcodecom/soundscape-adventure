@@ -1,0 +1,59 @@
+{{#ifNotEquals group_name "Soundpad UI"}}
+{{#ifNotEquals category.name "None" }}
+<div class="sa-category-header">
+    <span>Category: {{category.name}}</span>
+    <div class="sa-group-controls sa-dataset" data-category-id="{{category.id}}"
+        data-mood-id="{{@root.selected_mood.id}}" data-category-name="{{category.name}}">
+        {{!-- <i class="fas fa-music"></i> --}}
+        <button class="sa-btn-simple category-control" data-action="play"
+            data-tooltip="Play all enabled sounds in the category {{category.name}}">
+            <i class="fas fa-play"></i>
+        </button>
+        <button class="sa-btn-simple category-control" data-action="stop"
+            data-tooltip="Stop all enabled sounds in the category {{category.name}}">
+            <i class="fas fa-stop"></i>
+        </button>
+        <button class="sa-btn-simple category-control" data-action="delete"
+            data-tooltip="Delete the category {{category.name}} and move sounds back to general area">
+            <i class="fas fa-trash"></i>
+        </button>
+    </div>
+</div>
+{{/ifNotEquals}}
+{{#if @root.card_view}}
+<div class="sa-sound-grid-card">
+    {{#each category.sounds as |sound|}}
+    {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-card.hbs" sound=sound}}
+    {{/each}}
+    <div class="dragdrop-empty drop-zone" data-drop-zone-type="{{ category.type }}"
+        data-drop-zone-category="{{category.id}}">
+        Drag and Drop an Input Source
+    </div>
+</div>
+{{else}}
+<div class="sa-sound-grid-mixer">
+    {{#each category.sounds as |sound|}}
+    {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-mixer.hbs" sound=sound}}
+    {{/each}}
+    <div class="dragdrop-empty drop-zone" data-drop-zone-type="{{ category.type }}"
+        data-drop-zone-category="{{category.id}}">
+        Drag and Drop an Input Source
+    </div>
+</div>
+{{/if}}
+{{else}}
+<div class="sa-dataset" data-category-id="{{category.id}}"
+        data-mood-id="{{@root.selected_mood.id}}" data-category-name="{{category.name}}">
+
+    <ul class="sa-sound-list">
+        <li class="dragdrop-empty drop-zone" data-drop-zone-type="{{ category.type }}"
+            data-drop-zone-category="{{category.id}}">
+            Drag and Drop an Input Source
+        </li>
+        {{#each category.sounds as |sound|}}
+        {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-list.hbs" sound=sound}}
+        {{/each}}
+    </ul>
+
+</div>
+{{/ifNotEquals}}

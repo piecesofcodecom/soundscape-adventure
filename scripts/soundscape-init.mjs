@@ -25,8 +25,8 @@ Hooks.on('deleteCombat', (combat, updateData) => {
  */
 
 Hooks.on('SoundscapeAdventure-Init', (sidebar, html) => {
-     game.soundscapeAdventure = SoundscapeAdventure;
-      Hooks.call("SoundscapeAdventure-Ready");
+    game.soundscapeAdventure = SoundscapeAdventure;
+    Hooks.call("SoundscapeAdventure-Ready");
 });
 Hooks.on('SoundscapeAdventure-UpdateSidebar', () => {
     ui.sidebar.parts[cModuleName].render(true);
@@ -390,6 +390,7 @@ Hooks.once('init', () => {
 
     Handlebars.registerHelper('ifNotEquals', function (arg1, arg2, options) {
         return (arg1 != arg2) ? options.fn(this) : options.inverse(this);
+        
     });
 
     Handlebars.registerHelper('isPlaying', function (soundId, soundscapeId, moodId, options) {
@@ -399,7 +400,7 @@ Hooks.once('init', () => {
             sound = SoundscapeAdventure.soundscapes[soundscapeId].class.playlist.sounds.get(soundId);
         } else {
 
-            const listSounds = SoundscapeAdventure.soundscapes[soundscapeId].class.moods[moodId].getSoundByGroup(soundConfig.group);
+            const listSounds = SoundscapeAdventure.soundscapes[soundscapeId].class.moods[moodId].getSoundByGroup(soundConfig.id);
             sound.playing = false;
             for (let i = 0; i < listSounds.length; i++) {
                 if (SoundscapeAdventure.soundscapes[soundscapeId].class.playlist.sounds.get(listSounds[i].id).playing) {
@@ -445,6 +446,20 @@ Hooks.once('init', () => {
     // length helper
     Handlebars.registerHelper("length", function (arr) {
         return Array.isArray(arr);
+    });
+
+    // check if is empty os array lengh is 0
+    Handlebars.registerHelper("ifEmptyArray", function (arr, options) {
+        if (Array.isArray(arr)) {
+            if (arr.length > 0) {
+                return options.inverse(this);
+            }
+        }
+        return options.fn(this);
+    })
+
+    Handlebars.registerHelper("gteZero", function (value) {
+        return Number(value) > 0;
     });
 
 });

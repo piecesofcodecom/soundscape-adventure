@@ -1,0 +1,25 @@
+<div class="sa-sound-card sa-dataset {{#if (gteZero sound.volume)}}playing{{else}}stopped{{/if}}" {{#ifNotEquals sound.soundIcon ''
+    }} style="background-image: linear-gradient(
+      rgba(10, 10, 10, 0.6),
+      rgba(10, 10, 10, 0.6)
+    ), url({{sound.soundIcon}}); background-size: cover;" {{/ifNotEquals}} data-sound-id="{{ sound.id }}" data-sound-type="{{ sound.type }}" data-group="{{ sound.group }}"
+    data-mood-id="{{@root.selected_mood.id}}" data-soundscape-id="{{@root.soundscapeId}}">
+    <div class="sa-sound-card-header data-drag">
+        <div class="title">{{sound.name}}</div>
+        <div class="actions">
+            <button class="sound-control sa-btn-simple " data-tooltip="Configuration" data-action="edit-sound">
+                <i class="fas fa-cog"></i>
+            </button>
+        </div>
+    </div>
+    <!--div class="meta">Solo 24367</div-->
+    <input type="range" class="volume sound-control" draggable="false" data-action="volume"
+        data-tooltip="Volume {{volumeUI sound.volume}}" min="0" max="1" step="0.05" value="{{sound.volume}}"
+        data-current-value="{{sound.volume}}" />
+
+    {{#if (eq sound.type 4)}}
+    <input type="range" class="volume sound-control" min="0" max="100" step="5"
+        value="{{sound.intensity }}" data-action="intensity"  data-tooltip="Intensity {{sound.intensity}}%" draggable="false" />
+    {{/if}}
+    {{!-- <input type="range" class="volume" data-tooltip="Intensity" draggable="false" /> --}}
+</div>

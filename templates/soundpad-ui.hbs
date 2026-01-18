@@ -1,14 +1,19 @@
 <div class="soundpad-ui-container">
-    <h2>{{name}}</h2> 
-    <div class="flexrow" style="gap: 15px; align-items: flex-start;">
+    <h2>{{name}}</h2>
         {{#if sounds.length}}
-        <div class="flexrow">
+        <ul class="sa-sound-list">
+            {{#each @root.sounds as |sound|}}
+            {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-list.hbs" sound=sound}}
+            {{/each}}
+        </ul>
+        {{!-- <div class="flexrow">
             <div class="soundpad-columns" style="display: flex;">
                 {{#each (range 0 (sub columns 1))}}
                 <div class="soundpad-column" style="/*flex: 1;*/ margin: 0 4px;">
                     {{#each @root.sounds}}
                     {{#if (inColumn @index @root.buttonsPerColumn @root.columns @../index)}}
-                    <button class="soundpad-btn" data-idx="{{@index}}" style="background-image: url('{{this.soundIcon}}');"
+                    <button class="soundpad-btn" data-idx="{{@index}}"
+                        style="background-image: url('{{this.soundIcon}}');"
                         data-tooltip="{{this.name}} <br /><br /><i>- Left-click to play the sound.<br />- Right-click to display the volume control.</i>">
                         <i class="fas fa-play"></i>
                     </button>
@@ -17,18 +22,8 @@
                 </div>
                 {{/each}}
             </div>
-        </div>
+        </div> --}}
         {{else}}
         <p>No soundpad sounds available.</p>
         {{/if}}
-
-        <div class="flexcol" style="align-items: center;">
-            <div class="soundpad-volume2-slider flexcol">
-            </div>
-            <div class="soundpad-label"></div>
-        </div>
-    </div>
-
-
-
 </div>

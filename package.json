@@ -1,17 +1,22 @@
 {
     "scripts": {
-      "build": "rollup -c",
-      "dev": "rollup -wcm"
+        "build": "npm run build:css && rollup -c",
+        "build:css": "sass styles/main.scss css/soundscape.css --style=compressed --no-source-map",
+        "dev": "npm-run-all --parallel dev:css dev:js",
+        "dev:css": "sass styles/main.scss css/soundscape.css --watch --source-map",
+        "dev:js": "rollup -wcm"
     },
     "devDependencies": {
-      "@rollup/plugin-multi-entry": "^6.0.0",
-      "eslint": "^8.25.0",
-      "eslint-config-standard": "^17.0.0",
-      "eslint-plugin-import": "^2.26.0",
-      "eslint-plugin-n": "^15.3.0",
-      "eslint-plugin-promise": "^6.1.0",
-      "rollup": "^2.56.3",
-      "rollup-plugin-terser": "^7.0.2"
+        "@rollup/plugin-multi-entry": "^6.0.0",
+        "eslint": "^8.25.0",
+        "eslint-config-standard": "^17.0.0",
+        "eslint-plugin-import": "^2.26.0",
+        "eslint-plugin-n": "^15.3.0",
+        "eslint-plugin-promise": "^6.1.0",
+        "npm-run-all": "^4.1.5",
+        "rollup": "^2.56.3",
+        "rollup-plugin-terser": "^7.0.2",
+        "sass": "^1.97.2"
     },
     "type": "module"
-  }
+}

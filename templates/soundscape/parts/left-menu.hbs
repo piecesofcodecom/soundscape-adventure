@@ -1,0 +1,61 @@
+<!-- LEFT: Mood List -->
+<aside class="sa-moods">
+    <header class="sa-panel-header">
+        <h2>Moods</h2>
+    </header>
+
+    <ul class="sa-mood-list">
+        {{#each moods as |mood| }}
+        <li class="sa-mood {{#if mood.is_selected}}active{{/if}} mood-action" data-mood-id="{{ mood.id }}"
+            data-action="viewMood" data-soundscape-id="{{ @root.soundscapeId}}">
+            <span class="name">
+                <a class="">{{mood.name}}</a>
+            </span>
+            <div class="sa-mood-actions">
+                {{#if mood.has_changes}}
+                <a data-action="saveMood" class="mood-action" data-mood-id="{{ mood.id }}" data-tooltip="SAADV.MOOD.Save">
+                    <i class="fa-solid fa-download" style="color: red" data-mood-id="{{ mood.id }}"></i>
+                </a>
+                {{/if}}
+                {{#if (eq mood.status "playing")}}
+                <a data-action="playStopMood" class="mood-action" data-tooltip="SAADV.MOOD.Stop">
+                    <i class="fas fa-stop"></i>
+                </a>
+                {{else}}
+                <a data-action="playStopMood" class="mood-action" data-tooltip="SAADV.MOOD.Play">
+                    <i class="fas fa-play"></i>
+                </a>
+                {{/if}}
+                <a data-action="configMood" class="mood-action" data-mood-id="{{ mood.id }}"
+                    data-tooltip="SAADV.MOOD.Configure">
+                    <i class="fas fa-cog"></i>
+                </a>
+                <a data-action="deleteMood" class="mood-action" data-mood-id="{{ mood.id }}"
+                    data-tooltip="SAADV.MOOD.Delete">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </div>
+        </li>
+        {{/each}}
+    </ul>
+
+    <footer class="sa-footer-menu" data-soundscape-id="{{ @root.soundscapeId}}">
+        <button class="sa-btn mood-action" data-type="mood" data-action="createMood" data-tooltip="SAADV.MOOD.New">
+            <i class="fas fa-plus"></i>
+        </button>
+        <button class="sa-btn secondary mood-action" data-type="mood" data-action="cloneMood" data-tooltip="SAADV.MOOD.Clone">
+            <i class="fa fa-copy"></i>
+        </button>
+         {{#if libraryIsOpen}}
+         <button class="sa-btn selected secondary mood-action" data-type="mood" data-action="showLibrary"
+            data-tooltip="SAADV.LIBRARY.ShowHidden">
+            <i class="fa fa-list"></i>
+        </button>
+         {{else}}
+        <button class="sa-btn secondary mood-action" data-type="mood" data-action="showLibrary"
+            data-tooltip="SAADV.LIBRARY.ShowHidden">
+            <i class="fa fa-list"></i>
+        </button>
+        {{/if}}
+    </footer>
+</aside>

@@ -1,0 +1,17 @@
+<li class="sa-dataset" data-mood-id="{{ @root.selected_mood.id }}" data-sound-id="{{ sound.id }}" data-group="{{ sound.group }}" data-sound-type="{{sound.type}}">
+    {{#ifNotEquals sound.soundIcon ''}}
+    <img src="{{sound.soundIcon}}">
+    {{else}}
+    <img src="icons/svg/sound.svg">
+    {{/ifNotEquals}}
+    <span class=" data-drag">{{sound.name}}</span>
+    <input type="range" class="volume sound-control" draggable="false" data-action="volume"
+        data-tooltip="Volume {{volumeUI sound.volume}}" min="0" max="1" step="0.05" value="{{sound.volume}}"
+        data-current-value="{{sound.volume}}" />
+    <button class="sa-btn-simple sound-control" data-tooltip="Configuration" data-action="edit-sound">
+        <i class="fas fa-cog"></i>
+    </button>
+    <button class="sa-btn-simple soundpad-btn sound-control" data-tooltip="Play sound" data-action="play">
+        <i class="fas fa-play sound-control-icon" style="color: white"></i>
+    </button>
+</li>

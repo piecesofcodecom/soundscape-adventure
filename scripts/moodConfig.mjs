@@ -1,3 +1,4 @@
+import { GroupConfig } from "./groupConfig.mjs";
 import constants from "./utils/constants.mjs";
 import utils from "./utils/utils.mjs";
 class SoundConfig {
@@ -31,39 +32,25 @@ export default class MoodConfig {
     name;
     status;
     sounds;
-    active_groups;
-    groups = []; // TODO example: { id: "xgkgit", name: "Rain", type: constants.SOUND_TYPE.RANDOM_GROUP, fade_in, fade_out,   }
-    categories = []; //  example: { id: "1Y6Y8abJ1KlMiVgc", name: "Songs", type: "1", collapsed: false }
+    groups = [];
+    categories = [];
     has_changes = false;
-    // TODO update file sound path
+
     constructor(moodConfig, playlist, _status = "stop") {
         utils.log(utils.getCallerInfo(), `MoodConfig:`, constants.LOGLEVEL.INFO);
-        //
         this.id = moodConfig.id;
         this.name = moodConfig.name;
         this.status = moodConfig.status;
-        this.active_groups = moodConfig.active_groups ? moodConfig.active_groups : [];
-        this.sounds = [];
+        this.sounds = moodConfig.sounds;
         this.categories = moodConfig?.categories ? moodConfig.categories : [];
         const soundpadui = this.categories.filter(el => el.type == constants.SOUNDTYPE.SOUNDPADUI);
         if (soundpadui.length == 0) {
             this.categories.push({ id: "", name: "None", type: constants.SOUNDTYPE.SOUNDPADUI, collapsed: false, sounds: [] })
         }
-        //this.groups = moodConfig?.groups ? moodConfig.groups : [];
-        const _sounds = moodConfig.sounds.slice();
-        for (let i = 0; i < _sounds.length; i++) {
-            if (_sounds[i].hasOwnProperty('group')) {
-                if (!this.groups.includes(_sounds[i].group) && _sounds[i].group != "") {
-                    this.groups.push(_sounds[i].group);
-                }
+        if (moodConfig?.groups.length > 0) {
+            for (let i = 0; i < moodConfig.groups.length; i++) {
+                this.groups.push(new GroupConfig(moodConfig.groups[i]))
             }
-            if (_sounds[i].hasOwnProperty('status')) {
-                this.sounds.push(new SoundConfig(_sounds[i]));
-            } else {
-                _sounds[i].status = "off";
-                this.sounds.push(new SoundConfig(_sounds[i]));
-            }
-
         }
     }
 
@@ -134,12 +121,13 @@ export default class MoodConfig {
             name: this.name,
             status: this.status,
             categories: this.categories,
-            active_groups: this.active_groups,
+            groups: this.groups,
             sounds: this.sounds
         }
     }
 
     // validate files for sounds in the mood exist
+    //TODO include the consistence for groups
     async consistence(playlist) {
         // validates if all sounds in the mood are in the playlist
         for (let i = 0; i < this.sounds.length; i++) {
@@ -150,14 +138,33 @@ export default class MoodConfig {
                 if (!response.ok) {
                     // Log or notify about the missing file, but do not stop execution
                     ui.notifications.warn(`Sound not found ${this.sounds[i].path}. Removing from the soundscape.`);
-                    this.sounds.splice(i,1);
+                    this.removeSoundFromAllGroups(this.sounds[i].id);
+                    this.sounds.splice(i, 1);
+                    //TODO check if sound id is in a group and remove it
                 } else {
                     // Only load if the file was found
+                    const old_id = this.sounds[i].id;
                     this.sounds[i].id = await this.registerSound(this.sounds[i], playlist);
-                    utils.log(utils.getCallerInfo(),`Had to register a new audio: ${this.sounds[i].path}`, constants.LOGLEVEL.INFO);
+                    this.updateGroupSoundId(old_id, this.sounds[i].id);
+                    utils.log(utils.getCallerInfo(), `Had to register a new audio: ${this.sounds[i].path}`, constants.LOGLEVEL.INFO);
                 }
             } else {
-                this.sounds[i].id = playlistsound.id;
+                //check file still exists
+                try {
+                    const response = await fetch(playlistsound.path, { method: 'HEAD' });
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    const old_id = this.sounds[i].id;
+                    this.sounds[i].id = playlistsound.id;
+                    this.updateGroupSoundId(old_id, this.sounds[i].id);
+                } catch (err) {
+                    ui.notifications.warn(`Sound not found ${this.sounds[i].path}. Removing from the soundscape.`);
+                    this.removeSoundFromAllGroups(this.sounds[i].id);
+                    this.sounds.splice(i, 1);
+                    await playlist.deleteEmbeddedDocuments("PlaylistSound", [playlistsound.id]);
+                    this.has_changes = true;
+                }
             }
         }
 
@@ -185,10 +192,8 @@ export default class MoodConfig {
                     playOnce: false,
                     category: ""
                 }));
-
             }
         }
-
         return;
     }
 
@@ -209,16 +214,45 @@ export default class MoodConfig {
         }
     }
 
+    async updateGroupSoundId(oldId, newId) {
+        for (let i = 0; i < this.groups.length; i++) {
+            const soundInGroup = await this.groups[i].sounds.find(el => el.id == oldId);
+            if (soundInGroup) {
+                soundInGroup.id = newId;
+            }
+            if (this.groups[i].current == oldId) {
+                this.groups[i].current = newId;
+            }
+        }
+    }
+
+    async removeSoundFromAllGroups(soundId) {
+        for (let i = 0; i < this.groups.length; i++) {
+            await this.groups[i].removeSound(soundId);
+        }
+    }
+
     // adds to the playlist custom sounds
     // sounds that aren't part of the folder
     async updatePlaylist(playlist) {
         utils.log("Not implemented yet", constants.LOGLEVEL.INFO);
     }
 
-    isSoundOn(soundId) {
-        const sound = this.sounds.find(obj => obj.id == soundId);
-        if (sound.status == "on") {
-            return true;
+    async isSoundOn(soundId) {
+        const sound = await this.sounds.find(obj => obj.id == soundId);
+        if (sound) {
+            if (sound.status == "on") {
+                return true;
+            }
+            return false;
+        } else {
+            const group = await this.groups.find(obj => obj.id == soundId);
+            if (group) {
+                if (group.status == "on") {
+                    return true;
+                }
+                return false;
+            }
         }
         return false;
     }
@@ -242,34 +276,81 @@ export default class MoodConfig {
             } else {
                 sound.status = "on";
             }
+        } else {
+            const group = this.groups.find(obj => obj.id == _id);
+            if (group) {
+                this.enableSoundByGroup(_id);
+            }
         }
     }
 
     getEnabledSounds() {
-        return this.sounds.filter(obj => obj.status == "on");
+        const s = this.sounds.filter(obj => obj.status == "on");
+        return s;
+    }
+    async enableDisableSound(soundId, status) {
+        const sound = await this.sounds.find(s => s.id == soundId);
+        if (sound) {
+            sound.status = status;
+            this.has_changes = true;
+        } else {
+            const group = await this.groups.find(g => g.id == soundId);
+            if (group) {
+                group.status = status;
+                this.has_changes = true;
+            }
+        }
     }
 
-    getSoundByCategory(category, enable_sounds = false) {
+    async getSoundsToPlay() {
+        const sounds = await this.sounds.filter(obj => obj.status == "on" && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
+        return sounds;
+    }
+
+    async getGroupsToPlay() {
+        const groups = this.groups.filter(obj => obj.status == "on");
+        return groups;
+    }
+
+    async getSoundByCategory(category, enable_sounds = false) { 
         if (enable_sounds) {
-            return this.sounds.filter(obj => obj.status == "on" && obj.category == category);
+            const sounds =  await structuredClone(await this.sounds.filter(obj => obj.status == "on" && obj.category == category));
+            const group_sounds = await structuredClone(await this.groups.filter(obj => obj.status == "on" && obj.category == category));
+            return await [...sounds, ...group_sounds];
         }
         return this.sounds.filter(obj => obj.category == category);
     }
 
-    getSound(soundId) {
-        const sound = this.sounds.find(obj => obj.id == soundId);
-        return sound;
-    }
-    getSoundByGroup(group) {
-        return this.sounds.filter(obj => obj.group == group);
-    }
-    enableSoundByGroup(group) {
-        const sounds = this.sounds.filter(obj => obj.group == group);
-        for (let i = 0; i < sounds.length; i++) {
-            sounds[i].status = "on";
+    async getSound(soundId) {
+        const sound = await this.sounds.find(obj => obj.id == soundId);
+        if (sound) { return sound; }
+        else {
+            const group = await this.groups.find(obj => obj.id == soundId);
+            if (group) {
+                const sound_group = await this.sounds.find(obj => obj.id == group.current);
+                return sound_group;
+            }
         }
-        this.active_groups.push(group);
     }
+    async getSoundByGroup(groupId) {
+        //return this.sounds.filter(obj => obj.group == group);
+        //const group = this.groups.find(obj => obj.id == groupId);
+        //return group?.sounds ? group.sounds : [];
+        return await this.sounds.filter(obj => obj.group == groupId);
+    }
+    getGroup(groupId) {
+        return this.groups.find(obj => obj.id == groupId);
+    }
+    // TODO CHANGE IT
+    enableSoundByGroup(groupId) {
+        const group = this.groups.find(obj => obj.id == groupId);
+        if (group) {
+            group.enableSound(true);
+        } else {
+            ui.notifications.error(`enableSoundByGroup: Group ${groupId} not found!`);
+        }
+    }
+    // TODO CHANGE IT
     disableSoundByGroup(group) {
         const sounds = this.sounds.filter(obj => obj.group == group);
         for (let i = 0; i < sounds.length; i++) {
@@ -278,11 +359,27 @@ export default class MoodConfig {
 
     }
 
-    changeSoundVolume(soundId, volume) {
-        let sound = this.sounds.find(obj => obj.id == soundId);
+    async changeSoundVolume(soundId, volume) {
+        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
         if (sound) {
             sound.volume = volume;
+            sound.status = volume == 0 ? 'off' : 'on';
+        } else {
+            sound = this.groups.find(obj => obj.id == soundId);
+            if (sound) {
+                sound.setVolume(volume);
+                sound.enableSound(volume == 0 ? false : true);
+                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                for (let i = 0; i < gsounds.length; i++) {
+                    gsounds[i].volume = volume;
+                }
+            }
         }
+        if (!sound) {
+            ui.notifications.error("Sound not found " + soundId);
+            return;
+        }
+        this.has_changes = true;
     }
 
     updateSoundName(soundId, newName) {
@@ -291,11 +388,267 @@ export default class MoodConfig {
     }
 
     updateSoundIcon(soundId, newIcon) {
-        const sound = this.sounds.find(obj => obj.id == soundId);
-        sound.soundIcon = newIcon;
+        let sound = this.sounds.find(obj => obj.id == soundId);
+        if (!sound) {
+            sound = this.groups.find(obj => obj.id == soundId);
+        }
+        if (sound) {
+            sound.soundIcon = newIcon;
+            this.has_changes = true;
+        } else {
+            ui.notifications.error("updateSoundIcon: Sound not found")
+        }
     }
 
     isPlaying() {
         return this.status == "playing";
     }
+
+    // convert a group from soundscape v2 to v3 field active_groups(array)
+    // to the field groups that is an array of objects of type GroupConfig
+    async migrate_from_v2_to_v3(active_groups) {
+        let new_groups = [];
+        ui.notifications.info("Migrating groups");
+        for (let i = 0; i < this.sounds.length; i++) {
+            if (this.sounds[i].hasOwnProperty('group')) {
+                if (this.sounds[i].group !== '') {
+                    const group = await new_groups.find(el => el.name == this.sounds[i].group);
+                    if (group) {
+                        group.addSound({ id: this.sounds[i].id, name: this.sounds[i].name });
+                        this.sounds[i].group = group.id;
+                    } else {
+                        let group_type = constants.SOUNDTYPE.GROUP_LOOP;
+                        if (sound.type == constants.SOUNDTYPE.RANDOM) {
+                            group_type = constants.SOUNDTYPE.GROUP_RANDOM;
+                        }
+                        const new_group = new GroupConfig({
+                            id: foundry.utils.randomID(16),
+                            name: this.sounds[i].group,
+                            sounds: [{ id: this.sounds[i].id, name: this.sounds[i].name }],
+                            intensity: this.sounds[i].intensity,
+                            current: '',
+                            status: this.sounds[i].status,
+                            volume: this.sounds[i].volume,
+                            type: group_type,
+                            category: this.sounds[i].category,
+                            soundIcon: 'icons/svg/sound.svg',
+                            fadeIn: this.sounds[i].fadeIn,
+                            fadeOut: this.sounds[i].fadeOut,
+                            random: {
+                                from: this.sounds[i].from,
+                                to: this.sounds[i].to,
+                            }
+                        });
+                        new_groups.push(new_group);
+                        this.sounds[i].group = new_group.id;
+                    }
+                }
+            }
+        }
+        ui.notifications.info("Validating migration of groups: " + active_groups.join(","));
+        for (let i = 0; i < active_groups.lenth; i++) {
+            const groupname = new_groups.find(el => el.name === active_groups[i]);
+            if (!groupname) {
+                ui.notifications.error("Failed to migrate group: " + active_groups[i]);
+            } else {
+                ui.notifications.info("Group migrated " + active_groups[i])
+            }
+        }
+        ui.notifications.info("Groups migration finished");
+        this.groups = structuredClone(new_groups);
+    }
+
+    async createGroup(newGroupName, soundId) {
+        const sound = await this.sounds.find(e => e.id == soundId);
+        const group_exists = await this.groups.find(el => el.name == newGroupName);
+        const _id = foundry.utils.randomID(16);
+        let group_type = constants.SOUNDTYPE.GROUP_LOOP;
+        if (sound.type == constants.SOUNDTYPE.RANDOM) {
+            group_type = constants.SOUNDTYPE.GROUP_RANDOM;
+        }
+
+        if (!group_exists && sound) {
+            this.groups.push(new GroupConfig({
+                id: _id,
+                name: newGroupName,
+                sounds: [{ id: sound.id, name: sound.name }],
+                intensity: 0.0,
+                current: sound.id,
+                status: sound.status,
+                volume: sound.volume,
+                type: group_type,
+                category: sound.category,
+                soundIcon: 'icons/svg/sound.svg',
+                fadeIn: sound.fadeIn,
+                fadeOut: sound.fadeOut,
+                random: {
+                    from: sound.from,
+                    to: sound.to,
+                }
+            }))
+            sound.group = _id;
+            this.has_changes = true;
+        } if (group_exists && group_exists?.type != sound.type) {
+            this.groups.push(new GroupConfig({
+                id: _id,
+                name: newGroupName,
+                sounds: [{ id: sound.id, name: sound.name }],
+                intensity: 0.0,
+                current: sound.id,
+                status: sound.status,
+                volume: sound.volume,
+                type: group_type,
+                category: sound.category,
+                soundIcon: 'icons/svg/sound.svg',
+                fadeIn: sound.fadeIn,
+                fadeOut: sound.fadeOut,
+                random: {
+                    from: sound.from,
+                    to: sound.to,
+                }
+            }));
+            sound.group = _id;
+            this.has_changes = true;
+        } else {
+            if (!sound) ui.notifications.error("Cannot create group: Sound not found");
+            if (group_exists) ui.notifications.warn("Group Already Exists");
+        }
+    }
+
+    async addSoundToGroup(soundId, groupId) {
+        const group = await this.groups.find(g => g.id === groupId);
+        if (!group) {
+            ui.notifications.error("Group not found");
+            return;
+        }
+        const sound = await this.sounds.find(s => s.id === soundId);
+
+        if (!sound) {
+            ui.notifications.error("Sound not found");
+            return;
+        }
+
+        await group.addSound({ id: sound.id, name: sound.name });
+        sound.volume = group.volume;
+        sound.group = group.id;
+        this.has_changes = true;
+        return;
+    }
+    async removeSoundFromGroup(soundId, groupId) {
+        const group = await this.groups.find(g => g.id === groupId);
+        if (!group) {
+            ui.notifications.error("Group not found");
+            return;
+        }
+        const sound = await this.sounds.find(s => s.id === soundId);
+
+        if (!sound) {
+            ui.notifications.error("Sound not found");
+            return;
+        }
+        await group.removeSound(sound.id);
+        sound.group = "";
+        sound.volume = 0.0;
+        if (group.sounds.length == 0) {
+            await this.removeGroup(groupId);
+        }
+        this.has_changes = true;
+
+        return;
+    }
+
+    async removeGroup(groupId) {
+        const index = this.groups.findIndex(el => el.id === groupId);
+        if (index >= 0) {
+            this.groups.splice(index, 1);
+        } else {
+            ui.notifications.error("Group not found");
+            return;
+        }
+        this.has_changes = true;
+        return;
+
+
+    }
+
+    setIntensity(groupId, value) {
+        const group = this.groups.find(g => g.id === groupId);
+        group.setIntensity(value);
+        this.has_changes = true;
+    }
+
+    applyGroupConfigToSound(groupId, soundId) {
+        this.sounds;
+
+    }
+
+    async setFade(soundId, fadeIn, fadeOut) {
+        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (sound) {
+            sound.fadeIn = fadeIn;
+            sound.fadeOut = fadeOut;
+        } else {
+            sound = this.groups.find(obj => obj.id == soundId);
+            if (sound) {
+                sound.fadeIn = fadeIn;
+                sound.fadeOut = fadeOut;
+                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                for (let i = 0; i < gsounds.length; i++) {
+                    gsounds[i].fadeIn = fadeIn;
+                    gsounds[i].fadeOut = fadeOut;
+                }
+            }
+        }
+        if (!sound) {
+            ui.notifications.error("Sound not found " + soundId);
+            return;
+        }
+        this.has_changes = true;
+    }
+
+    async setInterval(soundId, from, to) {
+        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (sound) {
+            sound.from = from;
+            sound.to = to;
+        } else {
+            sound = this.groups.find(obj => obj.id == soundId);
+            if (sound) {
+                sound.random.from = from;
+                sound.random.to = to;
+                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                for (let i = 0; i < gsounds.length; i++) {
+                    gsounds[i].from = from;
+                    gsounds[i].to = to;
+                }
+            }
+        }
+        if (!sound) {
+            ui.notifications.error("Sound not found " + soundId);
+            return;
+        }
+        this.has_changes = true;
+    }
+
+    async setPlayOnce(soundId, playOnce) {
+        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (sound) {
+            sound.playOnce = playOnce;
+        } else {
+            sound = this.groups.find(obj => obj.id == soundId);
+            if (sound) {
+                sound.playOnce = playOnce;
+                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                for (let i = 0; i < gsounds.length; i++) {
+                    gsounds[i].playOnce = playOnce;
+                }
+            }
+        }
+        if (!sound) {
+            ui.notifications.error("Sound not found " + soundId);
+            return;
+        }
+        this.has_changes = true;
+    }
 }
+

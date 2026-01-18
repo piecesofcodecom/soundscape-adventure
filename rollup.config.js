@@ -5,12 +5,13 @@ export default [
     {
         input: {
             include: [
-                'scripts/*.js'
+                'scripts/*.js',
+                'scripts/*.mjs'
             ]
         },
         output: {
             format: 'esm',
-            file: 'dist/token-action-hud-swade.min.js'
+            file: 'dist/soundscape-adventure.min.js'
         },
         plugins: [
             terser({ keep_classnames: true, keep_fnames: true }),
