@@ -390,6 +390,40 @@ export default class MoodConfig {
         return this.status == "playing";
     }
 
+    /**
+     * State change methods - encapsulate internal state modifications
+     */
+
+    /**
+     * Mark this mood as having unsaved changes
+     */
+    markAsChanged() {
+        this.has_changes = true;
+    }
+
+    /**
+     * Toggle the collapsed state of a category
+     * @param {string} categoryId - The category ID
+     * @param {number} type - The sound type
+     * @returns {boolean} The new collapsed state
+     */
+    toggleCategoryCollapsed(categoryId, type) {
+        const category = this.categories.find(c => c.id === categoryId && c.type === type);
+        if (category) {
+            category.collapsed = !category.collapsed;
+            return category.collapsed;
+        }
+        return false;
+    }
+
+    /**
+     * Set the status of the mood
+     * @param {string} status - The new status ("playing" or "stop")
+     */
+    setStatus(status) {
+        this.status = status;
+    }
+
     // convert a group from soundscape v2 to v3 field active_groups(array)
     // to the field groups that is an array of objects of type GroupConfig
     async migrate_from_v2_to_v3(active_groups) {

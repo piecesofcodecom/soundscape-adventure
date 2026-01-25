@@ -26,10 +26,8 @@ class SoundscapeAdventure {
         utils.log(utils.getCallerInfo(), `Loading soundscape from ${path_To_file}`, constants.LOGLEVEL.INFO);
         const sb = new Soundscape(path_To_file);
         await sb.init();
-        this.soundscapes[sb.id] = {
-            name: sb.name,
-            class: sb,
-        }
+        // Store Soundscape directly (no wrapper object)
+        this.soundscapes[sb.id] = sb;
         let soundscapes = game.settings.get('soundscape-adventure','soundscapes');
         if (soundscapes.length > 0 && !soundscapes.includes(path_To_file)) {
             soundscapes += ";"+path_To_file
@@ -65,57 +63,65 @@ class SoundscapeAdventure {
 
     openSoundboard(soundscapeId) {
         utils.log(utils.getCallerInfo(), `Opening ${soundscapeId}`)
-        const sb = this.soundscapes[soundscapeId];
-        if (sb) {
-            const ui = new SoundscapeUI(sb);
-            this.soundscapes[soundscapeId].openUI = ui;
+        const soundscape = this.soundscapes[soundscapeId];
+        if (soundscape) {
+            const ui = new SoundscapeUI(soundscape);
+            soundscape.openUI = ui;
             ui.render(true);
         }
     }
+
     async reloadSoundboard(soundscapeId) {
         utils.log(utils.getCallerInfo(), `Reloading ${soundscapeId}`)
-        const sb = this.soundscapes[soundscapeId];
-        if (sb) {
-            await sb.class.reloadSoundscape();
+        const soundscape = this.soundscapes[soundscapeId];
+        if (soundscape) {
+            await soundscape.reloadSoundscape();
         }
     }
+
     closeUI(soundscapeId) {
-        this.soundscapes[soundscapeId].openUI = null;
+        const soundscape = this.soundscapes[soundscapeId];
+        if (soundscape) {
+            soundscape.openUI = null;
+        }
     }
 
     triggerEvent(action, _data, event) {
         const data = _data.split(":");
+        const soundscape = this.soundscapes[data[0]];
+        if (!soundscape) return;
+
         if (action == "play") {
-            this.soundscapes[data[0]].class.playMood(data[1]);
+            soundscape.playMood(data[1]);
         } else if (action == "stop") {
-            this.soundscapes[data[0]].class.stopMood(data[1]);
+            soundscape.stopMood(data[1]);
         } else if (action == "custom") {
-            // event.name event.region.name , 
-            this.soundscapes[data[0]].class.playCustomTriggerEvent(event, data[1])
+            soundscape.playCustomTriggerEvent(event, data[1]);
         }
     }
 
     triggerCombatEvent(event) {
         for (let key in this.soundscapes) {
-            this.soundscapes[key].class.playCombatTriggerEvent(event);
+            this.soundscapes[key].playCombatTriggerEvent(event);
         }
     }
 
     async deleteSoundscape(soundspaceId, remove_playlist = false) {
-        if (this.soundscapes[soundspaceId].openUI) {
-            this.soundscapes[soundspaceId].openUI.close();
+        const soundscape = this.soundscapes[soundspaceId];
+        if (!soundscape) return;
+
+        if (soundscape.openUI) {
+            soundscape.openUI.close();
         }
-        
+
         const current_soundscapes = await game.settings.get('soundscape-adventure', 'soundscapes');
         utils.log(utils.getCallerInfo(), `Current soundscapes ${current_soundscapes}`, constants.LOGLEVEL.INFO);
         const soundscapes = current_soundscapes.split(";");
         for (let i = 0; i < soundscapes.length; i++) {
-            if (this.soundscapes[soundspaceId].class.path.includes(soundscapes[i])) {
+            if (soundscape.path.includes(soundscapes[i])) {
                 soundscapes.splice(i, 1);
-                if (remove_playlist) {
-                    
-                    const playlist = game.playlists.get(this.soundscapes[soundspaceId].class.playlist.id);
-
+                if (remove_playlist && soundscape.playlist) {
+                    const playlist = game.playlists.get(soundscape.playlist.id);
                     if (playlist) {
                         await playlist.delete();
                     }
@@ -128,14 +134,15 @@ class SoundscapeAdventure {
 
     // Below are some utility methods for external modules access the soundscapes
     getSoundscapes() {
-        return Object.values(this.soundscapes).map(obj => obj.name);
+        return Object.values(this.soundscapes).map(soundscape => soundscape.name);
     }
 
     getSoundscape(soundscapeName) {
-        const obj = Object.values(this.soundscapes).filter(obj => obj.name.includes(soundscapeName));
-        if (obj.length > 0) {
-            return obj[0].class;
+        const matches = Object.values(this.soundscapes).filter(soundscape => soundscape.name.includes(soundscapeName));
+        if (matches.length > 0) {
+            return matches[0];
         }
+        return undefined;
     }
 }
 

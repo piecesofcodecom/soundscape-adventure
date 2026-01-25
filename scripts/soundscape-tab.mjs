@@ -264,7 +264,7 @@ class SoundscapeTab /*extends SidebarTab*/ {
 		const current_playing = game.settings.get('soundscape-adventure', 'current-playing');
 		// RENDER Soundscapes
 		for (const soundscape in this.soundscapes) {
-			const soundscape_html = this.soundscapes[soundscape].class.render(current_playing);
+			const soundscape_html = this.soundscapes[soundscape].render(current_playing);
 			const createButton = soundscape_html.querySelector('[data-action="soundscape-open"]');
 			// Open soundscape [action]
 			if (createButton) {
@@ -281,7 +281,7 @@ class SoundscapeTab /*extends SidebarTab*/ {
 				reloadButton.addEventListener("click", async (event) => {
 					event.preventDefault(); // Optional: prevents default behavior if it's a link
 					reloadButton.className = "soundboard-control fa fa-spinner fa-spin";
-					await SoundscapeAdventure.soundscapes[reloadButton.dataset.soundboardId].class.reloadSoundscape();
+					await SoundscapeAdventure.soundscapes[reloadButton.dataset.soundboardId].reloadSoundscape();
 					reloadButton.className = "soundboard-control fa-solid fa-rotate-right";
 					// Your custom logic here
 				});
@@ -322,10 +322,10 @@ class SoundscapeTab /*extends SidebarTab*/ {
 						switch (action) {
 							case "playStopMood":
 								playButton.className = "fa fa-spinner fa-spin mood-control soundscape-tab-button";
-								await this.soundscapes[soundscapeId].class.playStopMood(moodId);
+								await this.soundscapes[soundscapeId].playStopMood(moodId);
 								break;
 							case "deleteMood":
-								await this.soundscapes[soundscapeId].class.dialogDeleteMood(moodId);
+								await this.soundscapes[soundscapeId].dialogDeleteMood(moodId);
 								break;
 							default:
 								

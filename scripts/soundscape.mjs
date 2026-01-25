@@ -442,6 +442,67 @@ export default class Soundscape {
      * SOUND CONTROLS
      */
 
+    /**
+     * Facade methods - hide internal structure from external callers
+     */
+
+    /**
+     * Get a sound configuration from a mood
+     * @param {string} moodId - The mood ID
+     * @param {string} soundId - The sound ID
+     * @returns {SoundConfig|undefined}
+     */
+    getSound(moodId, soundId) {
+        return this.moods[moodId]?.getSound(soundId);
+    }
+
+    /**
+     * Get a group configuration from a mood
+     * @param {string} moodId - The mood ID
+     * @param {string} groupId - The group ID
+     * @returns {GroupConfig|undefined}
+     */
+    getGroup(moodId, groupId) {
+        return this.moods[moodId]?.getGroup(groupId);
+    }
+
+    /**
+     * Get a sound from the playlist
+     * @param {string} soundId - The sound ID
+     * @returns {PlaylistSound|undefined}
+     */
+    getPlaylistSound(soundId) {
+        return this.playlist?.sounds.get(soundId);
+    }
+
+    /**
+     * Mark a mood as having unsaved changes
+     * @param {string} moodId - The mood ID
+     */
+    markMoodAsChanged(moodId) {
+        if (this.moods[moodId]) {
+            this.moods[moodId].markAsChanged();
+        }
+    }
+
+    /**
+     * Check if a mood exists
+     * @param {string} moodId - The mood ID
+     * @returns {boolean}
+     */
+    hasMood(moodId) {
+        return !!this.moods[moodId];
+    }
+
+    /**
+     * Get a mood by ID
+     * @param {string} moodId - The mood ID
+     * @returns {MoodConfig|undefined}
+     */
+    getMood(moodId) {
+        return this.moods[moodId];
+    }
+
     async enableDisableSound(moodId, soundId) {
         const mood = this.moods[moodId];
         if (mood) {

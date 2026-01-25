@@ -37,8 +37,8 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
         let sounds = [];
         for (const soundscapeId in soundscapes) {
             const soundscape = soundscapes[soundscapeId];
-            if (soundscape.class.isPlaying) {
-                const mood = soundscape.class.moods[soundscape.class.activeMoodId];
+            if (soundscape.isPlaying) {
+                const mood = soundscape.moods[soundscape.activeMoodId];
                 if (mood) {
                     sounds = mood.sounds.filter(sound => sound.type === constants.SOUNDTYPE.SOUNDPADUI);
                     name = mood.name;
