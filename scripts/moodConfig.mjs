@@ -722,5 +722,189 @@ export default class MoodConfig {
         this.has_changes = true;
         return config;
     }
+
+    // ==========================================
+    // View Data Methods - UI-Model Separation
+    // ==========================================
+
+    /**
+     * Get library sounds (SOUNDPAD type) sorted by name
+     * @returns {SoundConfig[]} Array of library sounds
+     */
+    getLibrarySounds() {
+        return this.sounds
+            .filter(sound => sound.type === constants.SOUNDTYPE.SOUNDPAD)
+            .sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    /**
+     * Get sounds organized for the UI view
+     * Returns sounds grouped by type (Loop, Random, SoundpadUI) with categories
+     * @returns {Array} Array of sound type sections with categories and sounds
+     */
+    getOrganizedSounds() {
+        // Get ungrouped sounds
+        const ungroupedSounds = this.sounds.filter(el => el.group === '');
+
+        // Create the sound type sections with categories
+        const soundSections = [
+            {
+                type: constants.SOUNDTYPE.LOOP,
+                name: "Loop",
+                categories: this._getCategoriesForType(constants.SOUNDTYPE.LOOP)
+            },
+            {
+                type: constants.SOUNDTYPE.RANDOM,
+                name: "Random",
+                categories: this._getCategoriesForType(constants.SOUNDTYPE.RANDOM)
+            },
+            {
+                type: constants.SOUNDTYPE.SOUNDPADUI,
+                name: "Soundpad UI",
+                categories: this._getCategoriesForType(constants.SOUNDTYPE.SOUNDPADUI)
+            }
+        ];
+
+        // Add groups to appropriate sections
+        this._addGroupsToSections(soundSections);
+
+        // Add ungrouped sounds to appropriate sections
+        this._addSoundsToSections(soundSections, ungroupedSounds);
+
+        // Sort sounds within each category
+        this._sortSoundsInCategories(soundSections);
+
+        return soundSections;
+    }
+
+    /**
+     * Get categories for a specific sound type
+     * @param {number} soundType - The sound type constant
+     * @returns {Array} Array of category objects with empty sounds array
+     * @private
+     */
+    _getCategoriesForType(soundType) {
+        return this.categories
+            .filter(el => el?.type === soundType)
+            .map(cat => ({
+                id: cat.id,
+                name: cat.name,
+                type: cat.type,
+                collapsed: cat.collapsed,
+                sounds: []
+            }));
+    }
+
+    /**
+     * Add groups to their appropriate sound sections
+     * @param {Array} soundSections - The sections to populate
+     * @private
+     */
+    _addGroupsToSections(soundSections) {
+        for (const group of this.groups) {
+            // Clone the group to avoid modifying the original
+            const groupClone = structuredClone(group);
+
+            // Determine which section this group belongs to
+            let sectionIndex = 0;
+            if (group.type === constants.SOUNDTYPE.GROUP_RANDOM) {
+                sectionIndex = 1;
+            }
+
+            // Find the category index
+            let categoryIndex = groupClone.category !== ""
+                ? soundSections[sectionIndex].categories.findIndex(el => el.id === groupClone.category)
+                : 0;
+            if (categoryIndex < 0) categoryIndex = 0;
+
+            // Add "Group: " prefix to name
+            groupClone.name = `Group: ${groupClone.name}`;
+
+            // Add to the appropriate category
+            if (soundSections[sectionIndex].categories[categoryIndex]) {
+                soundSections[sectionIndex].categories[categoryIndex].sounds.push(groupClone);
+            }
+        }
+    }
+
+    /**
+     * Add ungrouped sounds to their appropriate sections
+     * @param {Array} soundSections - The sections to populate
+     * @param {Array} ungroupedSounds - The ungrouped sounds to add
+     * @private
+     */
+    _addSoundsToSections(soundSections, ungroupedSounds) {
+        for (const sound of ungroupedSounds) {
+            // Clone to avoid modifying original
+            const soundClone = structuredClone(sound);
+
+            // Determine section index based on type
+            let sectionIndex = 0;
+            if (soundClone.type === constants.SOUNDTYPE.RANDOM) {
+                sectionIndex = 1;
+            } else if (soundClone.type === constants.SOUNDTYPE.SOUNDPAD ||
+                       soundClone.type === constants.SOUNDTYPE.GROUP_SOUNDPAD) {
+                // Skip library sounds - they go in the library panel
+                continue;
+            } else if (soundClone.type === constants.SOUNDTYPE.SOUNDPADUI) {
+                sectionIndex = 2;
+            }
+
+            // Find category index
+            let categoryIndex = soundClone.category !== ""
+                ? soundSections[sectionIndex].categories.findIndex(el => el.id === soundClone.category)
+                : 0;
+            if (categoryIndex < 0) categoryIndex = 0;
+
+            // Add to appropriate category
+            if (soundSections[sectionIndex].categories[categoryIndex]) {
+                soundSections[sectionIndex].categories[categoryIndex].sounds.push(soundClone);
+            }
+        }
+    }
+
+    /**
+     * Sort sounds within each category alphabetically by name
+     * @param {Array} soundSections - The sections with categories to sort
+     * @private
+     */
+    _sortSoundsInCategories(soundSections) {
+        for (const section of soundSections) {
+            for (const category of section.categories) {
+                category.sounds.sort((a, b) => a.name.localeCompare(b.name));
+            }
+        }
+    }
+
+    /**
+     * Get mood data formatted for the view
+     * @param {boolean} isSelected - Whether this mood is currently selected
+     * @returns {Object} Mood view data
+     */
+    getViewData(isSelected = false) {
+        return {
+            id: this.id,
+            name: this.name,
+            status: this.status,
+            has_changes: this.has_changes,
+            is_selected: isSelected,
+            sounds: isSelected ? this.getOrganizedSounds() : null
+        };
+    }
+
+    /**
+     * Get summary data for mood list (without full sound data)
+     * @param {boolean} isSelected - Whether this mood is currently selected
+     * @returns {Object} Mood summary data
+     */
+    getMoodSummary(isSelected = false) {
+        return {
+            id: this.id,
+            name: this.name,
+            status: this.status,
+            has_changes: this.has_changes,
+            is_selected: isSelected
+        };
+    }
 }
 

@@ -1144,162 +1144,76 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
     }
 
     async _prepareContext(options) {
-        if (this.soundscape.currentMoodOnUI.length) {
-            this.currentMoodOnUI = this.soundscape.currentMoodOnUI; // previously activeMoodId;
-        } else {
+        // Determine the current active mood
+        this._determineCurrentMood();
 
-            const config = await game.settings.get(constants.STORAGETRIGGERSETTINGS, "currentMoodOnUI");
-            const currentMoodSOnUI = [];
-            if (config.length) {
-                currentMoodSOnUI.push(...((config).split(":").filter((e) => e != "")));
-                for (const key in this.soundscape.moods) {
-                    if (currentMoodSOnUI.includes(key)) {
-                        this.currentMoodOnUI = key;
-                        break;
-                    }
-                }
-            }
-
-            if (!this.currentMoodOnUI) {
-                if (Object.values(this.soundscape.moods).length > 0) {
-                    this.currentMood = Object.values(this.soundscape.moods)[0].id;
-                }
-            }
-        }
-
-        //TODO convert moods to menu_mood
+        // Build mood list and selected mood data using MoodConfig view methods
         const moods = [];
         let selected_mood = null;
+
         for (const key in this.soundscape.moods) {
             const mood = this.soundscape.moods[key];
-            const groups = mood.groups;
-            const s = await mood.sounds.filter(el => el.group == '');
-            if (this.currentMoodOnUI == mood.id) {
-                mood.is_selected = true;
-            } else {
-                mood.is_selected = false;
-            }
-            const sounds = [{
-                type: constants.SOUNDTYPE.LOOP,
-                name: "Loop",
-                categories: mood.categories
-                    .filter(el => el?.type == constants.SOUNDTYPE.LOOP)
-                    .map((i) => ({ id: i.id, name: i.name, type: i.type, collapsed: i.collapsed, sounds: [] })),
-            }, {
-                type: constants.SOUNDTYPE.RANDOM,
-                name: "Random",
-                categories: mood.categories
-                    .filter(el => el?.type == constants.SOUNDTYPE.RANDOM)
-                    .map((i) => ({ id: i.id, name: i.name, type: i.type, collapsed: i.collapsed, sounds: [] }))
-            }, {
-                type: constants.SOUNDTYPE.SOUNDPADUI,
-                name: "Soundpad UI",
-                categories: mood.categories
-                    .filter(el => el?.type == constants.SOUNDTYPE.SOUNDPADUI)
-                    .map((i) => ({ id: i.id, name: i.name, type: i.type, collapsed: i.collapsed, sounds: [] })),
-            }]
+            const isSelected = this.currentMoodOnUI === mood.id;
 
-            for (let i = 0; i < mood.groups.length; i++) {
-                const sound = await structuredClone(groups[i]);
+            // Get mood summary for the list
+            moods.push(mood.getMoodSummary(isSelected));
 
-                let sound_index = 0;
-                if (sound.type == constants.SOUNDTYPE.GROUP_RANDOM) {
-                    sound_index = 1;
-                }
-                let index = sound.category != "" ? sounds[sound_index].categories.findIndex(el => el.id == sound.category) : 0;
-                if (index < 0) {
-                    index = 0;
-                }
-                sound.name = `Group: ${sound.name}`;
-                sounds[sound_index].categories[index].sounds.push(sound)
-            }
-
-
-            for (let i = 0; i < s.length; i++) {
-                // avoid to change the original object sound
-                const sound = await structuredClone(s[i]);
-                let sound_index = 0;
-                if (sound.type == constants.SOUNDTYPE.RANDOM) {
-                    sound_index = 1;
-                } else if (sound.type == constants.SOUNDTYPE.SOUNDPAD || sound.type == constants.SOUNDTYPE.GROUP_SOUNDPAD) {
-                    //sound_index = 2;
-                    continue;
-                } else if (sound.type == constants.SOUNDTYPE.SOUNDPADUI) {
-                    sound_index = 2;
-                }
-                let index = sound.category != "" ? sounds[sound_index].categories.findIndex(el => el.id == sound.category) : 0;
-                if (index < 0) {
-                    index = 0;
-                }
-                if (sound.type == constants.SOUNDTYPE.LOOP) {
-                    // if (sound.type == constants.SOUNDTYPE.GROUP_LOOP) {
-                    //     const currentsound = sounds[sound_index].categories[index].sounds.find(el => el.group == sound.group);
-                    //     if (!currentsound) {
-                    //         sound.name = `Group: ${sound.group}`;
-                    //         sounds[sound_index].categories[index].sounds.push(sound)
-                    //     }
-                    // } else {
-                    sounds[sound_index].categories[index].sounds.push(sound)
-                    //}
-
-                } else if (sound.type == constants.SOUNDTYPE.GROUP_RANDOM || sound.type == constants.SOUNDTYPE.RANDOM) {
-                    if (sound.group != "") {
-                        const currentsound = sounds[sound_index].categories[index].sounds.find(el => el.group == sound.group);
-                        if (!currentsound) {
-                            sound.name = `Group: ${sound.group}`;
-                            sounds[sound_index].categories[index].sounds.push(sound)
-                        }
-                    } else {
-                        sounds[sound_index].categories[index].sounds.push(sound)
-                    }
-
-                } else {
-                    sounds[sound_index].categories[index].sounds.push(sound)
-                }
-            }
-            // befora add to the sounds to the mood we need to sort the sounds within the categories
-            for (let i = 0; i < sounds.length; i++) {
-                sounds[i].categories.forEach(category => {
-                    category.sounds.sort((a, b) => a.name.localeCompare(b.name));
-                });
-            }
-            moods.push({
-                id: this.soundscape.moods[key].id,
-                name: this.soundscape.moods[key].name,
-                status: this.soundscape.moods[key].status,
-                has_changes: this.soundscape.moods[key].has_changes,
-                is_selected: mood.is_selected,
-                //sounds: sounds
-            })
-            if (mood.is_selected) {
-                selected_mood = {
-                    id: this.soundscape.moods[key].id,
-                    name: this.soundscape.moods[key].name,
-                    status: this.soundscape.moods[key].status,
-                    has_changes: this.soundscape.moods[key].has_changes,
-                    is_selected: mood.is_selected,
-                    sounds: sounds
-                }
+            // Get full view data for the selected mood
+            if (isSelected) {
+                selected_mood = mood.getViewData(true);
             }
         }
+
+        // Get library sounds for the selected mood
         let library = [];
-        if (this.currentMoodOnUI) {
-            library = this.soundscape.moods[this.currentMoodOnUI].sounds.filter(sound => sound.type === constants.SOUNDTYPE.SOUNDPAD);
-            library = library.sort((a, b) => a.name.localeCompare(b.name));
+        if (this.currentMoodOnUI && this.soundscape.moods[this.currentMoodOnUI]) {
+            library = this.soundscape.moods[this.currentMoodOnUI].getLibrarySounds();
         }
 
-        //TODO activeMood convert to selectedMood
         const sound_view = await game.settings.get('soundscape-adventure', "sound-view-type");
+
         return {
             name: this.soundscape.name,
-            moods: Object.values(moods).sort((a, b) => a.name.localeCompare(b.name)),
+            moods: moods.sort((a, b) => a.name.localeCompare(b.name)),
             soundscapeId: this.soundscape.id,
             off_visible: this.soundscape.visible_off_sounds,
             activeMood: this.currentMoodOnUI,
             library: library,
             libraryIsOpen: this.libraryIsOpen,
             selected_mood: selected_mood,
-            card_view: sound_view == constants.SOUNDVIEW.CARDVIEW ? true : false
+            card_view: sound_view === constants.SOUNDVIEW.CARDVIEW
+        };
+    }
+
+    /**
+     * Determine which mood should be displayed as current
+     * @private
+     */
+    _determineCurrentMood() {
+        // Check if soundscape already has a current mood set
+        if (this.soundscape.currentMoodOnUI?.length) {
+            this.currentMoodOnUI = this.soundscape.currentMoodOnUI;
+            return;
+        }
+
+        // Try to get from settings
+        const config = game.settings.get(constants.STORAGETRIGGERSETTINGS, "currentMoodOnUI");
+        if (config?.length) {
+            const savedMoods = config.split(":").filter(e => e !== "");
+            for (const key in this.soundscape.moods) {
+                if (savedMoods.includes(key)) {
+                    this.currentMoodOnUI = key;
+                    return;
+                }
+            }
+        }
+
+        // Default to first mood if none selected
+        if (!this.currentMoodOnUI) {
+            const moodKeys = Object.keys(this.soundscape.moods);
+            if (moodKeys.length > 0) {
+                this.currentMoodOnUI = moodKeys[0];
+            }
         }
     }
 
