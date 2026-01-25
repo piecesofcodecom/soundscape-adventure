@@ -214,9 +214,9 @@ export default class MoodConfig {
         }
     }
 
-    async updateGroupSoundId(oldId, newId) {
+    updateGroupSoundId(oldId, newId) {
         for (let i = 0; i < this.groups.length; i++) {
-            const soundInGroup = await this.groups[i].sounds.find(el => el.id == oldId);
+            const soundInGroup = this.groups[i].sounds.find(el => el.id == oldId);
             if (soundInGroup) {
                 soundInGroup.id = newId;
             }
@@ -238,21 +238,14 @@ export default class MoodConfig {
         utils.log("Not implemented yet", constants.LOGLEVEL.INFO);
     }
 
-    async isSoundOn(soundId) {
-        const sound = await this.sounds.find(obj => obj.id == soundId);
+    isSoundOn(soundId) {
+        const sound = this.sounds.find(obj => obj.id == soundId);
         if (sound) {
-            if (sound.status == "on") {
-                return true;
-            }
-            return false;
-        } else {
-            const group = await this.groups.find(obj => obj.id == soundId);
-            if (group) {
-                if (group.status == "on") {
-                    return true;
-                }
-                return false;
-            }
+            return sound.status == "on";
+        }
+        const group = this.groups.find(obj => obj.id == soundId);
+        if (group) {
+            return group.status == "on";
         }
         return false;
     }
@@ -288,13 +281,13 @@ export default class MoodConfig {
         const s = this.sounds.filter(obj => obj.status == "on");
         return s;
     }
-    async enableDisableSound(soundId, status) {
-        const sound = await this.sounds.find(s => s.id == soundId);
+    enableDisableSound(soundId, status) {
+        const sound = this.sounds.find(s => s.id == soundId);
         if (sound) {
             sound.status = status;
             this.has_changes = true;
         } else {
-            const group = await this.groups.find(g => g.id == soundId);
+            const group = this.groups.find(g => g.id == soundId);
             if (group) {
                 group.status = status;
                 this.has_changes = true;
@@ -302,41 +295,34 @@ export default class MoodConfig {
         }
     }
 
-    async getSoundsToPlay() {
-        const sounds = await this.sounds.filter(obj => obj.status == "on" && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
-        return sounds;
+    getSoundsToPlay() {
+        return this.sounds.filter(obj => obj.status == "on" && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
     }
 
-    async getGroupsToPlay() {
-        const groups = this.groups.filter(obj => obj.status == "on");
-        return groups;
+    getGroupsToPlay() {
+        return this.groups.filter(obj => obj.status == "on");
     }
 
-    async getSoundByCategory(category, enable_sounds = false) { 
+    getSoundByCategory(category, enable_sounds = false) {
         if (enable_sounds) {
-            const sounds =  await structuredClone(await this.sounds.filter(obj => obj.status == "on" && obj.category == category));
-            const group_sounds = await structuredClone(await this.groups.filter(obj => obj.status == "on" && obj.category == category));
-            return await [...sounds, ...group_sounds];
+            const sounds = structuredClone(this.sounds.filter(obj => obj.status == "on" && obj.category == category));
+            const group_sounds = structuredClone(this.groups.filter(obj => obj.status == "on" && obj.category == category));
+            return [...sounds, ...group_sounds];
         }
         return this.sounds.filter(obj => obj.category == category);
     }
 
-    async getSound(soundId) {
-        const sound = await this.sounds.find(obj => obj.id == soundId);
+    getSound(soundId) {
+        const sound = this.sounds.find(obj => obj.id == soundId);
         if (sound) { return sound; }
-        else {
-            const group = await this.groups.find(obj => obj.id == soundId);
-            if (group) {
-                const sound_group = await this.sounds.find(obj => obj.id == group.current);
-                return sound_group;
-            }
+        const group = this.groups.find(obj => obj.id == soundId);
+        if (group) {
+            return this.sounds.find(obj => obj.id == group.current);
         }
+        return undefined;
     }
-    async getSoundByGroup(groupId) {
-        //return this.sounds.filter(obj => obj.group == group);
-        //const group = this.groups.find(obj => obj.id == groupId);
-        //return group?.sounds ? group.sounds : [];
-        return await this.sounds.filter(obj => obj.group == groupId);
+    getSoundByGroup(groupId) {
+        return this.sounds.filter(obj => obj.group == groupId);
     }
     getGroup(groupId) {
         return this.groups.find(obj => obj.id == groupId);
@@ -359,8 +345,8 @@ export default class MoodConfig {
 
     }
 
-    async changeSoundVolume(soundId, volume) {
-        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+    changeSoundVolume(soundId, volume) {
+        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
         if (sound) {
             sound.volume = volume;
             sound.status = volume == 0 ? 'off' : 'on';
@@ -369,7 +355,7 @@ export default class MoodConfig {
             if (sound) {
                 sound.setVolume(volume);
                 sound.enableSound(volume == 0 ? false : true);
-                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].volume = volume;
                 }
@@ -458,9 +444,9 @@ export default class MoodConfig {
         this.groups = structuredClone(new_groups);
     }
 
-    async createGroup(newGroupName, soundId) {
-        const sound = await this.sounds.find(e => e.id == soundId);
-        const group_exists = await this.groups.find(el => el.name == newGroupName);
+    createGroup(newGroupName, soundId) {
+        const sound = this.sounds.find(e => e.id == soundId);
+        const group_exists = this.groups.find(el => el.name == newGroupName);
         const _id = foundry.utils.randomID(16);
         let group_type = constants.SOUNDTYPE.GROUP_LOOP;
         if (sound.type == constants.SOUNDTYPE.RANDOM) {
@@ -515,49 +501,46 @@ export default class MoodConfig {
         }
     }
 
-    async addSoundToGroup(soundId, groupId) {
-        const group = await this.groups.find(g => g.id === groupId);
+    addSoundToGroup(soundId, groupId) {
+        const group = this.groups.find(g => g.id === groupId);
         if (!group) {
             ui.notifications.error("Group not found");
             return;
         }
-        const sound = await this.sounds.find(s => s.id === soundId);
+        const sound = this.sounds.find(s => s.id === soundId);
 
         if (!sound) {
             ui.notifications.error("Sound not found");
             return;
         }
 
-        await group.addSound({ id: sound.id, name: sound.name });
+        group.addSound({ id: sound.id, name: sound.name });
         sound.volume = group.volume;
         sound.group = group.id;
         this.has_changes = true;
-        return;
     }
-    async removeSoundFromGroup(soundId, groupId) {
-        const group = await this.groups.find(g => g.id === groupId);
+    removeSoundFromGroup(soundId, groupId) {
+        const group = this.groups.find(g => g.id === groupId);
         if (!group) {
             ui.notifications.error("Group not found");
             return;
         }
-        const sound = await this.sounds.find(s => s.id === soundId);
+        const sound = this.sounds.find(s => s.id === soundId);
 
         if (!sound) {
             ui.notifications.error("Sound not found");
             return;
         }
-        await group.removeSound(sound.id);
+        group.removeSound(sound.id);
         sound.group = "";
         sound.volume = 0.0;
         if (group.sounds.length == 0) {
-            await this.removeGroup(groupId);
+            this.removeGroup(groupId);
         }
         this.has_changes = true;
-
-        return;
     }
 
-    async removeGroup(groupId) {
+    removeGroup(groupId) {
         const index = this.groups.findIndex(el => el.id === groupId);
         if (index >= 0) {
             this.groups.splice(index, 1);
@@ -566,9 +549,6 @@ export default class MoodConfig {
             return;
         }
         this.has_changes = true;
-        return;
-
-
     }
 
     setIntensity(groupId, value) {
@@ -582,8 +562,8 @@ export default class MoodConfig {
 
     }
 
-    async setFade(soundId, fadeIn, fadeOut) {
-        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+    setFade(soundId, fadeIn, fadeOut) {
+        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
         if (sound) {
             sound.fadeIn = fadeIn;
             sound.fadeOut = fadeOut;
@@ -592,7 +572,7 @@ export default class MoodConfig {
             if (sound) {
                 sound.fadeIn = fadeIn;
                 sound.fadeOut = fadeOut;
-                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].fadeIn = fadeIn;
                     gsounds[i].fadeOut = fadeOut;
@@ -606,8 +586,8 @@ export default class MoodConfig {
         this.has_changes = true;
     }
 
-    async setInterval(soundId, from, to) {
-        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+    setInterval(soundId, from, to) {
+        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
         if (sound) {
             sound.from = from;
             sound.to = to;
@@ -616,7 +596,7 @@ export default class MoodConfig {
             if (sound) {
                 sound.random.from = from;
                 sound.random.to = to;
-                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].from = from;
                     gsounds[i].to = to;
@@ -630,15 +610,15 @@ export default class MoodConfig {
         this.has_changes = true;
     }
 
-    async setPlayOnce(soundId, playOnce) {
-        let sound = await this.sounds.find(obj => obj.id == soundId && obj.group == "");
+    setPlayOnce(soundId, playOnce) {
+        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
         if (sound) {
             sound.playOnce = playOnce;
         } else {
             sound = this.groups.find(obj => obj.id == soundId);
             if (sound) {
                 sound.playOnce = playOnce;
-                const gsounds = await this.sounds.filter(obj => obj.group == soundId);
+                const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].playOnce = playOnce;
                 }

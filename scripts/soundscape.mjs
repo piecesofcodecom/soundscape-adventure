@@ -225,16 +225,6 @@ export default class Soundscape {
     }
 
     /**
-     * SOUNDSCAPE CONTROLS
-     */
-
-    async stopAll() {
-        for (let i = 0; i > this.moods.length; i++) {
-            this.moods[i].status = "stop";
-        }
-    }
-
-    /**
      * MOOD CONTROLS
      */
     async newMood(name, _soundsConfig = {}) {
@@ -516,9 +506,9 @@ export default class Soundscape {
         } else if (soundConfig.type == constants.SOUNDTYPE.GROUP_RANDOM) {
             const grupoofsounds = await this.moods[moodId].getSoundByGroup(soundConfig.id).map(sound => sound.id);
             this.randomSoundManager.stop(this.playlistId, grupoofsounds);
-            await grupoofsounds.forEach(async (sound) => {
-                await this.playlist.stopSound({ id: sound });
-            });
+            for (const soundId of grupoofsounds) {
+                await this.playlist.stopSound({ id: soundId });
+            }
 
         } else if (soundConfig.type == constants.SOUNDTYPE.RANDOM) {
             if (soundConfig.group != "") {
@@ -1077,10 +1067,6 @@ export default class Soundscape {
         return id;
     }
 
-    async deleteCategory(moodId, categoryId) {
-
-    }
-
     async renameCategory(moodId, categoryId, newCategoryName) {
         const index = this.moods[moodId].categories.findIndex(el => el.id == categoryId);
         if (index) {
@@ -1093,51 +1079,42 @@ export default class Soundscape {
         if (this.moods[moodId].isPlaying()) {
             const category = this.moods[moodId].categories.find(el => el.id == categoryId);
             const all_categories_same_name = this.moods[moodId].categories.filter(el => el.name == category.name);
-            all_categories_same_name.forEach(async cat => {
+            for (const cat of all_categories_same_name) {
                 const sounds = await this.moods[moodId].getSoundByCategory(cat.id, true);
                 if (action == "stop") {
-                    sounds.forEach((sound) => {
-                        this.stopSound(sound, moodId, false);
-                    });
+                    for (const sound of sounds) {
+                        await this.stopSound(sound, moodId, false);
+                    }
                 } else {
-                    sounds.forEach((sound) => {
-                        console.warn("Playing sound from category", cat.name, moodId);
-                        this.playSound(sound, moodId);
-                    });
-
+                    for (const sound of sounds) {
+                        await this.playSound(sound, moodId);
+                    }
                 }
-
-            })
-
+            }
         } else {
             ui.notifications.warn("Mood is currently stop")
         }
-
     }
 
     async enableSoundsinCategory(moodId, categoryId) {
-
         const sounds = await this.moods[moodId].getSoundByCategory(categoryId, false);
-        sounds.forEach(async (sound) => {
-
+        for (const sound of sounds) {
             await this.enableSound(moodId, sound.id);
-        });
+        }
     }
 
     async deleteCategory(moodId, categoryId) {
         const sounds = await this.moods[moodId].getSoundByCategory(categoryId, false);
-        await sounds.forEach((sound) => {
+        for (const sound of sounds) {
             sound.category = "";
-        });
+        }
         const index = this.moods[moodId].categories.findIndex(el => el.id == categoryId);
 
         if (index > 0) {
             this.moods[moodId].categories.splice(index, 1);
-
         }
 
         this.moods[moodId].has_changes = true;
-
     }
 
     //the following functions are used by external modules

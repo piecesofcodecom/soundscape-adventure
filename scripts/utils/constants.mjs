@@ -11,6 +11,22 @@ const MOOD = {
     }
 }
 
+// String-based status constants (matching actual usage in codebase)
+const STATUS = {
+    MOOD: {
+        PLAYING: "playing",
+        STOP: "stop"
+    },
+    SOUND: {
+        ON: "on",
+        OFF: "off"
+    },
+    SOUNDSCAPE: {
+        ONLINE: "online",
+        OFFLINE: "offline"
+    }
+}
+
 const SOUNDTYPE = {
     AMBIENCE: 0,
     LOOP: 1,
@@ -46,6 +62,7 @@ const MODULE = {
 export default {
     LOGLEVEL,
     MOOD,
+    STATUS,
     SOUNDTYPE,
     SOUNDSCAPE_TYPE,
     PREFIX,
