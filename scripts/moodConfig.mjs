@@ -327,6 +327,25 @@ export default class MoodConfig {
     getGroup(groupId) {
         return this.groups.find(obj => obj.id == groupId);
     }
+
+    /**
+     * Find a sound or group by ID
+     * Use config.type with constants.SOUNDTYPE to determine what it is:
+     * - Types 0-3: Regular sounds (AMBIENCE, LOOP, RANDOM, SOUNDPAD)
+     * - Types 4-6: Groups (GROUP_LOOP, GROUP_RANDOM, GROUP_SOUNDPAD)
+     * @param {string} id - The sound or group ID
+     * @returns {SoundConfig|GroupConfig|null}
+     */
+    findById(id) {
+        // Check ungrouped sounds first
+        let result = this.sounds.find(s => s.id === id && s.group === "");
+        if (result) return result;
+
+        // Check groups
+        result = this.groups.find(g => g.id === id);
+        return result || null;
+    }
+
     // TODO CHANGE IT
     enableSoundByGroup(groupId) {
         const group = this.groups.find(obj => obj.id == groupId);
@@ -345,27 +364,34 @@ export default class MoodConfig {
 
     }
 
+    /**
+     * Change volume of a sound or group
+     * @param {string} soundId - The sound or group ID
+     * @param {number} volume - The new volume
+     * @returns {SoundConfig|GroupConfig|null} The modified config, or null if not found
+     */
     changeSoundVolume(soundId, volume) {
-        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
-        if (sound) {
-            sound.volume = volume;
-            sound.status = volume == 0 ? 'off' : 'on';
+        let config = this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (config) {
+            config.volume = volume;
+            config.status = volume == 0 ? 'off' : 'on';
         } else {
-            sound = this.groups.find(obj => obj.id == soundId);
-            if (sound) {
-                sound.setVolume(volume);
-                sound.enableSound(volume == 0 ? false : true);
+            config = this.groups.find(obj => obj.id == soundId);
+            if (config) {
+                config.setVolume(volume);
+                config.enableSound(volume != 0);
                 const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].volume = volume;
                 }
             }
         }
-        if (!sound) {
+        if (!config) {
             ui.notifications.error("Sound not found " + soundId);
-            return;
+            return null;
         }
         this.has_changes = true;
+        return config;
     }
 
     updateSoundName(soundId, newName) {
@@ -585,10 +611,19 @@ export default class MoodConfig {
         this.has_changes = true;
     }
 
+    /**
+     * Set intensity for a loop group
+     * @param {string} groupId - The group ID
+     * @param {number} value - The intensity value (0-1)
+     * @returns {GroupConfig|null} The modified group, or null if not found
+     */
     setIntensity(groupId, value) {
         const group = this.groups.find(g => g.id === groupId);
-        group.setIntensity(value);
-        this.has_changes = true;
+        if (group) {
+            group.setIntensity(value);
+            this.has_changes = true;
+        }
+        return group || null;
     }
 
     applyGroupConfigToSound(groupId, soundId) {
@@ -596,16 +631,23 @@ export default class MoodConfig {
 
     }
 
+    /**
+     * Set fade in/out for a sound or group
+     * @param {string} soundId - The sound or group ID
+     * @param {number} fadeIn - Fade in duration in seconds
+     * @param {number} fadeOut - Fade out duration in seconds
+     * @returns {SoundConfig|GroupConfig|null} The modified config, or null if not found
+     */
     setFade(soundId, fadeIn, fadeOut) {
-        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
-        if (sound) {
-            sound.fadeIn = fadeIn;
-            sound.fadeOut = fadeOut;
+        let config = this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (config) {
+            config.fadeIn = fadeIn;
+            config.fadeOut = fadeOut;
         } else {
-            sound = this.groups.find(obj => obj.id == soundId);
-            if (sound) {
-                sound.fadeIn = fadeIn;
-                sound.fadeOut = fadeOut;
+            config = this.groups.find(obj => obj.id == soundId);
+            if (config) {
+                config.fadeIn = fadeIn;
+                config.fadeOut = fadeOut;
                 const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].fadeIn = fadeIn;
@@ -613,23 +655,31 @@ export default class MoodConfig {
                 }
             }
         }
-        if (!sound) {
+        if (!config) {
             ui.notifications.error("Sound not found " + soundId);
-            return;
+            return null;
         }
         this.has_changes = true;
+        return config;
     }
 
+    /**
+     * Set random interval for a sound or group
+     * @param {string} soundId - The sound or group ID
+     * @param {number} from - Minimum interval in seconds
+     * @param {number} to - Maximum interval in seconds
+     * @returns {SoundConfig|GroupConfig|null} The modified config, or null if not found
+     */
     setInterval(soundId, from, to) {
-        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
-        if (sound) {
-            sound.from = from;
-            sound.to = to;
+        let config = this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (config) {
+            config.from = from;
+            config.to = to;
         } else {
-            sound = this.groups.find(obj => obj.id == soundId);
-            if (sound) {
-                sound.random.from = from;
-                sound.random.to = to;
+            config = this.groups.find(obj => obj.id == soundId);
+            if (config) {
+                config.random.from = from;
+                config.random.to = to;
                 const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].from = from;
@@ -637,32 +687,40 @@ export default class MoodConfig {
                 }
             }
         }
-        if (!sound) {
+        if (!config) {
             ui.notifications.error("Sound not found " + soundId);
-            return;
+            return null;
         }
         this.has_changes = true;
+        return config;
     }
 
+    /**
+     * Set playOnce flag for a sound or group
+     * @param {string} soundId - The sound or group ID
+     * @param {boolean} playOnce - Whether to play only once
+     * @returns {SoundConfig|GroupConfig|null} The modified config, or null if not found
+     */
     setPlayOnce(soundId, playOnce) {
-        let sound = this.sounds.find(obj => obj.id == soundId && obj.group == "");
-        if (sound) {
-            sound.playOnce = playOnce;
+        let config = this.sounds.find(obj => obj.id == soundId && obj.group == "");
+        if (config) {
+            config.playOnce = playOnce;
         } else {
-            sound = this.groups.find(obj => obj.id == soundId);
-            if (sound) {
-                sound.playOnce = playOnce;
+            config = this.groups.find(obj => obj.id == soundId);
+            if (config) {
+                config.playOnce = playOnce;
                 const gsounds = this.sounds.filter(obj => obj.group == soundId);
                 for (let i = 0; i < gsounds.length; i++) {
                     gsounds[i].playOnce = playOnce;
                 }
             }
         }
-        if (!sound) {
+        if (!config) {
             ui.notifications.error("Sound not found " + soundId);
-            return;
+            return null;
         }
         this.has_changes = true;
+        return config;
     }
 }
 

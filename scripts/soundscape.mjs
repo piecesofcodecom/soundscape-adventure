@@ -533,28 +533,42 @@ export default class Soundscape {
     }
 
     async changeSoundVolume(moodId, soundId, newVolume, soundType) {
-        if (!this.moods[moodId]) {
+        const mood = this.moods[moodId];
+        if (!mood) {
             ui.notifications.error(`Cannot change volume for mood ${moodId}`);
             return;
         }
-        const soundConfig = await this.moods[moodId].getSound(soundId);
-        const old_volume = soundConfig.volume;
-        const sound = await this.playlist.sounds.get(soundConfig.id);
-        await this.moods[moodId].changeSoundVolume(soundId, newVolume);
-        if (!soundConfig || !sound || !this.moods[moodId]) {
+
+        // Get old volume before modification
+        const existingConfig = mood.findById(soundId);
+        if (!existingConfig) {
             ui.notifications.error(`Cannot change volume for sound ${soundId}`);
             return;
         }
+        const oldVolume = existingConfig.volume;
 
-        await sound.update({ volume: newVolume });
+        // Modify and get the updated config in one call (no redundant lookup)
+        const soundConfig = mood.changeSoundVolume(soundId, newVolume);
+        if (!soundConfig) return;
 
-        if (this.moods[moodId].isPlaying() && newVolume == 0) {
-            this.stopSound(soundConfig, moodId)
-        } else if (
-            old_volume == 0 && newVolume > 0 && this.moods[moodId].isPlaying() && soundConfig.type != constants.SOUNDTYPE.SOUNDPADUI && soundConfig.type != constants.SOUNDTYPE.SOUNDPAD) {
-            this.playSound(soundConfig, moodId)
+        // Update playlist sound
+        const playlistSound = this.playlist.sounds.get(soundConfig.id);
+        if (playlistSound) {
+            await playlistSound.update({ volume: newVolume });
         }
-        Hooks.callAll('SoundscapeAdventure-ChangeSoundVolume', this.id, moodId, this.moods[moodId]);
+
+        // Play/stop logic based on volume change
+        if (mood.isPlaying()) {
+            if (newVolume == 0) {
+                this.stopSound(soundConfig, moodId);
+            } else if (oldVolume == 0 && newVolume > 0 &&
+                       soundConfig.type != constants.SOUNDTYPE.SOUNDPADUI &&
+                       soundConfig.type != constants.SOUNDTYPE.SOUNDPAD) {
+                this.playSound(soundConfig, moodId);
+            }
+        }
+
+        Hooks.callAll('SoundscapeAdventure-ChangeSoundVolume', this.id, moodId, mood);
     }
 
     async stopSound(soundConfig, moodId, stop_mood = false) {
@@ -706,9 +720,13 @@ export default class Soundscape {
     }
 
     async changeSoundIntensity(moodId, groupId, value) {
-        await this.moods[moodId].setIntensity(groupId, value);
-        if (this.moods[moodId].isPlaying()) {
-            const groupConfig = await this.moods[moodId].groups.find(g => g.id == groupId);
+        const mood = this.moods[moodId];
+        if (!mood) return;
+
+        // setIntensity now returns the group (no redundant lookup)
+        const groupConfig = mood.setIntensity(groupId, value);
+
+        if (mood.isPlaying() && groupConfig) {
             await this._playLoopGroup(groupConfig, moodId);
         }
     }
