@@ -2,6 +2,7 @@ import MoodConfig from "./moodConfig.mjs";
 import constants from "./utils/constants.mjs";
 import utils from "./utils/utils.mjs";
 import { RandomSoundManager } from './RandomSoundManager.mjs';
+import { getHandler } from './soundTypeHandlers.mjs';
 
 
 //TODO new behavior:
@@ -572,65 +573,20 @@ export default class Soundscape {
     }
 
     async stopSound(soundConfig, moodId, stop_mood = false) {
+        const mood = this.moods[moodId];
+        if (!mood) return;
 
-        if (soundConfig.type == constants.SOUNDTYPE.GROUP_SOUNDPAD) {
-            const sounds = this.moods[moodId].getSoundByGroup(soundConfig.id);
-            for (let i = 0; i < sounds.length; i++) {
-                await this.playlist.stopSound({ id: sounds[i].id });
-            }
-        } else if (soundConfig.type == constants.SOUNDTYPE.GROUP_RANDOM) {
-            const grupoofsounds = await this.moods[moodId].getSoundByGroup(soundConfig.id).map(sound => sound.id);
-            this.randomSoundManager.stop(this.playlistId, grupoofsounds);
-            for (const soundId of grupoofsounds) {
-                await this.playlist.stopSound({ id: soundId });
-            }
+        // Use the Strategy Pattern - get handler for this sound type
+        const handler = getHandler(soundConfig.type);
+        const context = {
+            playlist: this.playlist,
+            playlistId: this.playlistId,
+            mood: mood,
+            moodId: moodId,
+            randomSoundManager: this.randomSoundManager
+        };
 
-        } else if (soundConfig.type == constants.SOUNDTYPE.RANDOM) {
-            if (soundConfig.group != "") {
-                const group = this.moods[moodId].groups.find(el => el.id == soundConfig.group);
-                this.randomSoundManager.stop(this.playlistId, group.sounds.map(s => s.id));
-            } else {
-                this.randomSoundManager.stop(this.playlistId, soundConfig.id);
-            }
-        } else if (soundConfig.type == constants.SOUNDTYPE.LOOP || soundConfig.type == constants.SOUNDTYPE.SOUNDPAD || soundConfig.type == constants.SOUNDTYPE.SOUNDPADUI) {
-            // LOOP SOUND can have a fadeout that exceeds its length
-            const s = await this.playlist.sounds.get(soundConfig.id);
-            if (s) {
-                await s.load();
-                if (s.playing) {
-                    await s.sound.load();
-                    const remaining_time = s.sound.duration - s.sound.currentTime;
-                    if (soundConfig.fadeOut > 0) {
-                        let fadeOut = soundConfig.fadeOut;
-                        s.sound.fade(0, { duration: fadeOut * 1000, from: s.sound.volume }).then(async () => {
-                            await this.playlist.stopSound(s);
-                        })
-                    } else {
-                        await this.playlist.stopSound(s)
-                    }
-                }
-            }
-        } else if (soundConfig.type == constants.SOUNDTYPE.GROUP_LOOP) {
-            const s = await this.playlist.sounds.get(soundConfig.current);
-            if (s) {
-                await s.load();
-                console.warn("Stopping group loop sound", s);
-                if (s.playing) {
-                    await s.sound.load();
-                    const remaining_time = s.sound.duration - s.sound.currentTime;
-                    if (soundConfig.fadeOut > 0) {
-                        let fadeOut = soundConfig.fadeOut;
-                        s.sound.fade(0, { duration: fadeOut * 1000, from: s.sound.volume }).then(async () => {
-                            await this.playlist.stopSound(s);
-                        })
-                    } else {
-                        await this.playlist.stopSound(s)
-                    }
-                }
-            }
-        } else if (soundConfig.type == constants.SOUNDTYPE.GROUP_RANDOM) {
-            this.randomSoundManager.stop(this.playlistId, soundConfig.sounds.map(s => s.id));
-        }
+        await handler.stop(soundConfig, context);
     }
 
     async _playSound(soundConfig, sound) {
@@ -649,52 +605,29 @@ export default class Soundscape {
     }
 
     async playSound(soundConfig, moodId) {
-        const isPlayingMood = this.moods[moodId].status === "playing";
+        const mood = this.moods[moodId];
+        if (!mood) return;
+
+        const isPlayingMood = mood.status === "playing";
         const isSoundpad = soundConfig.type === constants.SOUNDTYPE.SOUNDPADUI;
 
         if (!isPlayingMood && isSoundpad) return;
         if (soundConfig.volume == 0) {
-            ui.notifications.warn(`The Sound ${soundConfig.name} is muted. Change the volume before hitting play.`)
+            ui.notifications.warn(`The Sound ${soundConfig.name} is muted. Change the volume before hitting play.`);
         }
-        switch (soundConfig.type) {
-            case constants.SOUNDTYPE.GROUP_RANDOM:
-                for (let i = 0; i < soundConfig.sounds.length; i++) {
-                    const sound = await this.playlist.sounds.get(soundConfig.sounds[i].id);
-                    sound.update({ "repeat": false })
-                }
-                const groupOfSounds = soundConfig.sounds.map(sound => sound.id);
-                this.randomSoundManager.start(
-                    this.playlistId,
-                    groupOfSounds,
-                    soundConfig.random.from,
-                    soundConfig.random.to,
-                    soundConfig.volume,
-                    soundConfig.playOnce);
-                break;
-            case constants.SOUNDTYPE.GROUP_LOOP:
-                for (let i = 0; i < soundConfig.sounds.length; i++) {
-                    const sound = await this.playlist.sounds.get(soundConfig.sounds[i].id);
-                    sound.update({ "repeat": true })
-                }
-                this.playFromGroup(soundConfig.id, moodId);
 
-                break;
-            case constants.SOUNDTYPE.LOOP:
-                const s = await this.playlist.sounds.get(soundConfig.id);
-                this.moods[moodId].enableSound(soundConfig.id);
-                this._playSound(soundConfig, s)
-                break;
-            case constants.SOUNDTYPE.RANDOM:
-                this.randomSoundManager.start(this.playlistId, soundConfig.id, soundConfig.from, soundConfig.to, soundConfig.volume, soundConfig.playOnce);
-                break;
-            case constants.SOUNDTYPE.SOUNDPAD:
-            case constants.SOUNDTYPE.GROUP_SOUNDPAD:
-            case constants.SOUNDTYPE.SOUNDPADUI:
-                const so = await this.playlist.sounds.get(soundConfig.id);
-                so.update({ "repeat": false })
-                this._playSound(soundConfig, so)
-                break;
-        }
+        // Use the Strategy Pattern - get handler for this sound type
+        const handler = getHandler(soundConfig.type);
+        const context = {
+            playlist: this.playlist,
+            playlistId: this.playlistId,
+            mood: mood,
+            moodId: moodId,
+            randomSoundManager: this.randomSoundManager,
+            playFromGroup: this.playFromGroup.bind(this)
+        };
+
+        await handler.play(soundConfig, context);
     }
 
     async playFromGroup(groupId, moodId) {
