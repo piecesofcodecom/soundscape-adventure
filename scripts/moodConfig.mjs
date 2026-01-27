@@ -43,11 +43,12 @@ export default class MoodConfig {
         this.status = moodConfig.status;
         this.sounds = moodConfig.sounds;
         this.categories = moodConfig?.categories ? moodConfig.categories : [];
+        this.groups = [];
         const soundpadui = this.categories.filter(el => el.type == constants.SOUNDTYPE.SOUNDPADUI);
         if (soundpadui.length == 0) {
             this.categories.push({ id: "", name: "None", type: constants.SOUNDTYPE.SOUNDPADUI, collapsed: false, sounds: [] })
         }
-        if (moodConfig?.groups.length > 0) {
+        if (moodConfig?.groups?.length > 0) {
             for (let i = 0; i < moodConfig.groups.length; i++) {
                 this.groups.push(new GroupConfig(moodConfig.groups[i]))
             }
@@ -96,7 +97,7 @@ export default class MoodConfig {
 
         // Create play control for Peaceful Day
         const moodRenderPlayControl = document.createElement('a');
-        if (this.status == "playing") {
+        if (this.status == constants.STATUS.MOOD.PLAYING) {
             moodRenderPlayControl.className = 'soundscape-tab-button mood-control fas fa-stop item-active';
         } else {
             moodRenderPlayControl.className = 'soundscape-tab-button mood-control fas fa-play';
@@ -176,7 +177,7 @@ export default class MoodConfig {
                 this.sounds.push(new SoundConfig({
                     id: plSounds[i].id,
                     _id: plSounds[i].id,
-                    status: "off",
+                    status: constants.STATUS.SOUND.OFF,
                     group: "",
                     name: plSounds[i].name,
                     description: "",
@@ -241,11 +242,11 @@ export default class MoodConfig {
     isSoundOn(soundId) {
         const sound = this.sounds.find(obj => obj.id == soundId);
         if (sound) {
-            return sound.status == "on";
+            return sound.status == constants.STATUS.SOUND.ON;
         }
         const group = this.groups.find(obj => obj.id == soundId);
         if (group) {
-            return group.status == "on";
+            return group.status == constants.STATUS.SOUND.ON;
         }
         return false;
     }
@@ -256,7 +257,7 @@ export default class MoodConfig {
             if (sound.group != "") {
                 this.disableSoundByGroup(sound.group);
             } else {
-                sound.status = "off";
+                sound.status = constants.STATUS.SOUND.OFF;
             }
         }
     }
@@ -267,7 +268,7 @@ export default class MoodConfig {
             if (sound.group != "") {
                 this.enableSoundByGroup(sound.group);
             } else {
-                sound.status = "on";
+                sound.status = constants.STATUS.SOUND.ON;
             }
         } else {
             const group = this.groups.find(obj => obj.id == _id);
@@ -278,7 +279,7 @@ export default class MoodConfig {
     }
 
     getEnabledSounds() {
-        const s = this.sounds.filter(obj => obj.status == "on");
+        const s = this.sounds.filter(obj => obj.status == constants.STATUS.SOUND.ON);
         return s;
     }
     enableDisableSound(soundId, status) {
@@ -296,17 +297,17 @@ export default class MoodConfig {
     }
 
     getSoundsToPlay() {
-        return this.sounds.filter(obj => obj.status == "on" && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
+        return this.sounds.filter(obj => obj.status == constants.STATUS.SOUND.ON && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
     }
 
     getGroupsToPlay() {
-        return this.groups.filter(obj => obj.status == "on");
+        return this.groups.filter(obj => obj.status == constants.STATUS.SOUND.ON);
     }
 
     getSoundByCategory(category, enable_sounds = false) {
         if (enable_sounds) {
-            const sounds = structuredClone(this.sounds.filter(obj => obj.status == "on" && obj.category == category));
-            const group_sounds = structuredClone(this.groups.filter(obj => obj.status == "on" && obj.category == category));
+            const sounds = structuredClone(this.sounds.filter(obj => obj.status == constants.STATUS.SOUND.ON && obj.category == category));
+            const group_sounds = structuredClone(this.groups.filter(obj => obj.status == constants.STATUS.SOUND.ON && obj.category == category));
             return [...sounds, ...group_sounds];
         }
         return this.sounds.filter(obj => obj.category == category);
@@ -359,7 +360,7 @@ export default class MoodConfig {
     disableSoundByGroup(group) {
         const sounds = this.sounds.filter(obj => obj.group == group);
         for (let i = 0; i < sounds.length; i++) {
-            sounds[i].status = "off";
+            sounds[i].status = constants.STATUS.SOUND.OFF;
         }
 
     }
@@ -374,7 +375,7 @@ export default class MoodConfig {
         let config = this.sounds.find(obj => obj.id == soundId && obj.group == "");
         if (config) {
             config.volume = volume;
-            config.status = volume == 0 ? 'off' : 'on';
+            config.status = volume == 0 ? constants.STATUS.SOUND.OFF : constants.STATUS.SOUND.ON;
         } else {
             config = this.groups.find(obj => obj.id == soundId);
             if (config) {
@@ -413,7 +414,7 @@ export default class MoodConfig {
     }
 
     isPlaying() {
-        return this.status == "playing";
+        return this.status == constants.STATUS.MOOD.PLAYING;
     }
 
     /**
@@ -450,58 +451,136 @@ export default class MoodConfig {
         this.status = status;
     }
 
-    // convert a group from soundscape v2 to v3 field active_groups(array)
-    // to the field groups that is an array of objects of type GroupConfig
+    /**
+     * Migrate from soundscape v2 to v3 format
+     *
+     * V2 structure:
+     * - Sounds in groups have type GROUP_LOOP (4) or GROUP_RANDOM (5)
+     * - Sound.group is the group NAME (string like "Rain")
+     * - active_groups array lists group names
+     * - Sound can be status "off" but have non-zero volume
+     *
+     * V3 structure:
+     * - Groups are GroupConfig objects with type GROUP_LOOP (4) or GROUP_RANDOM (5)
+     * - Sounds in groups have type LOOP (1) or RANDOM (2) - the BASE type
+     * - Sound.group is the group ID (not name)
+     * - Groups inherit category from their sounds
+     * - Sound status is determined by volume: volume 0 = off, volume > 0 = on
+     *
+     * @param {string[]} active_groups - Array of active group names from v2
+     */
     async migrate_from_v2_to_v3(active_groups) {
-        let new_groups = [];
-        ui.notifications.info("Migrating groups");
+        const new_groups = [];
+        const safeActiveGroups = active_groups || [];
+
+        ui.notifications.info("Migrating soundscape from v2 to v3...");
+
+        // Normalize mood status to use constant values
+        if (this.status?.toLowerCase() === constants.STATUS.MOOD.PLAYING) {
+            this.status = constants.STATUS.MOOD.PLAYING;
+        } else if (this.status?.toLowerCase() === "stop" || this.status?.toLowerCase() === "stopped") {
+            this.status = constants.STATUS.MOOD.STOP;
+        }
+
+        // First pass: normalize all sounds' status and volume
+        // - Convert status strings to use constants (handle case variations)
+        // - In V3, status is determined by volume: off = volume 0, on = volume > 0
+        for (const sound of this.sounds) {
+            // Normalize status to use constant values (handle "Off", "OFF", "off", etc.)
+            if (sound.status?.toLowerCase() === constants.STATUS.SOUND.OFF) {
+                sound.status = constants.STATUS.SOUND.OFF;
+                sound.volume = "0.0";
+            } else if (sound.status?.toLowerCase() === constants.STATUS.SOUND.ON) {
+                sound.status = constants.STATUS.SOUND.ON;
+            }
+        }
+
+        // Second pass: iterate through all sounds to find grouped ones
         for (let i = 0; i < this.sounds.length; i++) {
-            if (this.sounds[i].hasOwnProperty('group')) {
-                if (this.sounds[i].group !== '') {
-                    const group = await new_groups.find(el => el.name == this.sounds[i].group);
-                    if (group) {
-                        group.addSound({ id: this.sounds[i].id, name: this.sounds[i].name });
-                        this.sounds[i].group = group.id;
-                    } else {
-                        let group_type = constants.SOUNDTYPE.GROUP_LOOP;
-                        if (sound.type == constants.SOUNDTYPE.RANDOM) {
-                            group_type = constants.SOUNDTYPE.GROUP_RANDOM;
+            const sound = this.sounds[i];
+
+            // Check if this sound belongs to a group (non-empty group name)
+            if (sound.hasOwnProperty('group') && sound.group !== '') {
+                const groupName = sound.group;
+
+                // Determine group type and base sound type
+                // In V2: sounds have GROUP_LOOP (4) or GROUP_RANDOM (5)
+                // In V3: groups have GROUP type, sounds have BASE type
+                let groupType;
+                let baseSoundType;
+
+                if (sound.type === constants.SOUNDTYPE.GROUP_LOOP) {
+                    groupType = constants.SOUNDTYPE.GROUP_LOOP;
+                    baseSoundType = constants.SOUNDTYPE.LOOP;
+                } else if (sound.type === constants.SOUNDTYPE.GROUP_RANDOM) {
+                    groupType = constants.SOUNDTYPE.GROUP_RANDOM;
+                    baseSoundType = constants.SOUNDTYPE.RANDOM;
+                } else {
+                    // Fallback: if type is already LOOP or RANDOM, keep it
+                    baseSoundType = sound.type;
+                    groupType = (sound.type === constants.SOUNDTYPE.RANDOM)
+                        ? constants.SOUNDTYPE.GROUP_RANDOM
+                        : constants.SOUNDTYPE.GROUP_LOOP;
+                }
+
+                // Check if we already created this group
+                const existingGroup = new_groups.find(g => g.name === groupName);
+
+                if (existingGroup) {
+                    // Add sound to existing group
+                    existingGroup.addSound({ id: sound.id, name: sound.name });
+                    // Update sound's group reference to use the group ID
+                    sound.group = existingGroup.id;
+                    // Revert sound type to base type
+                    sound.type = baseSoundType;
+                } else {
+                    // Create new group
+                    const newGroupId = foundry.utils.randomID(16);
+                    const new_group = new GroupConfig({
+                        id: newGroupId,
+                        name: groupName,
+                        sounds: [{ id: sound.id, name: sound.name }],
+                        intensity: parseFloat(sound.intensity) || 0,
+                        current: sound.id, // Set first sound as current
+                        status: sound.status,
+                        volume: sound.volume,
+                        type: groupType,
+                        category: sound.category || "", // Inherit category from sound
+                        soundIcon: 'icons/svg/sound.svg',
+                        fadeIn: sound.fadeIn || 0,
+                        fadeOut: sound.fadeOut || 0,
+                        random: {
+                            from: sound.from || 10,
+                            to: sound.to || 60,
                         }
-                        const new_group = new GroupConfig({
-                            id: foundry.utils.randomID(16),
-                            name: this.sounds[i].group,
-                            sounds: [{ id: this.sounds[i].id, name: this.sounds[i].name }],
-                            intensity: this.sounds[i].intensity,
-                            current: '',
-                            status: this.sounds[i].status,
-                            volume: this.sounds[i].volume,
-                            type: group_type,
-                            category: this.sounds[i].category,
-                            soundIcon: 'icons/svg/sound.svg',
-                            fadeIn: this.sounds[i].fadeIn,
-                            fadeOut: this.sounds[i].fadeOut,
-                            random: {
-                                from: this.sounds[i].from,
-                                to: this.sounds[i].to,
-                            }
-                        });
-                        new_groups.push(new_group);
-                        this.sounds[i].group = new_group.id;
-                    }
+                    });
+
+                    new_groups.push(new_group);
+                    // Update sound's group reference to use the new group ID
+                    sound.group = newGroupId;
+                    // Revert sound type to base type
+                    sound.type = baseSoundType;
                 }
             }
         }
-        ui.notifications.info("Validating migration of groups: " + active_groups.join(","));
-        for (let i = 0; i < active_groups.lenth; i++) {
-            const groupname = new_groups.find(el => el.name === active_groups[i]);
-            if (!groupname) {
-                ui.notifications.error("Failed to migrate group: " + active_groups[i]);
-            } else {
-                ui.notifications.info("Group migrated " + active_groups[i])
+
+        // Validate migration against active_groups from v2
+        if (safeActiveGroups.length > 0) {
+            ui.notifications.info(`Validating migration of ${safeActiveGroups.length} active groups...`);
+            const uniqueGroupNames = [...new Set(safeActiveGroups)];
+            for (const groupName of uniqueGroupNames) {
+                const migratedGroup = new_groups.find(g => g.name === groupName);
+                if (!migratedGroup) {
+                    ui.notifications.warn(`Group "${groupName}" was in active_groups but no sounds found for it`);
+                } else {
+                    utils.log(utils.getCallerInfo(), `Group "${groupName}" migrated with ${migratedGroup.sounds.length} sounds`, constants.LOGLEVEL.INFO);
+                }
             }
         }
-        ui.notifications.info("Groups migration finished");
-        this.groups = structuredClone(new_groups);
+
+        ui.notifications.info(`Migration complete: ${new_groups.length} groups created`);
+        this.groups = new_groups;
+        this.has_changes = true;
     }
 
     createGroup(newGroupName, soundId) {
@@ -785,7 +864,7 @@ export default class MoodConfig {
      */
     _getCategoriesForType(soundType) {
         return this.categories
-            .filter(el => el?.type === soundType)
+            .filter(el => parseInt(el?.type) === parseInt(soundType))
             .map(cat => ({
                 id: cat.id,
                 name: cat.name,

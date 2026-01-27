@@ -1172,6 +1172,8 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
 
         const sound_view = await game.settings.get('soundscape-adventure', "sound-view-type");
 
+        console.warn("Prepared context data for Soundscape UI", selected_mood);
+
         return {
             name: this.soundscape.name,
             moods: moods.sort((a, b) => a.name.localeCompare(b.name)),

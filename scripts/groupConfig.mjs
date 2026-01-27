@@ -27,7 +27,7 @@ export class GroupConfig {
             this.sounds = []; //sound id list
             this.intensity = 0.0; // if applicabe
             this.current = ""; //the current sound id playing
-            this.status = "off"; // active or not
+            this.status = constants.STATUS.SOUND.OFF; // active or not
             this.volume = 0.0; // the sound volume
             this.type = 0;
             this.category = 0;
@@ -80,8 +80,8 @@ export class GroupConfig {
     }
     enableSound(enable=true) {
         if (enable)
-            this.status = "on";
+            this.status = constants.STATUS.SOUND.ON;
         else
-            this.status = "off";
+            this.status = constants.STATUS.SOUND.OFF;
     }
 }

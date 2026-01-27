@@ -17,7 +17,7 @@
                     <i class="fa-solid fa-download" style="color: red" data-mood-id="{{ mood.id }}"></i>
                 </a>
                 {{/if}}
-                {{#if (eq mood.status "playing")}}
+                {{#isMoodPlaying mood.status}}
                 <a data-action="playStopMood" class="mood-action" data-tooltip="SAADV.MOOD.Stop">
                     <i class="fas fa-stop"></i>
                 </a>
@@ -25,7 +25,7 @@
                 <a data-action="playStopMood" class="mood-action" data-tooltip="SAADV.MOOD.Play">
                     <i class="fas fa-play"></i>
                 </a>
-                {{/if}}
+                {{/isMoodPlaying}}
                 <a data-action="configMood" class="mood-action" data-mood-id="{{ mood.id }}"
                     data-tooltip="SAADV.MOOD.Configure">
                     <i class="fas fa-cog"></i>

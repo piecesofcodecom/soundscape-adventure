@@ -281,6 +281,9 @@ Hooks.on('updateScene', async (scene, data, modified, sceneId) => {
  */
 Hooks.once('init', () => {
     game.soundscapeAdventure = {}
+    Handlebars.registerHelper('isMoodPlaying', function (status, options) {
+        return (status == constants.STATUS.MOOD.PLAYING) ? options.fn(this) : options.inverse(this);
+    });
     Handlebars.registerHelper('eachSoundType', function (array, options) {
         let result = '';
         let groups = [];
@@ -326,17 +329,17 @@ Hooks.once('init', () => {
     });
 
     Handlebars.registerHelper('soundStatus', function (modStatus, soundStatus) {
-        if (soundStatus == "on" && modStatus == "playing") {
+        if (soundStatus == constants.STATUS.SOUND.ON && modStatus == constants.STATUS.MOOD.PLAYING) {
             return true;
         }
         return false;
     });
 
     Handlebars.registerHelper('opositeAction', function (status) {
-        if (status == "on") {
-            return 'off';
+        if (status == constants.STATUS.SOUND.ON) {
+            return constants.STATUS.SOUND.OFF;
         }
-        return 'on';
+        return constants.STATUS.SOUND.ON;
     });
 
     Handlebars.registerHelper('volumeUI', function (volume) {

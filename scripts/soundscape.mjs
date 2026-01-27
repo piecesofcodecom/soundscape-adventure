@@ -22,7 +22,7 @@ export default class Soundscape {
     moodsConfigFile = "";
     random_idempotency;
     advice;
-    version = 2;
+    version = 3;
     visible_off_sounds = false;
     activeMoodId = "";
     openUI = null;
@@ -89,7 +89,7 @@ export default class Soundscape {
                 this.version = 3;
             }
             this.moods[key] = moodConfig;
-            if (moods[key].status == "playing") {
+            if (moods[key].status == constants.STATUS.MOOD.PLAYING) {
                 this.activeMoodId = key;
                 await this.playMood(key);
             }
@@ -275,13 +275,13 @@ export default class Soundscape {
                         let status = "stop";
                         if (currentPlaying.length == 2) {
                             if (currentPlaying[0] == this.id && currentPlaying[1] == moodconfig.id) {
-                                status = "playing";
+                                status = constants.STATUS.MOOD.PLAYING;
                             }
                         }
                         this.moods[moodconfig.id] = new MoodConfig(moodconfig, this.playlist, status);
                         //await this.moods[moodconfig.id].consistence(this.playlist);
                         //await this.moods[moodconfig.id].syncFolderSounds(this.soundsConfig);
-                        if (status == "playing") {
+                        if (status == constants.STATUS.MOOD.PLAYING) {
                             this.playMood(moodconfig.id, false);
                         }
                         // update soundscape sound names
@@ -308,7 +308,8 @@ export default class Soundscape {
     }
 
     async playStopMood(moodId) {
-        if (this.moods[moodId].status == "playing") {
+        console.warn("Toggling mood", moodId, this.moods[moodId].status, constants.STATUS.MOOD.PLAYING);
+        if (this.moods[moodId].status == constants.STATUS.MOOD.PLAYING) {
             await this.stopMood(moodId);
         } else {
             if (this.activeMoodId && this.activeMoodId != moodId) {
@@ -327,7 +328,7 @@ export default class Soundscape {
         this.isPlaying = true;
         if (this.moods[moodId]) {
             const sounds = await this.moods[moodId].getSoundsToPlay();
-            this.moods[moodId].status = "playing";
+            this.moods[moodId].status = constants.STATUS.MOOD.PLAYING;
             // configure sound before playing
             for (let i = 0; i < sounds.length; i++) {
                 const s = this.playlist.sounds.get(sounds[i].id);
@@ -365,8 +366,9 @@ export default class Soundscape {
         }
     }
     async stopMood(moodId) {
+        console.warn("Stopping mood", moodId);
 
-        this.moods[moodId].status = "stop";
+        this.moods[moodId].status = constants.STATUS.MOOD.STOP;
         if (this.activeMoodId == moodId) {
             this.activeMoodId = "";
         }
@@ -382,8 +384,10 @@ export default class Soundscape {
         const groups = await this.moods[moodId].getGroupsToPlay();
         for (let i = 0; i < groups.length; i++) {
             const soundGroup = await this.moods[moodId].getSound(groups[i].current)
-            if (soundGroup)
+            if (soundGroup) {
+                console.warn("stopping group sound", soundGroup);
                 await this.stopSound(soundGroup, moodId);
+            }
         }
 
         this.randomSoundManager.stopAll();
@@ -608,7 +612,7 @@ export default class Soundscape {
         const mood = this.moods[moodId];
         if (!mood) return;
 
-        const isPlayingMood = mood.status === "playing";
+        const isPlayingMood = mood.status === constants.STATUS.MOOD.PLAYING;
         const isSoundpad = soundConfig.type === constants.SOUNDTYPE.SOUNDPADUI;
 
         if (!isPlayingMood && isSoundpad) return;
@@ -755,10 +759,6 @@ export default class Soundscape {
                 sounds[i].category = "";
             }
         }
-        // if (sound.status == "on" && this.moods[moodId].status == "playing") {
-        //     this.playSound(sound, moodId);
-        // }
-
     }
 
     async removeSoundFromGroup(moodId, soundId, groupId) {
@@ -789,11 +789,11 @@ export default class Soundscape {
             return;
         }
         // if we add a random sound to a group and that sound is playing we need to stop it.
-        if (sound.type == constants.SOUNDTYPE.RANDOM && sound.status == "on") {
+        if (sound.type == constants.SOUNDTYPE.RANDOM && sound.status == constants.STATUS.SOUND.ON) {
             this.randomSoundManager.stop(this.playlistId, sound.id);
         }
         // if the group we are adding the new sound is playing, we have to stop, add the sound and restart it.
-        if (group.status == 'on' && group.type == constants.SOUNDTYPE.GROUP_RANDOM) {
+        if (group.status == constants.STATUS.SOUND.ON && group.type == constants.SOUNDTYPE.GROUP_RANDOM) {
             const grupoofsounds = await group.sounds.map(sound => sound.id);
             this.randomSoundManager.stop(this.playlistId, grupoofsounds);
         }
@@ -802,7 +802,7 @@ export default class Soundscape {
          sound.group = group.id;
          this.moods[moodId].has_changes = true;
         // restart  the group random
-        if (group.status == 'on' && group.type == constants.SOUNDTYPE.GROUP_RANDOM) {
+        if (group.status == constants.STATUS.SOUND.ON && group.type == constants.SOUNDTYPE.GROUP_RANDOM) {
             const groupOfSounds = group.map(sound => sound.id);
             this.randomSoundManager.start(
                 this.playlistId,
@@ -844,7 +844,7 @@ export default class Soundscape {
                     }
 
                 } else {
-                    if (this.moods[moodId].status != "playing") continue;
+                    if (this.moods[moodId].status != constants.STATUS.MOOD.PLAYING) continue;
                     const soundConfig = await this.moods[moodId].getSound(soundId);
                     //const triggerConfig = moodTriggers[soundId];
                     const triggers = moodTriggers[soundId];
