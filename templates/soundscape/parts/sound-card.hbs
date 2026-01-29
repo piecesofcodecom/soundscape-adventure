@@ -1,8 +1,5 @@
 <div class="sa-sound-card sa-dataset {{#if (gteZero sound.volume)}}playing{{else}}stopped{{/if}}" {{#ifNotEquals sound.soundIcon ''
-    }} style="background-image: linear-gradient(
-      rgba(10, 10, 10, 0.6),
-      rgba(10, 10, 10, 0.6)
-    ), url({{sound.soundIcon}}); background-size: cover;" {{/ifNotEquals}} data-sound-id="{{ sound.id }}" data-sound-type="{{ sound.type }}" data-group="{{ sound.group }}"
+    }} style="background-image: url({{sound.soundIcon}});" {{/ifNotEquals}} data-sound-id="{{ sound.id }}" data-sound-type="{{ sound.type }}" data-group="{{ sound.group }}"
     data-mood-id="{{@root.selected_mood.id}}" data-soundscape-id="{{@root.soundscapeId}}">
     <div class="sa-sound-card-header data-drag">
         <div class="title">{{sound.name}}</div>

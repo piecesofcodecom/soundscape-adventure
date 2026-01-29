@@ -1,0 +1,35 @@
+// Sound group styles
+.sa-group {
+  margin-bottom: 24px;
+}
+
+.sa-category {
+  border: 1px solid var(--content-link-border-color);
+  background-color: var(--content-link-background);
+  margin-bottom: 1em;
+   background: var(--sa-bg-panel);
+}
+.sa-group-header,
+.sa-category-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--sa-border);
+}
+
+.sa-category-header {
+    background: var(--sa-bg-panel-header);
+}
+
+.sa-group-header h3 {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-emphatic);
+}
+
+.sa-group-controls {
+  gap: 15px;
+  display: flex;
+}

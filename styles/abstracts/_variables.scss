@@ -1,0 +1,119 @@
+// CSS Custom Properties for theming
+// Maps custom module properties to FoundryVTT v13 theme variables
+:root {
+  // // Background colors - using Foundry layout variables
+  // --sa-bg-main: var(--color-bg-window);
+  // --sa-bg-panel: rgba(0, 0, 0, 0.1);
+  // --sa-bg-panel-header: rgba(0, 0, 0, 0.1);
+  // --sa-bg-card: linear-gradient(rgba(10, 10, 10, 0.6),
+  //     rgba(10, 10, 10, 0.6));
+  // --sa-bg-hover: var(--color-bg-row-hover);
+
+  // // Accent and state colors - using Foundry semantic variables
+  // --sa-accent: var(--color-border);
+  // --sa-sound-on: green;
+  // --sa-sound-off: red;
+  // --sa-accent-soft: color-mix(in srgb, var(--color-border) 15%, transparent);
+
+  // // Text colors
+  // --sa-text-main: var(--color-text-primary);
+  // --sa-text-muted: var(--color-text-secondary);
+
+  // // Borders
+  // --sa-border: var(--color-border-light-primary);
+
+  // Layout (not a color, kept as custom)
+  --sa-radius: 6px;
+
+  /* Backgrounds */
+  --sa-bg-app: #f5f7fa;
+  --sa-bg-panel: rgba(10, 10, 10, 0.1);
+  --sa-bg-panel-header: rgba(10, 10, 10, 0.1);
+  --sa-bg-subtle: #eef1f5;
+  --sa-bg-card: rgba(240, 240, 240, 0.6);
+
+  /* Text */
+  --sa-text-primary: #1f2933;
+  --sa-text-secondary: #5b6775;
+  --sa-text-muted: #8a94a6;
+
+  /* Buttons */
+  --sa-btn-bg: #3b82f6;
+  --sa-btn-bg-hover: #2563eb;
+  --sa-btn-bg-active: #1d4ed8;
+  --sa-btn-text: #ffffff;
+
+  --sa-btn-secondary-bg: #e5e7eb;
+  --sa-btn-secondary-hover: #d1d5db;
+  --sa-btn-secondary-text: #1f2933;
+  /* Borders */
+  --sa-border-default: #d1d5db;
+  --sa-border-subtle: #e5e7eb;
+  --sa-border-strong: #9ca3af;
+
+  /* Audio / Mixer */
+  --sa-mixer-bg: #f1f5f9;
+  --sa-mixer-track: #0a0c0e;
+  --sa-mixer-track-active: #3b82f6;
+  --sa-mixer-thumb: #1d4ed8;
+  --sa-mixer-thumb-hover: #2563eb;
+  /* Focus / Accent */
+  --sa-focus-ring: #93c5fd;
+
+  --sa-audio-muted: #ef4444;      /* red */
+  --sa-audio-active: #22c55e;     /* green */
+  --sa-audio-warning: #f59e0b;    /* yellow */
+
+  --sa-range-thumb-background-color: #0b131d;
+  --sa-slider-button: #9c5e00;
+  --sa-slider-button-border: #d8d806;
+
+  --sa-mood-shadow: rgba(0, 0, 0, 0.35);
+  --sa-mood-shadow-hover: rgba(0, 0, 0, 0.65);
+}
+
+.theme-dark {
+  /* Backgrounds */
+  --sa-bg-app: #0f172a;
+  --sa-bg-panel: rgba(230, 241, 255, 0.1);
+  --sa-bg-panel-header: rgba(230, 241, 255, 0.1);
+  --sa-bg-subtle: #334155;
+  --sa-bg-card: rgba(10, 10, 10, 0.6);
+
+  --sa-mood-shadow: rgba(0, 0, 0, 0.35);
+  --sa-mood-shadow-hover: rgba(0, 0, 0, 0.65);
+
+  /* Text */
+  --sa-text-primary: #e5e7eb;
+  --sa-text-secondary: #cbd5e1;
+  --sa-text-muted: #94a3b8;
+
+  /* Buttons */
+  --sa-btn-bg: #3b82f6;
+  --sa-btn-bg-hover: #60a5fa;
+  --sa-btn-bg-active: #2563eb;
+  --sa-btn-text: #ffffff;
+
+  --sa-btn-secondary-bg: #334155;
+  --sa-btn-secondary-hover: #475569;
+  --sa-btn-secondary-text: #e5e7eb;
+
+  /* Borders */
+  --sa-border-default: #475569;
+  --sa-border-subtle: #334155;
+  --sa-border-strong: #64748b;
+
+  /* Audio / Mixer */
+  --sa-mixer-bg: #020617;
+  --sa-mixer-track: #334155;
+  --sa-mixer-thumb: #60a5fa;
+  --sa-mixer-thumb-hover: #93c5fd;
+
+  /* slider */
+  --sa-range-thumb-background-color: #60a5fa;
+  --sa-slider-button: #e7d1b1;
+  --sa-slider-button-border: #dddddc;
+
+  /* Focus / Accent */
+  --sa-focus-ring: #60a5fa;
+}

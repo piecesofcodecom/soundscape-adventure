@@ -56,7 +56,7 @@ const STORAGETRIGGERSETTINGS = "soundscape-adventure.triggerSettings";
 
 const MODULE = {
     name: "soundscape-adventure",
-    version: "0.4.1"
+    version: "0.5.0"
 }
 
 export default {

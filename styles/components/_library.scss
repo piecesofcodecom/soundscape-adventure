@@ -1,0 +1,55 @@
+// Library panel styles
+.sa-library-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sa-library-item {
+  padding: 8px 12px;
+  display: flex;
+  justify-content: space-between;
+  cursor: grab;
+}
+
+.sa-library-item:hover {
+  background: var(--content-link-background);
+}
+
+.sa-library-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+}
+
+// Title
+.sa-library-header h3 {
+  grid-column: 1;
+  grid-row: 1;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-selection);
+}
+
+// Close button aligned with h2
+.sa-library-close-btn {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: center;
+  background: var(--button-background-color);
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--button-text-color);
+}
+
+// Search input spans full width below
+.sa-library-header .filterInput {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}

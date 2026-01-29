@@ -446,7 +446,7 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
                         break;
                     case "stop":
                         const sounds = await this.soundscape.moods[moodId].getSound(soundId);
-                        
+
                         const i = button.querySelector("i");
                         if (sounds.type == constants.SOUNDTYPE.SOUNDPADUI) {
                             i.className = "fas fa-play";
@@ -535,9 +535,10 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
                 } else if (action == "enableAll") {
                     this.soundscape.enableSoundsinCategory(moodId, categoryId);
                     this.myRender(true);
+                } else if (action == "collapse") {
+                    this.soundscape.toggleCategoryCollapsed(moodId, categoryId);
+                     this.myRender(true);
                 }
-
-
             });
         });
 
@@ -559,35 +560,35 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
             });
         });
 
-        this.element.querySelectorAll('.sound-category').forEach(el => {
-            const button = el.querySelector(".category-title");
-            const collapeDiv = el.querySelector(".soundscapeadv-container, .soundpad-list-container");
-            if (button && collapeDiv) {
-                button.addEventListener("click", (e) => {
-                    const icon = e.currentTarget.querySelector("i");
-                    if (icon.className.includes("fa-angle-down")) {
-                        icon.className = "fa fa-angle-up";
-                    } else {
-                        icon.className = "fa fa-angle-down";
-                    }
-                    const categoryId = e.currentTarget.dataset.categoryId;
-                    const parent = e.currentTarget.closest(".soundboardadv-main");
-                    const moodId = parent.dataset.moodId;
-                    const type = parseInt(e.currentTarget.dataset.categoryType);
+        // this.element.querySelectorAll('.sound-category').forEach(el => {
+        //     const button = el.querySelector(".category-title");
+        //     const collapeDiv = el.querySelector(".soundscapeadv-container, .soundpad-list-container");
+        //     if (button && collapeDiv) {
+        //         button.addEventListener("click", (e) => {
+        //             const icon = e.currentTarget.querySelector("i");
+        //             if (icon.className.includes("fa-angle-down")) {
+        //                 icon.className = "fa fa-angle-up";
+        //             } else {
+        //                 icon.className = "fa fa-angle-down";
+        //             }
+        //             const categoryId = e.currentTarget.dataset.categoryId;
+        //             const parent = e.currentTarget.closest(".soundboardadv-main");
+        //             const moodId = parent.dataset.moodId;
+        //             const type = parseInt(e.currentTarget.dataset.categoryType);
 
-                    const mood = this.soundscape.getMood(moodId);
-                    if (mood) {
-                        mood.toggleCategoryCollapsed(categoryId, type);
-                    }
+        //             const mood = this.soundscape.getMood(moodId);
+        //             if (mood) {
+        //                 mood.toggleCategoryCollapsed(categoryId);
+        //             }
 
 
-                    const content = this.element.querySelector('.sa-content');
-                    this.scrollTop = content?.scrollTop ?? 0;
-                    const isVisible = collapeDiv.style.display !== 'none';
-                    collapeDiv.style.display = isVisible ? 'none' : '';
-                });
-            }
-        })
+        //             const content = this.element.querySelector('.sa-content');
+        //             this.scrollTop = content?.scrollTop ?? 0;
+        //             const isVisible = collapeDiv.style.display !== 'none';
+        //             collapeDiv.style.display = isVisible ? 'none' : '';
+        //         });
+        //     }
+        // })
 
         this.element.querySelectorAll(".new-category").forEach(el => {
             el.addEventListener("click", async (ev) => {

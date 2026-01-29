@@ -1,0 +1,21 @@
+// Drop target styles
+.sa-drop-target {
+  outline: 2px dashed var(--sa-accent);
+  background: var(--sa-accent-soft);
+}
+
+.dragdrop-empty {
+  grid-column: span 2;
+  min-height: 80px;
+  border: 2px dashed var(--color-text-secondary);
+  background: transparent;
+  color: var(--color-text-secondary);
+  justify-content: center;
+  text-align: center;
+  font-size: 14px;
+}
+
+.data-drag:hover {
+  cursor: grab;
+
+}

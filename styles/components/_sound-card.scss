@@ -1,0 +1,60 @@
+// Sound card grid and individual card styles
+.sa-sound-grid-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+  padding: 12px;
+}
+
+.sa-sound-card {
+  background-color: var(--sa-bg-card);
+  padding: 10px;
+  border-radius: var(--sa-radius);
+  border: 1px solid var(--sa-border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.sa-sound-card-header {
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-content: space-around;
+  justify-content: space-between;
+}
+
+// .sa-sound-card input[type="range"] {
+//   --range-track-color: var(--sa-accent-soft);
+// }
+
+// .sa-sound-card:hover {
+//   background: var(--sa-bg-hover);
+// }
+
+.sa-sound-card.playing {
+  border-left: 3px solid var(--sa-audio-active);
+}
+
+.sa-sound-card.stopped {
+  border-left: 3px solid var(--sa-audio-muted);
+}
+
+.sa-sound-card .title {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.sa-sound-card .meta {
+  font-size: 0.7rem;
+  color: var(--sa-text-muted);
+}
+
+.sa-sound-card .volume {
+  width: 100%;
+}

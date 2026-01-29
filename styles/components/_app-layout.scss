@@ -1,0 +1,18 @@
+// Main app grid layout
+.sa-app.library-hidden,
+.sa-app {
+  display: grid;
+  height: 100%;
+  //background: var(--sa-bg-main);
+  color: var(--color-text-primary);
+  font-family: var(--font-primary);
+}
+
+.sa-app {
+  grid-template-columns: 220px 1fr 260px;
+  transition: grid-template-columns 0.2s ease;
+}
+
+.sa-app.library-hidden {
+  grid-template-columns: 220px 1fr;
+}

@@ -1,0 +1,17 @@
+// Soundscape Adventure - Main SCSS Entry Point
+// Compiles to css/soundscape.css
+
+// Abstracts (variables, mixins - no direct output)
+@use 'abstracts';
+
+// Components
+@use 'components';
+
+// Layouts
+@use 'layouts';
+
+// Dialogs
+@use 'dialogs';
+
+// Pages
+@use 'pages';

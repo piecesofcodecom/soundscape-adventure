@@ -1,0 +1,38 @@
+// Main content and panel styles
+.sa-content {
+  height: 100%;
+  max-height: 830px;
+  overflow-y: auto;
+}
+
+.sa-moods,
+.sa-library {
+  background: var(--sa-bg-panel);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--sa-border);
+  height: 100vh;
+  overflow-y: auto;
+}
+
+.sa-moods {
+  border-right: 1px solid var(--color-border);
+    margin-right: 1em;
+}
+
+
+.sa-library {
+  border-right: none;
+  border-left: 1px solid var(--sa-border);
+}
+
+.sa-panel-header {
+  padding: 12px;
+  border-bottom: 1px solid var(--sa-border);
+}
+
+.sa-panel-header h2 {
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  color: var(--sa-text-muted);
+}

@@ -42,7 +42,7 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
                 if (mood) {
                     sounds = mood.sounds.filter(sound => sound.type === constants.SOUNDTYPE.SOUNDPADUI);
                     name = mood.name;
-                    this.soundscape = soundscape.class;
+                    this.soundscape = soundscape;
                 }
             }
         }

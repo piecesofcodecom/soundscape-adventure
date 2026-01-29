@@ -1,0 +1,107 @@
+// Changelog styles
+.changelog {
+  border-radius: 4px;
+  box-shadow: 0 1px 8px 0 var(--color-overlay-dark), 0 3px 4px 0 var(--color-overlay-dark), 0 3px 3px -2px var(--color-overlay-dark);
+  position: relative;
+
+  .badge {
+    position: relative;
+    top: -3px;
+    border-radius: 16px;
+    display: inline-block;
+    width: 90px;
+    height: 32px;
+    line-height: 32px;
+    margin-right: 10px;
+    text-transform: uppercase;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+  }
+
+  .badge-fixed {
+    background-color: var(--color-danger);
+    color: var(--color-text-light-primary);
+  }
+
+  .badge-added {
+    background-color: var(--color-success);
+    color: var(--color-text-light-primary);
+  }
+
+  .badge-changed {
+    background-color: var(--color-warning);
+    color: var(--color-text-light-primary);
+  }
+
+  h1,
+  h2,
+  h3 {
+    overflow: hidden;
+    padding: 0;
+    text-overflow: ellipsis;
+  }
+
+  h1 {
+    font: 400 32px/40px var(--font-primary);
+    letter-spacing: 0;
+    margin: 48px 0 24px;
+  }
+
+  h2 {
+    border-bottom: 0;
+    font: 400 22px/30px var(--font-primary);
+    // margin: 48px 0 24px;
+    padding-bottom: 0;
+    letter-spacing: -.01em;
+  }
+
+  h2 .date {
+    color: var(--color-accent);
+  }
+
+  h3 {
+    font: 400 18px/30px var(--font-primary);
+    // margin: 32px 0 16px;
+  }
+
+  p {
+    margin: 16px 0;
+    padding: 0;
+  }
+
+  code,
+  pre,
+  .pre-style {
+    background: var(--color-bg-option);
+    color: var(--color-text-primary);
+    font: 500 90%/1 var(--font-mono);
+    padding: 1px 4px;
+    word-break: break-word;
+  }
+
+  ul {
+    display: block;
+    list-style: disc outside;
+    -webkit-margin-before: 1em;
+    -webkit-margin-after: 1em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 40px;
+    margin: 0;
+    padding-left: 0;
+  }
+
+  li {
+    list-style-type: none;
+    margin: 8px 0 8px 22px;
+    padding: 0;
+  }
+
+  :link,
+  :visited {
+    color: var(--color-accent);
+    outline: 0;
+    text-decoration: none;
+  }
+}

@@ -1,0 +1,35 @@
+// Button styles
+.sa-btn.selected {
+  background: var(--button-hover-background-color);
+}
+
+.sa-btn.selected:hover {
+  background: var(--button-background-color);
+}
+
+.sa-btn-simple {
+  border: 0px;
+  background: none;
+  color: var(--button-text-color);
+  outline: none;
+  box-shadow: none;
+}
+
+.sa-btn-simple:hover {
+  color: var(--button-hover-background-color);
+}
+
+// Footer menu grid
+.sa-footer-menu {
+  margin-top: 1em;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.4rem 0.6rem;
+  align-items: center;
+  justify-items: center;
+  width: 100%;
+}
+
+.sa-footer-menu .sa-btn {
+  width: 30px;
+}

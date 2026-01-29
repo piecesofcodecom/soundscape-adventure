@@ -1,0 +1,65 @@
+// Sound list styles
+.sa-sound-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+// Each sound row
+.sa-sound-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+
+  font-family: var(--font-sans);
+  // background: rgba(0, 0, 0, 0.35);
+}
+
+.sa-sound-list li.dragdrop-empty {
+  background: none;
+}
+
+// Hover feedback
+.sa-sound-list li:hover {
+  background: var(--content-link-background);
+}
+
+// Sound icon / image
+.sa-sound-list li img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+// Sound name
+.sa-sound-list li span {
+  flex: 1;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// Volume slider
+// .sa-sound-list li input[type="range"] {
+//   flex: 0 0 110px;
+//   --range-track-color: var(--sa-accent-soft);
+// }
+
+// Buttons
+.sa-sound-list li button {
+  border: none;
+  padding: 0.25rem;
+  cursor: var(--cursor-pointer);
+  background: var(--button-background-color);
+  color: var(--button-text-color);
+}
+
+.sa-sound-list li button:hover {
+  background: var(--button-hover-background-color);
+  color: var(--button-hover-text-color);
+  border-color: var(--button-hover-border-color);
+}

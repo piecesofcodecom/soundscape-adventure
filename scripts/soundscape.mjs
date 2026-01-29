@@ -361,8 +361,43 @@ export default class Soundscape {
         await this.stopMood(moodId);
         if (this.moods[moodId]) {
             delete this.moods[moodId];
+            await this.syncRegionSoundscapes();
             await this.saveMoodsConfig();
             Hooks.callAll("SoundscapeAdventure-UpdateSidebar", "", "");
+        }
+    }
+
+    /**
+     * Synchronizes the regionSoundscapes setting with the current moods.
+     * Removes entries for moods that no longer exist and adds/updates entries for current moods.
+     */
+    async syncRegionSoundscapes() {
+        let soundscapes = await game.settings.get(`soundscape-adventure`, "regionSoundscapes");
+        let hasChanges = false;
+
+        // Remove entries for this soundscape's moods that no longer exist
+        for (const key of Object.keys(soundscapes)) {
+            if (key.startsWith(`${this.id}:`)) {
+                const moodId = key.split(':')[1];
+                if (!this.moods[moodId]) {
+                    delete soundscapes[key];
+                    hasChanges = true;
+                }
+            }
+        }
+
+        // Add/update entries for current moods
+        for (const moodId in this.moods) {
+            const regionKey = `${this.id}:${moodId}`;
+            const value = `${this.name} -> ${this.moods[moodId].name}`;
+            if (soundscapes[regionKey] !== value) {
+                soundscapes[regionKey] = value;
+                hasChanges = true;
+            }
+        }
+
+        if (hasChanges) {
+            await game.settings.set(`soundscape-adventure`, "regionSoundscapes", soundscapes);
         }
     }
     async stopMood(moodId) {
@@ -404,15 +439,13 @@ export default class Soundscape {
         utils.log(utils.getCallerInfo(), `Saving moods for ${this.name} to ${this.path}`)
         let moodsCopy = JSON.parse(JSON.stringify(this.moods));
 
-        // Save the soundscape to the settings for regions
-        let obj = {};
+        // Sync regionSoundscapes setting with current moods
+        await this.syncRegionSoundscapes();
+
+        // Reset has_changes flag for all moods
         for (let mood in this.moods) {
-            obj[`${this.id}:${mood}`] = `${this.name} -> ${this.moods[mood].name}`
             this.moods[mood].has_changes = false;
         }
-        let soundscapes = await game.settings.get(`soundscape-adventure`, "regionSoundscapes");
-        soundscapes = Object.assign(obj, soundscapes)
-        game.settings.set(`soundscape-adventure`, "regionSoundscapes", soundscapes);
 
         try {
             const finalJson = {
@@ -802,8 +835,8 @@ export default class Soundscape {
          sound.group = group.id;
          this.moods[moodId].has_changes = true;
         // restart  the group random
-        if (group.status == constants.STATUS.SOUND.ON && group.type == constants.SOUNDTYPE.GROUP_RANDOM) {
-            const groupOfSounds = group.map(sound => sound.id);
+        if (group.status == constants.STATUS.SOUND.ON && group.type == constants.SOUNDTYPE.GROUP_RANDOM && this.moods[moodId].status == constants.STATUS.MOOD.PLAYING) {
+            const groupOfSounds = group.sounds.map(sound => sound.id);
             this.randomSoundManager.start(
                 this.playlistId,
                 groupOfSounds,
@@ -925,7 +958,7 @@ export default class Soundscape {
         const title = document.createElement('h4');
         title.className = 'entry-name playlist-name';
         title.draggable = true;
-        title.style.color = 'var(--color-light-3)';
+        title.style.color = 'var(--color-text-emphatic)';
         title.style.flex = '3';
 
         // // Create the collapse icon
@@ -1163,5 +1196,9 @@ export default class Soundscape {
                 const subfolderPaths = await this.addSoundsToPlaylist(dir, loadSubfolders);
             }
         }
+    }
+
+    async toggleCategoryCollapsed(moodId, categoryId) {
+        this.moods[moodId].toggleCategoryCollapsed(categoryId);
     }
 }

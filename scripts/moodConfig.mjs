@@ -297,7 +297,7 @@ export default class MoodConfig {
     }
 
     getSoundsToPlay() {
-        return this.sounds.filter(obj => obj.status == constants.STATUS.SOUND.ON && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
+        return this.sounds.filter(obj => obj.group == "" && obj.status == constants.STATUS.SOUND.ON && (obj.type == constants.SOUNDTYPE.LOOP || obj.type == constants.SOUNDTYPE.RANDOM));
     }
 
     getGroupsToPlay() {
@@ -434,8 +434,8 @@ export default class MoodConfig {
      * @param {number} type - The sound type
      * @returns {boolean} The new collapsed state
      */
-    toggleCategoryCollapsed(categoryId, type) {
-        const category = this.categories.find(c => c.id === categoryId && c.type === type);
+    toggleCategoryCollapsed(categoryId) {
+        const category = this.categories.find(c => c.id === categoryId);
         if (category) {
             category.collapsed = !category.collapsed;
             return category.collapsed;
