@@ -12,6 +12,38 @@
         </button>
     </div>
 
+    <div class="sa-lib-toolbar__row sa-lib-toolbar__row--filters">
+        <div class="sa-lib-segmented" role="group" aria-label="Filter by duration">
+            <i class="fas fa-stopwatch sa-lib-segmented__icon" data-tooltip="Duration"></i>
+            {{#each durationFilters as |f|}}
+            <button type="button" class="sa-lib-segmented__btn {{#if f.active}}is-active{{/if}}"
+                data-action="duration-filter" data-duration="{{f.id}}" data-tooltip="{{f.tooltip}}">{{f.label}}</button>
+            {{/each}}
+        </div>
+
+        <div class="sa-lib-progress" hidden>
+            <span class="sa-lib-progress__label">Measuring durations…</span>
+            <span class="sa-lib-progress__bar"></span>
+            <button type="button" class="sa-lib-progress__cancel" data-action="cancel-durations"
+                data-tooltip="Stop measuring (resume with the stopwatch button)"><i class="fas fa-xmark"></i></button>
+        </div>
+        {{#if unmeasured}}
+        <button type="button" class="sa-lib-measure" data-action="measure-durations"
+            data-tooltip="{{unmeasured}} sound(s) without a duration — measure now">
+            <i class="fas fa-stopwatch"></i> {{unmeasured}}
+        </button>
+        {{/if}}
+
+        <label class="sa-lib-sortwrap" data-tooltip="Sort">
+            <i class="fas fa-arrow-down-wide-short"></i>
+            <select class="sa-lib-sort" aria-label="Sort">
+                {{#each sorts as |s|}}
+                <option value="{{s.id}}" {{#if s.selected}}selected{{/if}}>{{s.label}}</option>
+                {{/each}}
+            </select>
+        </label>
+    </div>
+
     <div class="sa-lib-batch" hidden>
         <span class="sa-lib-batch__count">0 selected</span>
         <span class="sa-lib-batch__spacer"></span>

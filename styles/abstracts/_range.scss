@@ -1,0 +1,83 @@
+// Range slider skin. Foundry v13 styles the inner track/thumb pseudo-elements
+// (4px bordered track, square thumb with margin-top: -5px), so those are what
+// must be overridden — a background on the input itself sits behind them.
+// The filled part follows --sa-fill (set from JS); Firefox uses the native
+// ::-moz-range-progress instead.
+@mixin sa-range($track: 8px, $thumb: 16px, $fill: var(--sa-accent)) {
+  -webkit-appearance: none;
+  appearance: none;
+  height: $thumb + 4px;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  outline: none;
+
+  &::-webkit-slider-runnable-track {
+    height: $track;
+    border: none;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+        #{$fill} 0 var(--sa-fill, 0%),
+        var(--sa-track) var(--sa-fill, 0%) 100%);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  &::-moz-range-track {
+    height: $track;
+    border: none;
+    border-radius: 999px;
+    background: var(--sa-track);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+
+  &::-moz-range-progress {
+    height: $track;
+    border-radius: 999px;
+    background: #{$fill};
+  }
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: $thumb;
+    height: $thumb;
+    margin-top: ($track - $thumb) * 0.5;
+    border: 3px solid #{$fill};
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    transition: transform 0.15s var(--sa-ease), box-shadow 0.15s;
+  }
+
+  &::-moz-range-thumb {
+    box-sizing: border-box;
+    width: $thumb;
+    height: $thumb;
+    margin-top: 0;
+    border: 3px solid #{$fill};
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    transition: transform 0.15s var(--sa-ease), box-shadow 0.15s;
+  }
+
+  &:hover::-webkit-slider-thumb,
+  &:active::-webkit-slider-thumb {
+    transform: scale(1.15);
+  }
+
+  &:hover::-moz-range-thumb,
+  &:active::-moz-range-thumb {
+    transform: scale(1.15);
+  }
+
+  &:focus-visible::-webkit-slider-thumb {
+    box-shadow: 0 0 0 4px var(--sa-accent-soft), 0 1px 4px rgba(0, 0, 0, 0.45);
+  }
+
+  &:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px var(--sa-accent-soft), 0 1px 4px rgba(0, 0, 0, 0.45);
+  }
+}

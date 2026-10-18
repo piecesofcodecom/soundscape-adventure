@@ -117,3 +117,63 @@
   /* Focus / Accent */
   --sa-focus-ring: #60a5fa;
 }
+
+// ---------------------------------------------------------------------------
+// Soundscape window design tokens (accent, surfaces, per-type colours).
+// Derived tokens are redeclared per theme because a var() inside a custom
+// property resolves where it is declared, not where it is used.
+// ---------------------------------------------------------------------------
+@mixin sa-ui-light {
+  --sa-accent: #c9821f;
+  --sa-accent-strong: #a8680f;
+  --sa-accent-contrast: #ffffff;
+  --sa-type-color: var(--sa-accent);
+  --sa-type-loop: #1f978b;
+  --sa-type-random: #7c5cd0;
+  --sa-type-pad: #c9821f;
+
+  --sa-surface-1: rgba(0, 0, 0, 0.035);
+  --sa-surface-2: rgba(255, 255, 255, 0.6);
+  --sa-surface-hover: rgba(0, 0, 0, 0.06);
+  --sa-line: rgba(0, 0, 0, 0.12);
+  --sa-track: rgba(0, 0, 0, 0.28);
+  --sa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --sa-shadow-md: 0 8px 18px -8px rgba(0, 0, 0, 0.3);
+
+  // Tokens that were referenced but never defined.
+  --sa-accent-soft: color-mix(in srgb, var(--sa-accent) 14%, transparent);
+  --sa-border: var(--sa-line);
+  --sa-bg-hover: var(--sa-surface-hover);
+}
+
+@mixin sa-ui-dark {
+  --sa-accent: #f0ab45;
+  --sa-accent-strong: #ffc46b;
+  --sa-accent-contrast: #1b1206;
+  --sa-type-loop: #3cc7b8;
+  --sa-type-random: #a48af0;
+  --sa-type-pad: #f0ab45;
+
+  --sa-surface-1: rgba(255, 255, 255, 0.03);
+  --sa-surface-2: rgba(255, 255, 255, 0.055);
+  --sa-surface-hover: rgba(255, 255, 255, 0.08);
+  --sa-line: rgba(255, 255, 255, 0.09);
+  --sa-track: rgba(255, 255, 255, 0.3);
+  --sa-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sa-shadow-md: 0 10px 24px -10px rgba(0, 0, 0, 0.8);
+
+  --sa-accent-soft: color-mix(in srgb, var(--sa-accent) 16%, transparent);
+  --sa-border: var(--sa-line);
+  --sa-bg-hover: var(--sa-surface-hover);
+}
+
+:root,
+.theme-light {
+  @include sa-ui-light;
+  --sa-radius-lg: 10px;
+  --sa-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+.theme-dark {
+  @include sa-ui-dark;
+}

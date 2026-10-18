@@ -1,21 +1,98 @@
-// Sound Library window — sober, dense, professional.
-// All colours come from the shared --sa-* tokens (light/dark aware).
+@use '../abstracts' as *;
 
+// Sound Library window — sober, dense, modern.
+// Shares the soundscape window's design tokens (--sa-accent, --sa-surface-*,
+// --sa-line…) so both windows read as one product. Accent colour is used
+// sparingly: active tab, selection, primary action, playing preview.
+
+// Shared field look (search, selects, inline inputs)
+@mixin sa-field {
+    height: 1.85rem;
+    padding: 0 0.6rem;
+    font-size: 0.8rem;
+    color: var(--color-text-primary);
+    background: var(--sa-surface-1);
+    border: 1px solid var(--sa-line);
+    border-radius: var(--sa-radius);
+    box-shadow: none;
+    transition: border-color 0.15s, box-shadow 0.15s, background-color 0.15s;
+
+    &::placeholder { color: var(--color-text-secondary); opacity: 0.8; }
+
+    &:hover { border-color: color-mix(in srgb, var(--color-text-secondary) 45%, var(--sa-line)); }
+
+    &:focus,
+    &:focus-visible {
+        outline: none;
+        border-color: var(--sa-accent);
+        box-shadow: 0 0 0 3px var(--sa-accent-soft);
+    }
+}
+
+// Chrome-less icon button
+@mixin sa-icon-btn($size: 1.65rem) {
+    flex: 0 0 auto;
+    display: inline-grid;
+    place-items: center;
+    width: $size;
+    height: $size;
+    min-height: 0;
+    margin: 0;
+    padding: 0;
+    font-size: 0.75rem;
+    line-height: 1;
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: none;
+    border-radius: var(--sa-radius);
+    box-shadow: none;
+    cursor: pointer;
+    transition: background-color 0.15s, color 0.15s, opacity 0.15s;
+
+    &:hover {
+        color: var(--color-text-primary);
+        background: var(--sa-surface-hover);
+    }
+
+    &:focus-visible {
+        outline: none;
+        box-shadow: 0 0 0 2px var(--sa-accent);
+    }
+}
+
+// Section label (uppercase, tracked, muted)
+@mixin sa-label {
+    margin: 0;
+    border: none;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+}
+
+// ---------------------------------------------------------------------------
 // Roots management dialog (rendered outside the library window).
+// ---------------------------------------------------------------------------
 .sa-roots {
     list-style: none;
     margin: 0 0 0.5rem;
     padding: 0;
+    border: 1px solid var(--sa-line);
+    border-radius: var(--sa-radius-lg);
+    overflow: hidden;
 
     &__item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.3rem 0.4rem;
-        border-radius: var(--sa-radius);
-        &:hover { background: var(--sa-bg-subtle); }
+        gap: 0.6rem;
+        padding: 0.45rem 0.6rem;
+        border-bottom: 1px solid var(--sa-line);
 
-        .fa-folder { color: var(--sa-text-muted); }
+        &:last-child { border-bottom: none; }
+        &:hover { background: var(--sa-surface-hover); }
+
+        .fa-folder { color: var(--sa-accent); }
     }
 
     &__path {
@@ -24,41 +101,37 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
     }
 
     &__remove {
-        flex: 0 0 auto;
-        width: 1.6rem;
-        height: 1.6rem;
-        color: var(--sa-text-muted);
-        background: transparent;
-        border: none;
-        cursor: pointer;
+        @include sa-icon-btn(1.6rem);
         &:hover { color: var(--sa-audio-muted); }
     }
 
     &__empty {
-        padding: 1rem;
+        padding: 1.25rem;
         text-align: center;
-        color: var(--sa-text-muted);
+        color: var(--color-text-secondary);
     }
 
     &__hint {
         opacity: 0.8;
-        font-size: 0.85em;
+        font-size: 0.82em;
     }
 }
 
+// ---------------------------------------------------------------------------
 // Duplicate-audio results dialog (rendered outside the library window).
+// ---------------------------------------------------------------------------
 .sa-dup {
     max-height: 24rem;
     overflow-y: auto;
 
     &__group {
         margin-bottom: 0.5rem;
-        border: 1px solid var(--sa-border-subtle);
-        border-radius: var(--sa-radius);
+        border: 1px solid var(--sa-line);
+        border-radius: var(--sa-radius-lg);
         overflow: hidden;
     }
 
@@ -66,18 +139,20 @@
         display: flex;
         align-items: center;
         gap: 0.6rem;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.6rem;
     }
 
     &__apply {
         flex: 0 0 auto;
-        padding: 0.3rem 0.6rem;
-        color: var(--button-text-color);
-        background: var(--button-background-color);
+        height: 1.85rem;
+        padding: 0 0.75rem;
+        font-size: 0.8rem;
+        color: var(--sa-accent-contrast);
+        background: var(--sa-accent);
         border: none;
         border-radius: var(--sa-radius);
         cursor: pointer;
-        &:hover { background: var(--button-hover-background-color); }
+        &:hover { background: var(--sa-accent-strong); }
     }
 
     &__ignoreopt {
@@ -87,32 +162,34 @@
         font-size: 0.78rem;
         color: var(--color-text-secondary);
         cursor: pointer;
-        input { margin: 0; cursor: pointer; }
+        input { margin: 0; cursor: pointer; accent-color: var(--sa-accent); }
     }
 
     &__hint { opacity: 0.8; font-size: 0.78em; color: var(--color-text-secondary); }
 
     &__head {
-        padding: 0.25rem 0.5rem;
-        font-size: 0.75rem;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.72rem;
         font-weight: 600;
         color: var(--color-text-secondary);
-        background: var(--content-link-background);
+        background: var(--sa-surface-1);
+        border-bottom: 1px solid var(--sa-line);
     }
 
     &__item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.3rem 0.5rem;
+        gap: 0.6rem;
+        padding: 0.35rem 0.6rem;
         cursor: pointer;
-        &:hover { background: var(--content-link-background); }
+        &:hover { background: var(--sa-surface-hover); }
     }
 
     &__check {
         flex: 0 0 auto;
         margin: 0;
         cursor: pointer;
+        accent-color: var(--sa-accent);
     }
 
     &__main {
@@ -133,43 +210,41 @@
     }
 
     &__empty {
-        padding: 1rem;
+        padding: 1.25rem;
         text-align: center;
         color: var(--color-text-secondary);
     }
 }
 
+// ---------------------------------------------------------------------------
+// Library window
+// ---------------------------------------------------------------------------
 .soundscape-library {
-    // Re-skin onto Foundry's theme variables so the window matches the rest of the
-    // module. The raw --sa-* palette skews blue (navy bg, slate text, #3b82f6
-    // accent); here we point those tokens at the same Foundry vars the soundscape
-    // components use. Neutral/semantic tokens (--sa-bg-card/panel, --sa-audio-*,
-    // --sa-radius) are kept as-is.
+    // Legacy --sa-* tokens still referenced below, pointed at Foundry's theme
+    // vars and the shared soundscape tokens.
     --sa-text-primary: var(--color-text-primary);
     --sa-text-secondary: var(--color-text-secondary);
     --sa-text-muted: var(--color-text-secondary);
-    --sa-border-default: var(--color-border);
-    --sa-border-subtle: var(--color-border);
-    --sa-border-strong: var(--color-border);
-    --sa-btn-bg: var(--button-hover-background-color);
-    --sa-btn-bg-hover: var(--button-hover-background-color);
-    --sa-btn-bg-active: var(--button-hover-background-color);
-    --sa-btn-text: var(--button-text-color);
-    --sa-btn-secondary-bg: var(--button-background-color);
-    --sa-btn-secondary-hover: var(--button-hover-background-color);
-    --sa-btn-secondary-text: var(--button-text-color);
-    --sa-bg-app: rgba(127, 127, 127, 0.06);
-    --sa-bg-subtle: var(--content-link-background);
+    --sa-border-default: var(--sa-line);
+    --sa-border-subtle: var(--sa-line);
+    --sa-border-strong: color-mix(in srgb, var(--color-text-secondary) 50%, transparent);
+    --sa-bg-app: var(--sa-surface-1);
+    --sa-bg-subtle: var(--sa-surface-hover);
+
+    // Panes are toggled with the [hidden] attribute; keep it authoritative over
+    // the display values set below.
+    [hidden] { display: none !important; }
 
     .window-content {
         padding: 0;
         background: transparent;
         color: var(--color-text-primary);
+        font-family: var(--font-sans, var(--font-primary));
         // Grid: nav spans the top; a tag panel sits on the left; the toolbar and
         // the (virtualized) list/tree fill the right column.
         display: grid;
-        grid-template-columns: 11rem 1fr;
-        grid-template-rows: auto auto 1fr;
+        grid-template-columns: 12rem minmax(0, 1fr);
+        grid-template-rows: auto auto minmax(0, 1fr);
         grid-template-areas:
             "nav  nav"
             "tags toolbar"
@@ -200,69 +275,253 @@
         overflow-y: auto;
     }
 
+    // ---------------------------------------------------------------- tutorial
     .sa-tut {
-        max-width: 46rem;
+        max-width: 44rem;
         margin: 0 auto;
-        padding: 1rem 1.25rem 2rem;
-        line-height: 1.5;
+        padding: 1.5rem 1.5rem 2.5rem;
+        line-height: 1.6;
+        font-size: 0.88rem;
         color: var(--color-text-primary);
 
-        h2 { margin: 0 0 0.5rem; border: none; }
-        h3 {
-            margin: 1.25rem 0 0.4rem;
+        h2 {
+            margin: 0 0 0.75rem;
+            padding-bottom: 0.6rem;
             border: none;
-            font-size: x-large;
-            color: var(--color-text-primary);
-            i { color: var(--color-text-secondary); margin-right: 0.35rem; }
+            border-bottom: 1px solid var(--sa-line);
+            font-size: 1.3rem;
+            font-weight: 600;
         }
+
+        h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            margin: 1.6rem 0 0.4rem;
+            border: none;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+
+            i {
+                display: inline-grid;
+                place-items: center;
+                width: 1.7rem;
+                height: 1.7rem;
+                border-radius: var(--sa-radius);
+                background: var(--sa-accent-soft);
+                color: var(--sa-accent);
+                font-size: 0.78rem;
+            }
+        }
+
         p { margin: 0.4rem 0; color: var(--color-text-secondary); }
         ul { margin: 0.3rem 0; padding-left: 1.2rem; }
-        li { margin: 0.25rem 0; color: var(--color-text-secondary); }
-        b { color: var(--color-text-primary); }
+        li { margin: 0.3rem 0; color: var(--color-text-secondary); }
+        li::marker { color: var(--sa-accent); }
+        b { color: var(--color-text-primary); font-weight: 600; }
+
         code {
-            padding: 0.05rem 0.3rem;
-            font-size: 0.85em;
-            background: var(--content-link-background);
-            border-radius: var(--sa-radius);
+            padding: 0.05rem 0.35rem;
+            font-size: 0.82em;
+            color: var(--color-text-primary);
+            background: var(--sa-surface-hover);
+            border: 1px solid var(--sa-line);
+            border-radius: 4px;
         }
     }
 
     // -------------------------------------------------------------------- nav
     .sa-lib-nav {
+        // Container queries below compact the action buttons as the window narrows.
+        container: sa-lib-nav / inline-size;
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
         justify-content: space-between;
-        gap: 0.5rem;
-        padding: 0 0.625rem;
-        background: var(--sa-bg-panel);
-        border-bottom: 1px solid var(--sa-border-subtle);
+        gap: 0 0.75rem;
+        min-height: 2.75rem;
+        padding: 0 0.75rem;
+        border-bottom: 1px solid var(--sa-line);
     }
 
     .sa-lib-tabs {
+        flex: 0 0 auto;
         display: flex;
-        gap: 0.25rem;
+        align-self: stretch;
+        gap: 0.15rem;
     }
 
-    // Tabs echo the .sa-panel-header look: uppercase, spaced, muted, with a brand
-    // underline on the active tab.
     .sa-lib-tab {
-        height: 2.1rem;
-        padding: 0 0.625rem;
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: auto;
+        min-height: 2.75rem;
+        margin: 0;
+        padding: 0 0.65rem;
         font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--sa-text-muted);
+        font-weight: 500;
+        color: var(--color-text-secondary);
         background: transparent;
         border: none;
-        border-bottom: 2px solid transparent;
         border-radius: 0;
+        box-shadow: none;
         cursor: pointer;
+        transition: color 0.15s;
 
-        &:hover { color: var(--sa-text-primary); }
+        i { font-size: 0.75rem; opacity: 0.8; }
+
+        // Active indicator
+        &::after {
+            content: "";
+            position: absolute;
+            left: 0.5rem;
+            right: 0.5rem;
+            bottom: -1px;
+            height: 2px;
+            border-radius: 2px 2px 0 0;
+            background: var(--sa-accent);
+            transform: scaleX(0);
+            transition: transform 0.2s var(--sa-ease);
+        }
+
+        &:hover { color: var(--color-text-primary); background: transparent; }
 
         &.is-active {
-            color: var(--sa-text-primary);
-            border-bottom-color: var(--sa-btn-bg);
+            color: var(--color-text-primary);
+            &::after { transform: scaleX(1); }
+            i { color: var(--sa-accent); opacity: 1; }
+        }
+    }
+
+    .sa-lib-actions {
+        flex: 0 1 auto;
+        min-width: 0;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.35rem;
+        padding: 0.45rem 0;
+
+        // Thin divider between the volume / playlist / buttons groups
+        &__sep {
+            flex: 0 0 1px;
+            align-self: stretch;
+            margin: 0.3rem 0.3rem;
+            background: var(--sa-line);
+        }
+    }
+
+    .sa-lib-volume {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0;
+        color: var(--color-text-secondary);
+        font-size: 0.78rem;
+
+        &__slider {
+            @include sa-range(7px, 15px);
+            width: 5.5rem;
+        }
+    }
+
+    .sa-lib-playlist {
+        @include sa-field;
+        flex: 0 0 auto;
+        width: 11rem;
+        max-width: 11rem;
+        padding: 0 0.45rem;
+        font-size: 0.75rem;
+    }
+
+    // Narrower windows: secondary buttons collapse to icons (labels stay as tooltips)
+    @container sa-lib-nav (max-width: 1080px) {
+        .sa-lib-btn--ghost,
+        .sa-lib-btn--danger {
+            width: 1.85rem;
+            padding: 0;
+            justify-content: center;
+
+            .sa-lib-btn__label { display: none; }
+        }
+    }
+
+    // Narrow windows: the actions take their own row under the tabs
+    @container sa-lib-nav (max-width: 760px) {
+        .sa-lib-actions {
+            flex: 1 1 100%;
+            padding-top: 0;
+        }
+
+        .sa-lib-playlist {
+            flex: 1 1 auto;
+            width: auto;
+            min-width: 6rem;
+        }
+    }
+
+    // Buttons: ghost by default feel, accent only for the primary action
+    .sa-lib-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        flex: 0 0 auto;
+        width: auto;
+        height: 1.85rem;
+        margin: 0;
+        padding: 0 0.7rem;
+        font-size: 0.78rem;
+        font-weight: 500;
+        white-space: nowrap;
+        color: var(--sa-accent-contrast);
+        background: var(--sa-accent);
+        border: 1px solid var(--sa-accent);
+        border-radius: var(--sa-radius);
+        box-shadow: none;
+        cursor: pointer;
+        transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+
+        i { font-size: 0.75rem; }
+
+        &:hover {
+            background: var(--sa-accent-strong);
+            border-color: var(--sa-accent-strong);
+        }
+
+        &:focus-visible {
+            outline: none;
+            box-shadow: 0 0 0 3px var(--sa-accent-soft);
+        }
+
+        &--ghost {
+            color: var(--color-text-primary);
+            background: transparent;
+            border-color: var(--sa-line);
+
+            i { color: var(--color-text-secondary); }
+
+            &:hover {
+                background: var(--sa-surface-hover);
+                border-color: color-mix(in srgb, var(--color-text-secondary) 45%, var(--sa-line));
+                i { color: var(--color-text-primary); }
+            }
+        }
+
+        &--danger {
+            color: var(--sa-audio-muted);
+            background: color-mix(in srgb, var(--sa-audio-muted) 10%, transparent);
+            border-color: color-mix(in srgb, var(--sa-audio-muted) 40%, transparent);
+
+            &:hover {
+                color: #fff;
+                background: var(--sa-audio-muted);
+                border-color: var(--sa-audio-muted);
+            }
         }
     }
 
@@ -271,108 +530,195 @@
         position: sticky;
         top: 0;
         z-index: 1;
-        padding: 0.5rem 0.625rem;
-        background: var(--sa-bg-panel);
-        border-bottom: 1px solid var(--sa-border-subtle);
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--sa-line);
 
         &__row {
             display: flex;
             align-items: center;
             gap: 0.5rem;
+
+            &--filters {
+                flex-wrap: wrap;
+                margin-top: 0.5rem;
+            }
         }
     }
 
+    // Duration filter: segmented control
+    .sa-lib-segmented {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 2px;
+        border: 1px solid var(--sa-line);
+        border-radius: var(--sa-radius);
+
+        &__icon {
+            padding: 0 0.4rem 0 0.35rem;
+            font-size: 0.72rem;
+            color: var(--color-text-secondary);
+        }
+
+        &__btn {
+            width: auto;
+            height: 1.45rem;
+            margin: 0;
+            padding: 0 0.55rem;
+            font-size: 0.72rem;
+            font-weight: 500;
+            white-space: nowrap;
+            color: var(--color-text-secondary);
+            background: transparent;
+            border: none;
+            border-radius: calc(var(--sa-radius) - 2px);
+            box-shadow: none;
+            cursor: pointer;
+            transition: background-color 0.12s, color 0.12s;
+
+            &:hover {
+                color: var(--color-text-primary);
+                background: var(--sa-surface-hover);
+            }
+
+            &.is-active {
+                color: var(--sa-accent);
+                font-weight: 600;
+                background: var(--sa-accent-soft);
+            }
+        }
+    }
+
+    // Background duration scan
+    .sa-lib-progress {
+        flex: 1 1 12rem;
+        min-width: 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+
+        &__label {
+            flex: 0 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-size: 0.72rem;
+            color: var(--color-text-secondary);
+            font-variant-numeric: tabular-nums;
+        }
+
+        &__bar {
+            position: relative;
+            flex: 1 1 4rem;
+            height: 4px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: var(--sa-track);
+
+            &::after {
+                content: "";
+                position: absolute;
+                inset: 0 auto 0 0;
+                width: var(--sa-progress, 0%);
+                border-radius: inherit;
+                background: var(--sa-accent);
+                transition: width 0.3s ease;
+            }
+        }
+
+        &__cancel {
+            @include sa-icon-btn(1.4rem);
+            font-size: 0.7rem;
+            &:hover { color: var(--sa-audio-muted); }
+        }
+    }
+
+    // Manual (re)start, only while nothing is running
+    .sa-lib-measure {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        width: auto;
+        height: 1.6rem;
+        margin: 0;
+        padding: 0 0.55rem;
+        font-size: 0.72rem;
+        color: var(--color-text-secondary);
+        background: transparent;
+        border: 1px dashed var(--sa-line);
+        border-radius: var(--sa-radius);
+        cursor: pointer;
+        &:hover { color: var(--sa-accent); border-color: var(--sa-accent); }
+    }
+
+    .sa-lib-progress:not([hidden]) ~ .sa-lib-measure { display: none; }
+
+    .sa-lib-sortwrap {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        margin: 0 0 0 auto;
+        color: var(--color-text-secondary);
+        font-size: 0.72rem;
+    }
+
+    .sa-lib-sort {
+        @include sa-field;
+        width: auto;
+        height: 1.6rem;
+        padding: 0 0.4rem;
+        font-size: 0.72rem;
+    }
+
+    // Duration column (list rows and tree files)
+    .sa-lib-duration {
+        flex: 0 0 3.2rem;
+        font-size: 0.72rem;
+        text-align: right;
+        color: var(--color-text-secondary);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+
     .sa-lib-search {
+        @include sa-field;
         flex: 1 1 auto;
         min-width: 0;
-        height: 1.75rem;
-        padding: 0 0.5rem;
-        color: var(--sa-text-primary);
-        background: var(--sa-bg-app);
-        border: 1px solid var(--sa-border-default);
-        border-radius: var(--sa-radius);
+        padding-left: 1.9rem;
+        // Magnifier glyph, drawn so the template stays untouched
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.2' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: 0.6rem center;
+        background-size: 0.8rem;
     }
 
     .sa-lib-count {
         flex: 0 0 auto;
-        font-size: 0.75rem;
-        color: var(--sa-text-muted);
+        padding: 0.1rem 0.5rem;
+        font-size: 0.72rem;
+        color: var(--color-text-secondary);
+        background: var(--sa-surface-hover);
+        border-radius: 999px;
         font-variant-numeric: tabular-nums;
-    }
-
-    .sa-lib-volume {
-        flex: 0 0 auto;
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-        color: var(--sa-text-secondary);
-        font-size: 0.8125rem;
-
-        &__slider {
-            width: 5rem;
-            accent-color: var(--sa-btn-bg);
-            cursor: pointer;
-            --range-track-color: #efe6d8;
-        }
-    }
-
-    .sa-lib-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.375rem;
-    }
-
-    .sa-lib-playlist {
-        max-width: 11rem;
-        height: 1.75rem;
-        padding: 0 0.4rem;
-        font-size: 0.75rem;
-        color: var(--sa-text-primary);
-        background: var(--sa-bg-app);
-        border: 1px solid var(--sa-border-default);
-        border-radius: var(--sa-radius);
-    }
-
-    .sa-lib-btn {
-        height: 1.75rem;
-        padding: 0 0.625rem;
-        font-size: 0.8125rem;
-        white-space: nowrap;
-        color: var(--sa-btn-text);
-        background: var(--sa-btn-bg);
-        border: none;
-        border-radius: var(--sa-radius);
-        cursor: pointer;
-
-        &:hover { background: var(--sa-btn-bg-hover); }
-
-        &--ghost {
-            color: var(--sa-btn-secondary-text);
-            background: var(--sa-btn-secondary-bg);
-            &:hover { background: var(--sa-btn-secondary-hover); }
-        }
-
-        &--danger {
-            background: var(--sa-audio-muted);
-            &:hover { filter: brightness(0.92); }
-        }
     }
 
     // -------------------------------------------------------------- batch bar
     .sa-lib-batch {
         display: flex;
+        flex-wrap: wrap;
         align-items: center;
-        gap: 0.375rem;
-        margin-top: 0.5rem;
-        padding: 0.3rem 0.4rem;
-        background: var(--sa-bg-app);
-        border: 1px solid var(--sa-border-default);
-        border-radius: var(--sa-radius);
+        gap: 0.3rem;
+        margin-top: 0.55rem;
+        padding: 0.35rem 0.4rem 0.35rem 0.65rem;
+        background: var(--sa-accent-soft);
+        border: 1px solid color-mix(in srgb, var(--sa-accent) 35%, transparent);
+        border-radius: var(--sa-radius-lg);
 
         &__count {
             font-size: 0.75rem;
             font-weight: 600;
-            color: var(--sa-text-secondary);
+            color: var(--color-text-primary);
             white-space: nowrap;
         }
 
@@ -381,59 +727,64 @@
         &__sep {
             width: 1px;
             align-self: stretch;
-            background: var(--sa-border-subtle);
-            margin: 0 0.125rem;
+            margin: 0.15rem 0.15rem;
+            background: color-mix(in srgb, var(--sa-accent) 35%, transparent);
         }
+
+        .sa-lib-btn { height: 1.65rem; padding: 0 0.55rem; }
     }
 
     // ------------------------------------------------------------- tag panel
     .sa-lib-tagpanel {
         display: flex;
         flex-direction: column;
+        gap: 0.4rem;
         min-height: 0;
-        background: var(--sa-bg-panel);
-        border-right: 1px solid var(--color-border);
+        background: var(--sa-surface-1);
+        border-right: 1px solid var(--sa-line);
 
         &__head {
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 0.5rem;
-            padding: 0.55rem 0.625rem 0.4rem;
+            min-height: 2rem;
+            padding: 0.6rem 0.75rem 0;
 
-            h3 {
-                margin: 0;
-                font-size: 0.8rem;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: var(--color-text-secondary);
-                border: none;
-            }
+            h3 { @include sa-label; }
         }
 
         &__clear {
-            padding: 0 0.4rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            width: auto;
             height: 1.4rem;
-            font-size: 0.7rem;
-            color: var(--button-text-color);
-            background: var(--button-background-color);
+            margin: 0;
+            padding: 0 0.5rem;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: var(--sa-accent);
+            background: var(--sa-accent-soft);
             border: none;
-            border-radius: var(--sa-radius);
+            border-radius: 999px;
             cursor: pointer;
+            &:hover { color: var(--sa-accent-contrast); background: var(--sa-accent); }
         }
 
         &__list {
             flex: 1 1 auto;
             min-height: 0;
             overflow-y: auto;
-            padding: 0.25rem 0.4rem 0.5rem;
+            padding: 0.25rem 0.45rem 0.6rem;
             display: flex;
             flex-direction: column;
-            gap: 0.125rem;
+            gap: 1px;
+            border-top: 1px solid var(--sa-line);
         }
 
         &__empty {
-            padding: 0.75rem 0.4rem;
+            padding: 1rem 0.4rem;
             font-size: 0.75rem;
             color: var(--color-text-secondary);
             text-align: center;
@@ -441,71 +792,84 @@
     }
 
     .sa-lib-tagfilter {
-        margin: 0 0.625rem;
-        height: 1.6rem;
-        padding: 0 0.5rem;
+        @include sa-field;
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 0;
+        height: 1.7rem;
+        margin: 0 0.75rem;
         font-size: 0.75rem;
-        color: var(--color-text-primary);
-        background: var(--sa-bg-app);
-        border: 1px solid var(--color-border);
-        border-radius: var(--sa-radius);
     }
 
     .sa-lib-autotag {
         display: flex;
-        gap: 0.25rem;
-        margin: 0.35rem 0.625rem 0;
+        gap: 0.3rem;
+        margin: 0 0.75rem 0.35rem;
 
         &__input {
+            @include sa-field;
             flex: 1 1 auto;
             min-width: 0;
-            height: 1.6rem;
-            padding: 0 0.5rem;
+            height: 1.7rem;
             font-size: 0.72rem;
-            color: var(--color-text-primary);
-            background: var(--sa-bg-app);
-            border: 1px solid var(--color-border);
-            border-radius: var(--sa-radius);
         }
 
         &__apply {
             flex: 0 0 auto;
-            padding: 0 0.5rem;
+            width: auto;
+            height: 1.7rem;
+            margin: 0;
+            padding: 0 0.55rem;
             font-size: 0.72rem;
-            color: var(--button-text-color);
-            background: var(--button-background-color);
-            border: none;
+            color: var(--color-text-primary);
+            background: transparent;
+            border: 1px solid var(--sa-line);
             border-radius: var(--sa-radius);
             cursor: pointer;
-            &:hover { background: var(--button-hover-background-color); }
+            &:hover { border-color: var(--sa-accent); color: var(--sa-accent); }
         }
     }
 
-    // Tag rows in the left panel (mood-list style).
+    // Tag rows in the left panel
     .sa-lib-tag {
+        position: relative;
+        display: block;
+        flex: 0 0 auto;
         width: 100%;
+        height: auto;
+        margin: 0;
+        padding: 0.3rem 0.55rem;
+        font-size: 0.78rem;
+        line-height: 1.3;
         text-align: left;
-        padding: 0.2rem 0.45rem;
-        font-size: 0.75rem;
         color: var(--color-text-secondary);
         background: transparent;
         border: none;
-        border-left: 2px solid transparent;
         border-radius: var(--sa-radius);
+        box-shadow: none;
         cursor: pointer;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+        transition: background-color 0.12s, color 0.12s;
+
+        &::before {
+            content: "#";
+            margin-right: 0.3rem;
+            opacity: 0.45;
+        }
 
         &:hover {
             color: var(--color-text-primary);
-            background: var(--content-link-background);
+            background: var(--sa-surface-hover);
         }
 
         &.is-active {
             color: var(--color-text-primary);
-            background: var(--content-link-background);
-            border-left-color: var(--button-hover-background-color);
+            font-weight: 600;
+            background: var(--sa-accent-soft);
+
+            &::before { color: var(--sa-accent); opacity: 1; }
         }
     }
 
@@ -517,7 +881,7 @@
         min-height: 0;
         position: relative;
         overflow-y: auto;
-        padding: 0.25rem;
+        padding: 0.35rem 0.4rem;
     }
 
     .sa-vlist__sizer {
@@ -537,99 +901,89 @@
     }
 
     // Fixed-height slot (must match ROW_HEIGHT in JS); the inner .sa-lib-item is
-    // the actual card, with the slot padding providing the gap between cards.
+    // the actual row, with the slot padding providing the gap between rows.
     .sa-lib-row {
         height: 46px;
         box-sizing: border-box;
-        padding: 3px 5px;
+        padding: 2px 0;
         list-style: none;
     }
 
     .sa-lib-item {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.45rem;
         height: 100%;
         box-sizing: border-box;
-        padding: 0.25rem 0.5rem;
-        background: var(--sa-bg-card);
-        border: 1px solid var(--sa-border-subtle);
+        padding: 0 0.4rem 0 0.55rem;
+        background: transparent;
+        border: 1px solid transparent;
         border-radius: var(--sa-radius);
         overflow: hidden;
-        transition: border-color 0.12s ease, background 0.12s ease;
+        transition: border-color 0.12s, background-color 0.12s;
 
         &:hover {
-            border-color: var(--sa-border-strong);
+            background: var(--sa-surface-hover);
+            border-color: var(--sa-line);
         }
-        // &:hover .sa-lib-item__remove,
-        // &:hover .sa-lib-item__pl { opacity: 1; }
 
         &.is-missing {
-            opacity: 0.7;
-            border-left: 3px solid var(--sa-audio-muted);
+            opacity: 0.75;
+            box-shadow: inset 3px 0 0 var(--sa-audio-muted);
             .sa-lib-item__name { text-decoration: line-through; }
         }
 
         &.is-selected {
-            border-color: var(--sa-btn-bg);
-            background: color-mix(in srgb, var(--sa-btn-bg) 12%, var(--sa-bg-card));
+            background: var(--sa-accent-soft);
+            border-color: color-mix(in srgb, var(--sa-accent) 40%, transparent);
         }
 
         &__select {
             flex: 0 0 auto;
             margin: 0;
             cursor: pointer;
-            accent-color: var(--sa-btn-bg);
+            accent-color: var(--sa-accent);
         }
 
+        // Row actions stay quiet until the row is hovered / focused / selected
+        &__pl,
+        &__copy,
         &__remove {
-            flex: 0 0 auto;
-            width: 1.6rem;
-            height: 1.6rem;
-            //opacity: 0;
-            color: var(--button-text-color);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.12s ease, color 0.12s ease;
-            &:hover { color: var(--sa-audio-muted); }
+            @include sa-icon-btn;
+            opacity: 0;
         }
 
-        &__pl {
-            flex: 0 0 auto;
-            width: 1.6rem;
-            height: 1.6rem;
-            //opacity: 0;
-            color: var(--button-text-color);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.12s ease, color 0.12s ease;
-            &:hover { color: var(--button-hover-background-color); }
-        }
+        &__remove:hover { color: var(--sa-audio-muted); }
+        &__pl:hover,
+        &__copy:hover { color: var(--sa-accent); }
 
-        &__copy {
-            flex: 0 0 auto;
-            width: 1.6rem;
-            height: 1.6rem;
-            color: var(--button-text-color);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.12s ease, color 0.12s ease;
-            &:hover { color: var(--button-hover-background-color); }
+        &:hover,
+        &:focus-within,
+        &.is-selected {
+            .sa-lib-item__pl,
+            .sa-lib-item__copy,
+            .sa-lib-item__remove { opacity: 1; }
         }
 
         &__play {
-            flex: 0 0 auto;
-            width: 1.6rem;
-            height: 1.6rem;
-            color: var(--button-text-color);
-            background: transparent;
-            border: 1px solid var(--color-border);
+            @include sa-icon-btn(1.7rem);
+            font-size: 0.65rem;
+            border: 1px solid var(--sa-line);
             border-radius: 50%;
-            cursor: pointer;
-            &:hover { color: var(--button-hover-background-color); border-color: var(--button-hover-background-color); }
+
+            &:hover {
+                color: var(--sa-accent-contrast);
+                background: var(--sa-accent);
+                border-color: var(--sa-accent);
+            }
+
+            // Preview in progress (icon swapped to stop by LibraryApp)
+            &:has(.fa-stop) {
+                color: var(--sa-accent-contrast);
+                background: var(--sa-accent);
+                border-color: var(--sa-accent);
+                box-shadow: 0 0 0 3px var(--sa-accent-soft);
+            }
         }
 
         &__main {
@@ -637,22 +991,26 @@
             min-width: 0;
             display: flex;
             flex-direction: column;
+            gap: 1px;
         }
 
         &__name {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--sa-text-primary);
+            font-size: 0.84rem;
+            font-weight: 500;
+            line-height: 1.25;
+            color: var(--color-text-primary);
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
             cursor: text;
-            &:hover { text-decoration: underline dotted var(--sa-text-muted); }
+            &:hover { text-decoration: underline dotted var(--color-text-secondary); }
         }
 
         &__path {
-            font-size: 0.6875rem;
-            color: var(--sa-text-muted);
+            font-size: 0.68rem;
+            line-height: 1.2;
+            color: var(--color-text-secondary);
+            opacity: 0.85;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
@@ -663,180 +1021,230 @@
             display: flex;
             flex-wrap: nowrap;       // keep the row a single fixed-height line
             align-items: center;
-            gap: 0.1875rem;
-            justify-content: flex-end;
-            max-width: 45%;
+            gap: 0.25rem;
+            justify-content: flex-start;
+            max-width: 40%;
             overflow: hidden;
+            mask-image: linear-gradient(to right, #000 calc(100% - 1.5rem), transparent);
         }
     }
 
+    // Tag chips on rows
     .sa-lib-chip {
+        flex: 0 0 auto;
         display: inline-flex;
         align-items: center;
         gap: 0.2rem;
-        padding: 0.0625rem 0.375rem;
-        font-size: 0.625rem;
-        color: var(--sa-text-secondary);
-        background: var(--sa-bg-panel);
-        border: none;
+        height: 1.15rem;
+        margin: 0;
+        padding: 0 0.45rem;
+        font-size: 0.65rem;
+        line-height: 1;
+        white-space: nowrap;
+        color: var(--color-text-secondary);
+        background: transparent;
+        border: 1px solid var(--sa-line);
         border-radius: 999px;
 
-        &--auto { font-style: italic; opacity: 0.85; }
+        &--user {
+            color: var(--color-text-primary);
+            background: var(--sa-surface-hover);
+            border-color: transparent;
+        }
 
-        &--user { background: var(--sa-btn-secondary-bg); color: var(--sa-btn-secondary-text); }
+        &--auto { font-style: normal; opacity: 0.8; }
 
         &__x {
-            padding: 0;
+            display: inline-grid;
+            place-items: center;
             width: 0.85rem;
             height: 0.85rem;
-            line-height: 1;
+            margin: 0 -0.2rem 0 0;
+            padding: 0;
             font-size: 0.7rem;
-            color: var(--sa-text-muted);
+            line-height: 1;
+            color: var(--color-text-secondary);
             background: transparent;
             border: none;
+            border-radius: 50%;
             cursor: pointer;
-            &:hover { color: var(--sa-audio-muted); }
+            &:hover { color: #fff; background: var(--sa-audio-muted); }
         }
 
         &--add {
+            width: 0;
+            justify-content: center;
+            margin-right: -0.25rem; // swallow the flex gap while collapsed
+            padding: 0;
+            overflow: hidden;
+            font-size: 0.55rem;
+            color: var(--color-text-secondary);
+            border-style: dashed;
+            border-width: 0;
             cursor: pointer;
-            color: var(--sa-text-muted);
-            border: 1px dashed var(--sa-border-default);
-            background: transparent;
-            &:hover { color: var(--sa-text-primary); border-color: var(--sa-border-strong); }
+            opacity: 0;
+            transition: opacity 0.12s, color 0.12s, border-color 0.12s;
+            &:hover { color: var(--sa-accent); border-color: var(--sa-accent); }
         }
     }
 
-    .sa-lib-star {
-        flex: 0 0 auto;
-        width: 1.6rem;
-        height: 1.6rem;
-        color: var(--sa-border-strong);
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: color 0.12s ease;
+    .sa-lib-item:hover .sa-lib-chip--add,
+    .sa-lib-item:focus-within .sa-lib-chip--add {
+        width: 1.15rem;
+        margin-right: 0;
+        border-width: 1px;
+        opacity: 1;
+    }
 
-        &:hover { color: var(--sa-audio-warning); }
-        &.is-on { color: var(--sa-audio-warning); }
+    .sa-lib-star {
+        @include sa-icon-btn;
+        font-size: 0.72rem;
+        color: var(--sa-border-strong);
+        opacity: 0.55;
+
+        &:hover { color: var(--sa-audio-warning); opacity: 1; background: transparent; }
+        &.is-on { color: var(--sa-audio-warning); opacity: 1; }
 
         &--filter {
-            width: 1.75rem;
-            height: 1.75rem;
-            border: 1px solid var(--sa-border-default);
-            border-radius: var(--sa-radius);
-            &.is-on { border-color: var(--sa-audio-warning); }
+            width: 1.85rem;
+            height: 1.85rem;
+            opacity: 1;
+            color: var(--color-text-secondary);
+            border: 1px solid var(--sa-line);
+
+            &:hover { background: var(--sa-surface-hover); }
+
+            &.is-on {
+                color: var(--sa-audio-warning);
+                background: color-mix(in srgb, var(--sa-audio-warning) 12%, transparent);
+                border-color: color-mix(in srgb, var(--sa-audio-warning) 50%, transparent);
+            }
         }
     }
 
     .sa-lib-edit {
+        @include sa-field;
         height: 1.5rem;
-        padding: 0 0.375rem;
-        font-size: 0.8125rem;
-        color: var(--sa-text-primary);
-        background: var(--sa-bg-app);
-        border: 1px solid var(--sa-btn-bg);
-        border-radius: var(--sa-radius);
+        padding: 0 0.4rem;
+        border-color: var(--sa-accent);
+        box-shadow: 0 0 0 3px var(--sa-accent-soft);
 
-        &--tag { width: 6rem; font-size: 0.6875rem; }
+        &--tag { width: 6rem; font-size: 0.68rem; }
     }
 
     .sa-lib-badge {
         flex: 0 0 auto;
-        padding: 0.0625rem 0.375rem;
-        font-size: 0.625rem;
+        padding: 0.1rem 0.4rem;
+        font-size: 0.6rem;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.03em;
-        color: #fff;
-        border-radius: var(--sa-radius);
-        background: var(--sa-text-muted);
+        letter-spacing: 0.05em;
+        color: var(--color-text-secondary);
+        background: var(--sa-surface-hover);
+        border-radius: 4px;
 
-        &--gone { background: var(--sa-audio-muted); }
-        &--duplicate { background: var(--sa-audio-warning); }
-        &--ambiguous { background: var(--sa-slider-button); }
+        &--gone {
+            color: var(--sa-audio-muted);
+            background: color-mix(in srgb, var(--sa-audio-muted) 14%, transparent);
+        }
+
+        &--duplicate,
+        &--ambiguous {
+            color: var(--sa-audio-warning);
+            background: color-mix(in srgb, var(--sa-audio-warning) 14%, transparent);
+        }
     }
 
     .sa-lib-empty {
         list-style: none;
-        padding: 2rem 1rem;
+        margin: 1.5rem auto;
+        max-width: 22rem;
+        padding: 2rem 1.25rem;
         text-align: center;
-        color: var(--sa-text-muted);
+        font-size: 0.85rem;
+        color: var(--color-text-secondary);
+        border: 1.5px dashed var(--sa-line);
+        border-radius: var(--sa-radius-lg);
     }
 
     // -------------------------------------------------------------- synonyms
     .sa-syn__bar {
         display: flex;
-        gap: 0.375rem;
-        padding: 0.5rem 0.625rem;
-        background: var(--sa-bg-panel);
-        border-bottom: 1px solid var(--color-border);
+        gap: 0.4rem;
+        padding: 0.6rem 0.75rem;
+        border-bottom: 1px solid var(--sa-line);
 
-        input {
-            height: 1.75rem;
-            padding: 0 0.5rem;
-            font-size: 0.8rem;
-            color: var(--color-text-primary);
-            background: var(--sa-bg-app);
-            border: 1px solid var(--color-border);
-            border-radius: var(--sa-radius);
-        }
-        .sa-syn__new-canon { flex: 0 0 9rem; }
+        input { @include sa-field; }
+        .sa-syn__new-canon { flex: 0 0 10rem; }
         .sa-syn__new-syns { flex: 1 1 auto; min-width: 0; }
     }
 
     .sa-syn__hint {
         display: flex;
         align-items: flex-start;
-        gap: 0.4rem;
-        margin: 0;
-        padding: 0.5rem 0.625rem;
+        gap: 0.5rem;
+        margin: 0.6rem 0.75rem 0;
+        padding: 0.55rem 0.7rem;
         font-size: 0.78rem;
-        line-height: 1.35;
-        color: var(--sa-text-muted);
-        border-bottom: 1px solid var(--color-border);
+        line-height: 1.4;
+        color: var(--color-text-secondary);
+        background: var(--sa-surface-1);
+        border: 1px solid var(--sa-line);
+        border-radius: var(--sa-radius);
 
-        i { margin-top: 0.15rem; opacity: 0.8; }
+        i { margin-top: 0.2rem; color: var(--sa-accent); }
     }
 
     .sa-syn__addgroup {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
         flex: 0 0 auto;
-        padding: 0 0.7rem;
-        color: var(--button-text-color);
-        background: var(--button-background-color);
+        width: auto;
+        height: 1.85rem;
+        margin: 0;
+        padding: 0 0.75rem;
+        font-size: 0.78rem;
+        color: var(--sa-accent-contrast);
+        background: var(--sa-accent);
         border: none;
         border-radius: var(--sa-radius);
         cursor: pointer;
-        &:hover { background: var(--button-hover-background-color); }
+        &:hover { background: var(--sa-accent-strong); }
     }
 
     .sa-syn__list {
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;
-        padding: 0.375rem 0.625rem;
+        padding: 0.5rem 0.75rem;
     }
 
     .sa-syn__group {
         display: flex;
         align-items: center;
-        gap: 0.5rem;
-        padding: 0.35rem 0.5rem;
-        border-bottom: 1px solid var(--color-border);
+        gap: 0.6rem;
+        padding: 0.45rem 0.55rem;
+        border-radius: var(--sa-radius);
+        border-bottom: 1px solid var(--sa-line);
 
-        &:hover .sa-syn__del { opacity: 1; }
+        &:hover {
+            background: var(--sa-surface-hover);
+            .sa-syn__del { opacity: 1; }
+        }
     }
 
     .sa-syn__canon {
         flex: 0 0 8rem;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.84rem;
         color: var(--color-text-primary);
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
 
-    .sa-syn__arrow { flex: 0 0 auto; color: var(--color-text-secondary); font-size: 0.7rem; }
+    .sa-syn__arrow { flex: 0 0 auto; color: var(--color-text-secondary); font-size: 0.7rem; opacity: 0.6; }
 
     .sa-syn__syns {
         flex: 1 1 auto;
@@ -849,45 +1257,49 @@
     .sa-syn__chip {
         display: inline-flex;
         align-items: center;
-        gap: 0.2rem;
-        padding: 0.0625rem 0.4rem;
+        gap: 0.25rem;
+        width: auto;
+        height: 1.35rem;
+        margin: 0;
+        padding: 0 0.5rem;
         font-size: 0.72rem;
-        color: var(--button-secondary-text, var(--color-text-primary));
-        background: var(--content-link-background);
-        border: 1px solid var(--color-border);
+        color: var(--color-text-primary);
+        background: var(--sa-surface-hover);
+        border: 1px solid transparent;
         border-radius: 999px;
 
         &--add {
+            width: 1.35rem;
+            justify-content: center;
+            padding: 0;
+            font-size: 0.6rem;
             cursor: pointer;
             color: var(--color-text-secondary);
-            border-style: dashed;
             background: transparent;
-            &:hover { color: var(--color-text-primary); }
+            border: 1px dashed var(--sa-line);
+            &:hover { color: var(--sa-accent); border-color: var(--sa-accent); }
         }
     }
 
     .sa-syn__x {
-        padding: 0;
+        display: inline-grid;
+        place-items: center;
         width: 0.9rem;
         height: 0.9rem;
+        margin: 0 -0.25rem 0 0;
+        padding: 0;
         line-height: 1;
         color: var(--color-text-secondary);
         background: transparent;
         border: none;
+        border-radius: 50%;
         cursor: pointer;
-        &:hover { color: var(--sa-audio-muted); }
+        &:hover { color: #fff; background: var(--sa-audio-muted); }
     }
 
     .sa-syn__del {
-        flex: 0 0 auto;
-        width: 1.6rem;
-        height: 1.6rem;
+        @include sa-icon-btn(1.6rem);
         opacity: 0;
-        color: var(--color-text-secondary);
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        transition: opacity 0.12s ease, color 0.12s ease;
         &:hover { color: var(--sa-audio-muted); }
     }
 
@@ -899,20 +1311,18 @@
         display: flex;
         align-items: center;
         gap: 0.5rem;
-        padding: 0.25rem 0.4rem;
-        margin-bottom: 0.25rem;
-        background: var(--sa-bg-app);
-        border-bottom: 1px solid var(--color-border);
+        padding: 0.4rem 0.75rem;
+        border-bottom: 1px solid var(--sa-line);
     }
 
     .sa-lib-checkbox {
         display: inline-flex;
         align-items: center;
-        gap: 0.35rem;
+        gap: 0.4rem;
         font-size: 0.75rem;
         color: var(--color-text-secondary);
         cursor: pointer;
-        input { margin: 0; cursor: pointer; }
+        input { margin: 0; cursor: pointer; accent-color: var(--sa-accent); }
     }
 
     .sa-lib-tree {
@@ -925,22 +1335,23 @@
         &__dir {
             display: flex;
             align-items: center;
-            gap: 0.4rem;
+            gap: 0.45rem;
             height: 32px;               // must match TREE_ROW_HEIGHT in JS (windowing)
             box-sizing: border-box;
             overflow: hidden;
             padding: 0.25rem 0.5rem;
-            font-size: 0.8125rem;
+            font-size: 0.82rem;
             font-weight: 600;
-            color: var(--sa-text-secondary);
+            color: var(--color-text-primary);
             cursor: pointer;
             user-select: none;
             border-radius: var(--sa-radius);
+            transition: background-color 0.12s;
 
-            &:hover { background: var(--sa-bg-subtle); }
+            &:hover { background: var(--sa-surface-hover); }
             &:hover .sa-lib-tree__folder-remove,
             &:hover .sa-lib-tree__folder-pl { opacity: 1; }
-            .fa-folder { color: var(--sa-text-muted); }
+            .fa-folder { color: var(--sa-accent); opacity: 0.85; }
         }
 
         // Ignored folder/file markers — shown in red, kept as a reminder.
@@ -948,46 +1359,36 @@
         &__file.is-ignored {
             cursor: default;
             color: var(--sa-audio-muted);
-            .sa-lib-tree__name { color: var(--sa-audio-muted); text-decoration: line-through; }
+            .sa-lib-tree__name { color: var(--sa-audio-muted); text-decoration: line-through; opacity: 0.8; }
             .fa-folder, .fa-ban { color: var(--sa-audio-muted); }
         }
 
         &__ignored-label {
             flex: 0 0 auto;
-            font-size: 0.6rem;
+            padding: 0.05rem 0.35rem;
+            font-size: 0.58rem;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.05em;
             color: var(--sa-audio-muted);
+            background: color-mix(in srgb, var(--sa-audio-muted) 12%, transparent);
+            border-radius: 4px;
         }
 
         &__folder-remove,
+        &__folder-pl,
         &__restore {
-            flex: 0 0 auto;
-            width: 1.5rem;
-            height: 1.5rem;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            color: var(--sa-text-muted);
+            @include sa-icon-btn(1.5rem);
         }
 
         &__folder-remove {
             opacity: 0;
-            transition: opacity 0.12s ease, color 0.12s ease;
             &:hover { color: var(--sa-audio-muted); }
         }
 
         &__folder-pl {
-            flex: 0 0 auto;
-            width: 1.5rem;
-            height: 1.5rem;
             opacity: 0;
-            color: var(--sa-text-muted);
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            transition: opacity 0.12s ease, color 0.12s ease;
-            &:hover { color: var(--sa-btn-bg); }
+            &:hover { color: var(--sa-accent); }
         }
 
         &__restore:hover { color: var(--sa-audio-active); }
@@ -995,24 +1396,38 @@
         &__chevron {
             flex: 0 0 auto;
             width: 0.75rem;
-            font-size: 0.6875rem;
-            color: var(--sa-text-muted);
+            font-size: 0.62rem;
+            color: var(--color-text-secondary);
         }
 
         &__file {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.45rem;
             height: 32px;               // must match TREE_ROW_HEIGHT in JS (windowing)
             box-sizing: border-box;
             overflow: hidden;
             padding: 0.25rem 0.5rem;
             border-radius: var(--sa-radius);
+            transition: background-color 0.12s;
 
-            &:hover { background: var(--sa-bg-subtle); }
+            &:hover { background: var(--sa-surface-hover); }
             &:hover .sa-lib-item__remove,
             &:hover .sa-lib-item__copy,
             &:hover .sa-lib-item__pl { opacity: 1; }
+
+            .sa-lib-item__play { width: 1.45rem; height: 1.45rem; font-size: 0.55rem; }
+
+            .sa-lib-item__pl,
+            .sa-lib-item__copy,
+            .sa-lib-item__remove {
+                @include sa-icon-btn(1.5rem);
+                opacity: 0;
+            }
+
+            .sa-lib-item__remove:hover { color: var(--sa-audio-muted); }
+            .sa-lib-item__pl:hover,
+            .sa-lib-item__copy:hover { color: var(--sa-accent); }
 
             &.is-missing {
                 opacity: 0.7;
@@ -1026,14 +1441,20 @@
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            font-size: 0.875rem;
-            color: var(--sa-text-primary);
+            font-size: 0.82rem;
+            color: var(--color-text-primary);
         }
+
+        &__file &__name { font-weight: 400; }
 
         &__count {
             flex: 0 0 auto;
-            font-size: 0.6875rem;
-            color: var(--sa-text-muted);
+            padding: 0.05rem 0.45rem;
+            font-size: 0.66rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+            background: var(--sa-surface-hover);
+            border-radius: 999px;
             font-variant-numeric: tabular-nums;
         }
     }
@@ -1045,7 +1466,7 @@
         min-height: 0;
         position: relative;
         overflow-y: auto;
-        padding: 0.25rem;
+        padding: 0.35rem 0.4rem;
     }
 
     .sa-vtree__sizer {
@@ -1059,5 +1480,24 @@
         left: 0;
         right: 0;
         will-change: transform;
+    }
+}
+
+// Touch devices: never hide row actions behind hover
+@media (hover: none) {
+    .soundscape-library {
+        .sa-lib-item__pl,
+        .sa-lib-item__copy,
+        .sa-lib-item__remove,
+        .sa-lib-chip--add,
+        .sa-lib-tree__folder-pl,
+        .sa-lib-tree__folder-remove,
+        .sa-syn__del { opacity: 1 !important; }
+
+        .sa-lib-chip--add {
+            width: 1.15rem;
+            margin-right: 0;
+            border-width: 1px;
+        }
     }
 }

@@ -1,6 +1,7 @@
 import Soundscape from "./soundscape.mjs";
 import SoundscapeAdventure from "./soundscape-adventure.mjs";
 import constants from "./utils/constants.mjs";
+import utils from "./utils/utils.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
 /**
@@ -61,6 +62,7 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
 
     async _onRender(context, options) {
         await super._onRender(context, options);
+        utils.syncRangeFill(this.element);
         const buttons = this.element.querySelectorAll('.soundpad-btn');
         buttons.forEach(button => {
             button.addEventListener('click', async (event) => {

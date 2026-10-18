@@ -1,15 +1,48 @@
-import { HOOK_LIBRARY_UPDATED } from "../SoundLibrary.mjs";
+import { HOOK_LIBRARY_UPDATED, HOOK_LIBRARY_PROGRESS } from "../SoundLibrary.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const TPL = "modules/soundscape-adventure/templates/library";
 const LS_VOLUME = "soundscape-library.previewVolume";
 const LS_PLAYLIST = "soundscape-library.targetPlaylist";
 const LS_POSITION = "soundscape-library.windowPosition";
+const LS_SORT = "soundscape-library.sort";
 const ITEM_TPL = `${TPL}/parts/list-item.hbs`;
 const TREE_ITEM_TPL = `${TPL}/parts/tree-item.hbs`;
 const ROW_HEIGHT = 46;       // fixed General-list row height (px) — required for windowing math
 const TREE_ROW_HEIGHT = 32;  // fixed Folders-tree row height (px) — must match .sa-lib-tree__dir/__file
 const OVERSCAN = 6;          // extra rows above/below the viewport for smooth scrolling
+
+/** Duration buckets for the toolbar filter (seconds, [min, max)). */
+const DURATION_FILTERS = {
+    short: { label: "< 10s", tooltip: "One-shots: shorter than 10 seconds", min: 0, max: 10 },
+    medium: { label: "10s – 1m", tooltip: "Between 10 seconds and 1 minute", min: 10, max: 60 },
+    long: { label: "> 1m", tooltip: "Ambiences and music: longer than 1 minute", min: 60, max: Infinity }
+};
+
+const SORTS = {
+    name: { label: "Name", compare: null }, // search() already returns name order
+    "duration-asc": { label: "Shortest first", compare: (a, b) => (a.duration ?? Infinity) - (b.duration ?? Infinity) },
+    "duration-desc": { label: "Longest first", compare: (a, b) => (b.duration ?? -1) - (a.duration ?? -1) },
+    recent: { label: "Recently added", compare: (a, b) => b.addedAt - a.addedAt }
+};
+
+/** Compact duration label: 0.4s, 12s, 3:07, 1:02:03. */
+function formatDuration(seconds) {
+    if (seconds === null || seconds === undefined) return "";
+    // Thresholds sit just below the boundary so rounding never prints "10.0s"/"60s".
+    if (seconds < 9.95) return `${Math.round(seconds * 10) / 10}s`;
+    if (seconds < 59.5) return `${Math.round(seconds)}s`;
+    const total = Math.round(seconds);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = String(total % 60).padStart(2, "0");
+    return h ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}
+
+/** Human-readable path (library paths are stored URL-encoded). */
+function decodePath(path) {
+    try { return decodeURIComponent(path); } catch { return path; }
+}
 
 /**
  * The Sound Library window.
@@ -53,6 +86,13 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
     #collapsed = new Set();
     /** When true, only favorited sounds are shown. */
     #favoritesOnly = false;
+    /** @type {""|"short"|"medium"|"long"} active duration bucket ("" = all) */
+    #durationFilter = "";
+    /** @type {keyof SORTS} list order */
+    #sort = SORTS[localStorage.getItem(LS_SORT)] ? localStorage.getItem(LS_SORT) : "name";
+    /** Set when the user cancels the duration scan, so it isn't auto-restarted this session. */
+    #durationScanDeclined = false;
+    #progressHookId = null;
     /** When true, the Folders tab shows ignored folders/files (red markers). */
     #showIgnored = false;
     /** Target playlist id for "add to playlist"; "" means ask each time. */
@@ -137,13 +177,28 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
     };
     #volumeHandler = () => {
         const el = this.element?.querySelector(".sa-lib-volume__slider");
-        if (el) this.#onVolume(el.value);
+        if (!el) return;
+        this.#onVolume(el.value);
+        this.#syncVolumeFill(el);
     };
+
+    // Filled part of the slider track, exposed to CSS as --sa-fill.
+    #syncVolumeFill(el) {
+        const max = Number(el.max) || 1;
+        el.style.setProperty("--sa-fill", `${(Number(el.value) / max) * 100}%`);
+    }
     #playlistHandler = () => {
         const el = this.element?.querySelector(".sa-lib-playlist");
         if (!el) return;
         this.#targetPlaylistId = el.value;
         localStorage.setItem(LS_PLAYLIST, el.value);
+    };
+    #sortHandler = () => {
+        const el = this.element?.querySelector(".sa-lib-sort");
+        if (!el || !SORTS[el.value]) return;
+        this.#sort = el.value;
+        localStorage.setItem(LS_SORT, el.value);
+        this.render({ parts: ["list", "tree"] });
     };
     #showIgnoredHandler = () => {
         const el = this.element?.querySelector(".sa-lib-showignored");
@@ -160,17 +215,28 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
         return game.soundscapeLibrary;
     }
 
-    async _prepareContext() {
-        const lib = this.library;
-        // Filters (text + tags + favorites) are shared by both tabs: both render
-        // this same filtered subset, the General tab as a flat list and the
-        // Folders tab as a tree.
-        const sounds = lib.search({
+    /**
+     * The sounds matching every active filter (text + tags + favorites +
+     * duration), in the chosen order. Shared by both tabs — the General tab
+     * renders it as a flat list, the Folders tab as a tree — and by "Add N".
+     */
+    #filtered() {
+        let sounds = this.library.search({
             text: this.#search,
             tags: [...this.#activeTags],
             matchAll: true,
             favorite: this.#favoritesOnly
         });
+        const bucket = DURATION_FILTERS[this.#durationFilter];
+        if (bucket) sounds = sounds.filter(s => s.duration !== null && s.duration >= bucket.min && s.duration < bucket.max);
+        const compare = SORTS[this.#sort]?.compare;
+        if (compare) sounds.sort((a, b) => compare(a, b) || a.name.localeCompare(b.name));
+        return sounds;
+    }
+
+    async _prepareContext() {
+        const lib = this.library;
+        const sounds = this.#filtered();
 
         // Back the virtualized General list with the filtered, view-shaped data.
         this.#itemTpl ??= await foundry.applications.handlebars.getTemplate(ITEM_TPL);
@@ -184,6 +250,8 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
             name: s.name,
             lname: s.name.toLowerCase(),
             path: s.path,
+            pathLabel: decodePath(s.path),
+            duration: formatDuration(s.duration),
             favorite: s.favorite,
             userTags: [...s.tags],
             autoTags: [...s.autoTags],
@@ -197,6 +265,12 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
             shown: sounds.length,
             missing: lib.sounds.filter(s => s.missing).length,
             favoritesOnly: this.#favoritesOnly,
+            durationFilters: [
+                { id: "", label: "All", tooltip: "Any duration", active: !this.#durationFilter },
+                ...Object.entries(DURATION_FILTERS).map(([id, f]) => ({ id, label: f.label, tooltip: f.tooltip, active: this.#durationFilter === id }))
+            ],
+            sorts: Object.entries(SORTS).map(([id, s]) => ({ id, label: s.label, selected: this.#sort === id })),
+            unmeasured: lib.countUnmeasured(),
             volume: this.#volume,
             roots: lib.getRoots(),
             playlists: game.playlists.contents.map(p => ({ id: p.id, name: p.name, selected: p.id === this.#targetPlaylistId })),
@@ -245,6 +319,13 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
             pl.addEventListener("change", this.#playlistHandler);
         }
 
+        // List order.
+        const sort = root.querySelector(".sa-lib-sort");
+        if (sort) {
+            sort.removeEventListener("change", this.#sortHandler);
+            sort.addEventListener("change", this.#sortHandler);
+        }
+
         // "Show ignored" toggle (Folders tab).
         const showIgn = root.querySelector(".sa-lib-showignored");
         if (showIgn) {
@@ -256,6 +337,7 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
         const vol = root.querySelector(".sa-lib-volume__slider");
         if (vol) {
             vol.value = this.#volume;
+            this.#syncVolumeFill(vol);
             vol.removeEventListener("input", this.#volumeHandler);
             vol.addEventListener("input", this.#volumeHandler);
         }
@@ -312,12 +394,48 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
         if (this.#hookId === null) {
             this.#hookId = Hooks.on(HOOK_LIBRARY_UPDATED, () => this.render(false));
         }
+
+        // Duration scan: show its progress in place, and start it in the background
+        // when sounds still lack a duration.
+        if (this.#progressHookId === null) {
+            this.#progressHookId = Hooks.on(HOOK_LIBRARY_PROGRESS, (lib, p) => this.#updateProgress(p));
+        }
+        this.#updateProgress(this.library.durationProgress);
+        if (!this.#durationScanDeclined && context.unmeasured > 0) this.#measureDurations();
+    }
+
+    /** Start the background duration scan (no-op while one is already running). */
+    async #measureDurations() {
+        if (this.library.durationProgress) return;
+        const result = await this.library.measureDurations();
+        if (result.measured || result.failed) {
+            const failed = result.failed ? `, ${result.failed} unreadable` : "";
+            ui.notifications.info(`Library: measured ${result.measured} duration(s)${failed}.`);
+        }
+    }
+
+    /** Reflect the duration scan state in the toolbar without re-rendering. */
+    #updateProgress(progress) {
+        const el = this.element?.querySelector(".sa-lib-progress");
+        if (!el) return;
+        const running = !!progress && progress.done < progress.total;
+        el.toggleAttribute("hidden", !running);
+        if (!running) return;
+        const pct = progress.total ? (progress.done / progress.total) * 100 : 0;
+        el.style.setProperty("--sa-progress", `${pct}%`);
+        const label = el.querySelector(".sa-lib-progress__label");
+        if (label) label.textContent = `Measuring durations ${progress.done.toLocaleString()} / ${progress.total.toLocaleString()}`;
     }
 
     _onClose(options) {
         if (this.#hookId !== null) {
             Hooks.off(HOOK_LIBRARY_UPDATED, this.#hookId);
             this.#hookId = null;
+        }
+        // The scan itself keeps running in the library; only the UI stops listening.
+        if (this.#progressHookId !== null) {
+            Hooks.off(HOOK_LIBRARY_PROGRESS, this.#progressHookId);
+            this.#progressHookId = null;
         }
         this.#stopPreview();
         // Remember the window size/position for next time.
@@ -456,6 +574,15 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
             case "toggle-favorites":
                 this.#favoritesOnly = !this.#favoritesOnly;
                 return this.render(false);
+            case "duration-filter":
+                this.#durationFilter = el.dataset.duration ?? "";
+                return this.render(false);
+            case "measure-durations":
+                this.#durationScanDeclined = false;
+                return this.#measureDurations();
+            case "cancel-durations":
+                this.#durationScanDeclined = true;
+                return this.library.cancelDurations();
             case "copy-path": return this.#copyPath(el.closest("[data-id]")?.dataset.id);
             case "remove": return this.#removeSound(el.closest("[data-id]")?.dataset.id);
             case "remove-folder": return this.#removeFolder(el.dataset.path);
@@ -540,12 +667,7 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
 
     /** Add the current filtered results (text + tags + favorites) to a playlist. */
     async #addFilteredToPlaylist() {
-        const sounds = this.library.search({
-            text: this.#search,
-            tags: [...this.#activeTags],
-            matchAll: true,
-            favorite: this.#favoritesOnly
-        });
+        const sounds = this.#filtered();
         if (!sounds.length) {
             ui.notifications.warn("No sounds match the current filters.");
             return;
@@ -1058,6 +1180,8 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
             this.#preview = playing;
             this.#previewId = id;
             this.#setPlayIcon(id, "stop");
+            // The sound is loaded now, so its duration is free to record.
+            if (sound.duration === null && Number.isFinite(playing.duration)) this.library.setDuration(id, playing.duration);
             const revert = () => { if (this.#previewId === id) this.#stopPreview(); };
             playing.addEventListener("end", revert);
             playing.addEventListener("stop", revert);
@@ -1248,7 +1372,7 @@ export default class LibraryApp extends HandlebarsApplicationMixin(ApplicationV2
                 walk(d, depth + 1, path);
             }
             for (const f of [...node.files].sort((a, b) => a.name.localeCompare(b.name))) {
-                rows.push({ isDir: false, id: f.id, name: f.name, favorite: f.favorite, missing: f.missing, missingReason: f.missingReason, indent, path: prefix });
+                rows.push({ isDir: false, id: f.id, name: f.name, duration: formatDuration(f.duration), favorite: f.favorite, missing: f.missing, missingReason: f.missingReason, indent, path: prefix });
             }
             for (const f of node.ignoredFiles.sort((a, b) => a.name.localeCompare(b.name))) {
                 rows.push({ isDir: false, ignored: true, name: f.name, fullPath: f.fullPath, indent, path: prefix });

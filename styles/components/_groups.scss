@@ -1,35 +1,117 @@
-// Sound group styles
+// Sound groups (Loop / Random / Soundpad UI) and their categories.
+// Each group carries a type colour that tints its header, sliders and cards.
 .sa-group {
-  margin-bottom: 24px;
+  --sa-type-color: var(--sa-accent);
+  margin-bottom: 1.25rem;
+
+  &[data-sound-type="1"] { --sa-type-color: var(--sa-type-loop); }
+  &[data-sound-type="2"] { --sa-type-color: var(--sa-type-random); }
+  &[data-sound-type="7"] { --sa-type-color: var(--sa-type-pad); }
 }
 
-.sa-category {
-  border: 1px solid var(--content-link-border-color);
-  background-color: var(--content-link-background);
-  margin-bottom: 1em;
-   background: var(--sa-bg-panel);
-}
-.sa-group-header,
-.sa-category-header {
+.sa-group-header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 8px 12px;
-  border-bottom: 1px solid var(--sa-border);
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.25rem;
+  border-bottom: 1px solid var(--sa-line);
 }
 
-.sa-category-header {
-    background: var(--sa-bg-panel-header);
-}
-
-.sa-group-header h3 {
-  font-size: 0.85rem;
+.sa-group-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin: 0;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--color-text-emphatic);
+  color: var(--color-text-primary);
+
+  i {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: var(--sa-radius);
+    background: color-mix(in srgb, var(--sa-type-color) 18%, transparent);
+    color: var(--sa-type-color);
+    font-size: 0.75rem;
+    letter-spacing: 0;
+  }
 }
 
 .sa-group-controls {
-  gap: 15px;
   display: flex;
+  align-items: center;
+  gap: 2px;
+
+  .sa-btn.new-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    width: auto;
+    height: 1.75rem;
+    margin: 0;
+    padding: 0 0.6rem;
+    border: 1px solid var(--sa-line);
+    border-radius: var(--sa-radius);
+    background: transparent;
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--sa-type-color);
+      color: var(--sa-type-color);
+      background: color-mix(in srgb, var(--sa-type-color) 10%, transparent);
+    }
+  }
+}
+
+.sa-category {
+  margin-bottom: 0.6rem;
+  border: 1px solid var(--sa-line);
+  border-radius: var(--sa-radius-lg);
+  background: var(--sa-surface-1);
+  overflow: hidden;
+}
+
+.sa-category-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  background: var(--sa-surface-1);
+  border-bottom: 1px solid var(--sa-line);
+
+  .sa-category-name {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.82rem;
+    font-weight: 600;
+
+    small {
+      margin-right: 0.35rem;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+  }
+
+  .sa-group-controls .sa-btn-simple[data-action="play"]:hover {
+    color: var(--sa-audio-active);
+  }
+
+  .sa-group-controls .sa-btn-simple[data-action="stop"]:hover {
+    color: var(--sa-accent);
+  }
 }

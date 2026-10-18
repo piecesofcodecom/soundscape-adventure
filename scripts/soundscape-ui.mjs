@@ -205,6 +205,7 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
 
     _onRender(context, options) {
         super._onRender(context, options);
+        utils.syncRangeFill(this.element);
         const content = this.element.querySelector('.mood-active');
         if (content)
             content.scrollTop = this.scrollTop;
@@ -953,6 +954,7 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
             buttons: buttons
         });
         await soundEditDialog.render(true);
+        utils.syncRangeFill(soundEditDialog.element);
 
         const browser = soundEditDialog.element.querySelectorAll('.onElement');
 

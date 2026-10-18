@@ -1,10 +1,15 @@
 <section class="sa-group {{group.id}}" data-sound-type="{{ group.type }}" data-mood-id="{{@root.selected_mood.id}}">
     <header class="sa-group-header">
-        <h4 class="divider" style="width: 100%">{{group.name}} Sounds</h4>
+        <h3 class="sa-group-title">
+            {{#ifEquals group.type 1}}<i class="fas fa-repeat"></i>{{/ifEquals}}
+            {{#ifEquals group.type 2}}<i class="fas fa-shuffle"></i>{{/ifEquals}}
+            {{#ifEquals group.type 7}}<i class="fas fa-grid"></i>{{/ifEquals}}
+            {{group.name}} Sounds
+        </h3>
         {{#ifNotEquals group.name "Soundpad UI"}}
         <div class="sa-group-controls">
             <button class="sa-btn new-category" data-tooltip="Create a new category">
-                <i class="fas fa-plus"></i>
+                <i class="fas fa-plus"></i> Category
             </button>
         </div>
         {{/ifNotEquals}}
@@ -15,4 +20,4 @@
         {{> "modules/soundscape-adventure/templates/soundscape/parts/sound-category.hbs" category=category group_name=../group.name}}
     </div>
     {{/each}}
-</section>
+</section>

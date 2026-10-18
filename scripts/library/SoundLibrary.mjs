@@ -16,9 +16,14 @@ import { LibraryStore } from "./LibraryStore.mjs";
 const SCHEMA_VERSION = 1;
 const AUDIO_EXT = /\.(mp3|ogg|wav|m4a|flac|opus|webm)$/i;
 const SAVE_DEBOUNCE_MS = 750;
+const PROBE_CONCURRENCY = 6;      // parallel metadata reads (browser per-host connection limit)
+const PROBE_TIMEOUT_MS = 15000;   // give up on a file that never reports its metadata
+const PROBE_FLUSH_EVERY = 500;    // persist progress periodically during a long scan
 
 /** Fired whenever the library's data changes, so the UI can re-render. */
 export const HOOK_LIBRARY_UPDATED = "SoundscapeAdventure-Library-Updated";
+/** Fired while durations are being measured: (library, {done, total, running}). */
+export const HOOK_LIBRARY_PROGRESS = "SoundscapeAdventure-Library-Progress";
 
 export class SoundLibrary {
     constructor({ store } = {}) {
@@ -55,6 +60,12 @@ export class SoundLibrary {
 
         // When true, per-mutation change events are suppressed (bulk ops emit once).
         this._suppressEvents = false;
+
+        /** Running duration scan, or null. @type {{done:number,total:number,cancelled:boolean}|null} */
+        this._durationJob = null;
+        this._durationPromise = null;
+        /** Paths whose duration could not be read this session (not retried until reload). */
+        this._durationFailed = new Set();
     }
 
     /** Fire the "library updated" hook unless we're inside a bulk operation. */
@@ -91,7 +102,8 @@ export class SoundLibrary {
                 favorite: s.favorite,
                 hash: s.hash,
                 missing: s.missing,
-                missingReason: s.missingReason
+                missingReason: s.missingReason,
+                duration: s.duration
             }))
         };
     }
@@ -402,6 +414,113 @@ export class SoundLibrary {
         } catch {
             return "";
         }
+    }
+
+    // ---------------------------------------------------------------- durations
+
+    /** Sounds that still need a duration (present files not already failed this session). */
+    _unmeasured() {
+        return this.sounds.filter(s => !s.missing && s.duration === null && !this._durationFailed.has(s.path));
+    }
+
+    countUnmeasured() {
+        return this._unmeasured().length;
+    }
+
+    /** Progress of the running duration scan, or null when idle. */
+    get durationProgress() {
+        const job = this._durationJob;
+        return job ? { done: job.done, total: job.total } : null;
+    }
+
+    /** Record a duration learned elsewhere (e.g. from a sound that just played). */
+    setDuration(id, seconds) {
+        const sound = this._byId.get(id);
+        if (!sound || !Number.isFinite(seconds) || seconds < 0) return false;
+        const value = Math.round(seconds * 100) / 100;
+        if (sound.duration === value) return false;
+        sound.duration = value;
+        this.save();
+        return true;
+    }
+
+    /**
+     * Measure the duration of every sound that lacks one, reading only the audio
+     * metadata (the same `preload="metadata"` probe Foundry's Sound#load starts
+     * with — no full download, no decoding). Runs a small worker pool in the
+     * background; progress is reported through HOOK_LIBRARY_PROGRESS. Calling it
+     * while a scan is running returns that scan's promise.
+     * @returns {Promise<{measured:number, failed:number, cancelled:boolean}>}
+     */
+    measureDurations() {
+        if (this._durationPromise) return this._durationPromise;
+        const targets = this._unmeasured();
+        if (!targets.length) return Promise.resolve({ measured: 0, failed: 0, cancelled: false });
+
+        const job = this._durationJob = { done: 0, total: targets.length, cancelled: false };
+        const progress = () => Hooks.callAll(HOOK_LIBRARY_PROGRESS, this, { ...this.durationProgress, running: !!this._durationJob });
+        let measured = 0, failed = 0, next = 0;
+
+        const worker = async () => {
+            while (!job.cancelled && next < targets.length) {
+                const sound = targets[next++];
+                const seconds = await this._probeDuration(sound.path);
+                if (seconds === null) {
+                    this._durationFailed.add(sound.path);
+                    failed++;
+                } else if (this._byId.get(sound.id) === sound) { // still in the library
+                    sound.duration = Math.round(seconds * 100) / 100;
+                    this._dirty = true;
+                    measured++;
+                }
+                job.done++;
+                if (job.done % PROBE_FLUSH_EVERY === 0) this.flush();
+                progress();
+            }
+        };
+
+        this._durationPromise = (async () => {
+            progress();
+            try {
+                await Promise.all(Array.from({ length: PROBE_CONCURRENCY }, worker));
+            } finally {
+                this._durationJob = null;
+                this._durationPromise = null;
+                await this.flush();
+                progress();
+                if (measured) this._emitChange();
+            }
+            return { measured, failed, cancelled: job.cancelled };
+        })();
+        return this._durationPromise;
+    }
+
+    /** Stop the running duration scan after the files currently being read. */
+    cancelDurations() {
+        if (this._durationJob) this._durationJob.cancelled = true;
+    }
+
+    /**
+     * Read a file's duration from its metadata via a detached <audio> element.
+     * @returns {Promise<number|null>} seconds, or null if unreadable.
+     */
+    _probeDuration(path) {
+        return new Promise(resolve => {
+            const el = new Audio();
+            let timer = null;
+            const done = (value) => {
+                clearTimeout(timer);
+                el.onloadedmetadata = el.onerror = null;
+                el.removeAttribute("src");
+                el.load(); // abort the request and release the connection
+                resolve(value);
+            };
+            el.preload = "metadata";
+            el.onloadedmetadata = () => done(Number.isFinite(el.duration) ? el.duration : null);
+            el.onerror = () => done(null);
+            timer = setTimeout(() => done(null), PROBE_TIMEOUT_MS);
+            el.src = path;
+        });
     }
 
     /**
@@ -1192,7 +1311,9 @@ export class SoundLibrary {
             favorite: raw.favorite === true,
             hash: typeof raw.hash === "string" ? raw.hash : "",
             missing: raw.missing === true,
-            missingReason: typeof raw.missingReason === "string" ? raw.missingReason : ""
+            missingReason: typeof raw.missingReason === "string" ? raw.missingReason : "",
+            // Seconds; null = not measured yet.
+            duration: Number.isFinite(raw.duration) && raw.duration >= 0 ? raw.duration : null
         };
     }
 

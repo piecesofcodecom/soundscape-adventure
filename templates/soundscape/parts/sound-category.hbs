@@ -5,10 +5,10 @@
     <span>
         <button class="sa-btn-simple category-control" data-action="collapse"
             data-tooltip="Collapse Category {{category.name}}">
-            <i class="fas fa-arrow-{{#if this.collapsed}}up{{else}}down{{/if}}"></i>
+            <i class="fas fa-chevron-{{#if this.collapsed}}right{{else}}down{{/if}}"></i>
         </button>
     </span>
-    <span class="divider">Category: {{category.name}}</span>
+    <span class="sa-category-name"><small>Category</small>{{category.name}}</span>
     <div class="sa-group-controls">
         {{!-- <i class="fas fa-music"></i> --}}
         <button class="sa-btn-simple category-control" data-action="play"
@@ -62,4 +62,4 @@
     </ul>
 
 </div>
-{{/ifNotEquals}}
+{{/ifNotEquals}}

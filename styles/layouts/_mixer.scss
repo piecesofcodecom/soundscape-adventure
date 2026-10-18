@@ -1,15 +1,56 @@
-// Mixer grid layout
+// Mixer view: one vertical channel strip per sound
 .sa-sound-grid-mixer {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
-  gap: 5px;
-  padding: 5px;
-  //suport to dark mode
-  // background: #0f0f10;
-  background-color: var(--button-background-color);
+  grid-template-columns: repeat(auto-fill, minmax(84px, 1fr));
   align-content: start;
+  gap: 0.5rem;
+  padding: 0.6rem;
   overflow-y: auto;
- // justify-items: center;
+
+  // Channel strip
+  .channel {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    gap: 6px;
+    padding: 0.5rem 0.45rem 0.5rem 0.4rem;
+    overflow: hidden;
+    border: 1px solid var(--sa-line);
+    border-radius: var(--sa-radius-lg);
+    background: var(--sa-surface-2);
+    box-shadow: var(--sa-shadow-sm);
+    color: var(--color-text-primary);
+    transition: border-color 0.18s, box-shadow 0.18s, transform 0.18s var(--sa-ease);
+
+    // Status LED strip along the top edge
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 3px;
+      background: var(--sa-track);
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--sa-shadow-md);
+    }
+  }
+
+  .channel.playing {
+    border-color: color-mix(in srgb, var(--sa-type-color, var(--sa-audio-active)) 55%, var(--sa-line));
+
+    &::before {
+      background: var(--sa-type-color, var(--sa-audio-active));
+      box-shadow: 0 0 10px var(--sa-type-color, var(--sa-audio-active));
+    }
+  }
+
+  .channel.stopped {
+    .channel-name { opacity: 0.7; }
+    .icon { filter: saturate(0.4); opacity: 0.8; }
+  }
 
   .channel-body {
     flex: 1;
@@ -18,95 +59,77 @@
     align-items: center;
   }
 
-  // Channel container
-  .channel {
-    background: var(--color-bg-option);
-    border-radius: 10px;
-    padding: 10px;
-    color: var(--color-text-primary);
-    position: relative;
-    display: flex;
-    flex-direction: row;
-    align-items: stretch;
-    gap: 6px;
-  }
-
-  // Header
-  header {
-    width: 100%;
-    text-align: center;
-    font-size: 11px;
-    color: var(--color-text-secondary);
-    margin-bottom: 6px;
-  }
-
-  .channel-number {
-    font-weight: bold;
-    display: block;
-  }
-
-  .channel-type {
-    text-transform: uppercase;
-    font-size: 10px;
-    letter-spacing: 0.05em;
-  }
-
   // Channel name with vertical text
   .channel-name {
     writing-mode: sideways-lr;
     text-orientation: mixed;
-    font-size: 12px;
-    letter-spacing: 0.05em;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 4px 2px;
-    color: var(--color-text-primary);
-    background: var(--color-overlay-light);
-    border-radius: 6px;
-    overflow: hidden;
     max-height: 170px;
+    padding: 6px 3px;
+    overflow: hidden;
     text-overflow: ellipsis;
+    border-radius: var(--sa-radius);
+    background: var(--sa-surface-1);
     font-family: var(--font-sans);
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--color-text-primary);
   }
 
   .icon {
-    font-size: 24px;
-    margin: 6px 0;
+    margin: 4px 0 2px;
+
+    .sa-btn-simple {
+      width: 2.1rem;
+      height: 2.1rem;
+      font-size: 1rem;
+      color: var(--sa-type-color, var(--sa-accent));
+      background: color-mix(in srgb, var(--sa-type-color, var(--sa-accent)) 14%, transparent);
+    }
+
+    img {
+      width: 26px;
+      height: 26px;
+      object-fit: cover;
+      border: none;
+      border-radius: 6px;
+      box-shadow: 0 0 0 1px var(--sa-line);
+    }
   }
 
   // Sliders container
   .sliders {
     display: flex;
-    gap: 10px;
-    margin: 8px 0;
+    gap: 12px;
+    margin: 8px 0 4px;
   }
 
-  // Individual slider group
+  // Individual slider group: a rotated horizontal range
   .slider-group {
-    height: 100px;
-    width: 15px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    width: 15px;
+    height: 100px;
     font-size: 10px;
     color: var(--color-text-secondary);
-  }
 
-  // Vertical range slider
-  .slider-group input[type="range"] {
-    transform: rotate(-90deg);
+    input[type="range"] {
+      transform: rotate(-90deg);
+    }
   }
-
 
   // Mute button
   .mute {
     width: 50px;
     margin-top: auto;
     padding: 6px;
-    border-radius: 16px;
     border: none;
+    border-radius: 16px;
     background: var(--button-background-color);
     color: var(--button-text-color);
     font-size: 12px;
@@ -114,36 +137,5 @@
 
   .mute.active {
     background: var(--color-danger);
-  }
-
-  // Settings button
-  .settings {
-    background: none;
-    border: none;
-    color: var(--color-icon-secondary);
-    font-size: 16px;
-    margin-top: 6px;
-    cursor: pointer;
-  }
-
-  // Playing/stopped state indicators
-  .playing {
-    border-top: 3px solid var(--sa-audio-active);
-    border-left: 1px solid;
-    border-right: 1px solid;
-    border-bottom: 1px solid;
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  .stopped {
-    border-top: 3px solid var(--sa-audio-muted);
-    border-left: 1px solid;
-    border-right: 1px solid;
-    border-bottom: 1px solid;
-    background: rgba(0, 0, 0, 0.1);
-  }
-
-  .sound-control {
-    font-size: x-large;
   }
 }
