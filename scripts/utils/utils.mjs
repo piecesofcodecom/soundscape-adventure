@@ -48,8 +48,27 @@ function randomWaitTime(_from, _to) {
     return Math.floor(Math.random() * (to - from + 1) + from)
 }
 
+/**
+ * Keep the filled part of `input.sadv` range tracks in step with their value
+ * (exposed to CSS as --sa-fill).
+ * @param {HTMLElement} root
+ */
+function syncRangeFill(root) {
+    root?.querySelectorAll('input[type="range"].sadv').forEach(input => {
+        const update = () => {
+            const min = Number(input.min) || 0;
+            const max = Number(input.max) || 100;
+            const pct = max > min ? ((Number(input.value) - min) / (max - min)) * 100 : 0;
+            input.style.setProperty('--sa-fill', `${pct}%`);
+        };
+        update();
+        input.addEventListener('input', update);
+    });
+}
+
 export default {
     log,
     randomWaitTime,
-    getCallerInfo
+    getCallerInfo,
+    syncRangeFill
 };

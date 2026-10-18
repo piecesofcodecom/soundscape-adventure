@@ -5,27 +5,103 @@
   overflow: hidden;
 }
 
-// Main app grid layout
-.sa-app.library-hidden,
+.soundscape-ui .window-content {
+  padding: 0.75rem;
+}
+
+// Main app grid layout: moods | content | (library)
 .sa-app {
   display: grid;
+  grid-template-columns: 236px minmax(0, 1fr) 260px;
+  // A single bounded row so .sa-content scrolls instead of growing the grid.
+  grid-template-rows: minmax(0, 1fr);
+  gap: 0.75rem;
+  flex: 1 1 auto;
   height: 100%;
   min-height: 0;
-  //background: var(--sa-bg-main);
   color: var(--color-text-primary);
-  font-family: var(--font-primary);
-}
+  font-family: var(--font-sans, var(--font-primary));
+  transition: grid-template-columns 0.2s var(--sa-ease);
 
-.sa-app {
-  grid-template-columns: 220px 1fr 260px;
-  transition: grid-template-columns 0.2s ease;
-}
-
-.sa-app.library-hidden {
-  grid-template-columns: 220px 1fr;
+  &.library-hidden {
+    grid-template-columns: 236px minmax(0, 1fr);
+  }
 }
 
 .mood-action i.fa-stop {
-  color: #ee9b3a;
+  color: var(--sa-accent);
 }
 
+// Footer menu (new / clone / library)
+.sa-footer-menu {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.6rem;
+  margin-top: auto;
+  border-top: 1px solid var(--sa-line);
+
+  .sa-btn {
+    flex: 1 1 0;
+    height: 2rem;
+    margin: 0;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border: 1px solid var(--sa-line);
+    border-radius: var(--sa-radius);
+    background: var(--sa-surface-2);
+    color: var(--color-text-primary);
+    box-shadow: var(--sa-shadow-sm);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s, transform 0.15s;
+
+    &:hover {
+      background: var(--sa-surface-hover);
+      border-color: var(--sa-accent);
+    }
+
+    &:active {
+      transform: translateY(1px);
+    }
+
+    // Primary action: create mood
+    &:not(.secondary) {
+      background: var(--sa-accent);
+      border-color: var(--sa-accent);
+      color: var(--sa-accent-contrast);
+
+      &:hover {
+        background: var(--sa-accent-strong);
+        border-color: var(--sa-accent-strong);
+      }
+    }
+  }
+}
+
+// Credits block under the mood list
+.sa-moods .credits {
+  padding: 0.75rem;
+  border-top: 1px solid var(--sa-line);
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+
+  h3 {
+    margin: 0 0 0.5rem;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border: none;
+  }
+
+  h4 {
+    margin: 0.5rem 0 0.15rem;
+    font-size: 0.75rem;
+    color: var(--color-text-primary);
+    border: none;
+  }
+
+  p {
+    margin: 0.1rem 0;
+  }
+}

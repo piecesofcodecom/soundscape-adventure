@@ -1,40 +1,48 @@
-// Main content and panel styles
+// Main content and side panels
 .sa-content {
   height: 100%;
-  max-height: 830px;
   min-height: 0;
   overflow-y: auto;
+  padding-right: 0.25rem;
+  scrollbar-gutter: stable;
 }
 
 .sa-moods,
 .sa-library {
-  background: var(--sa-bg-panel);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid var(--sa-border);
   height: 100%;
   min-height: 0;
   overflow: hidden;
-}
-
-.sa-moods {
-  border-right: 1px solid var(--color-border);
-    margin-right: 1em;
-}
-
-
-.sa-library {
-  border-right: none;
-  border-left: 1px solid var(--sa-border);
+  background: var(--sa-surface-1);
+  border: 1px solid var(--sa-line);
+  border-radius: var(--sa-radius-lg);
 }
 
 .sa-panel-header {
-  padding: 12px;
-  border-bottom: 1px solid var(--sa-border);
-}
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.7rem 0.85rem;
+  border-bottom: 1px solid var(--sa-line);
 
-.sa-panel-header h2 {
-  font-size: 0.9rem;
-  text-transform: uppercase;
-  color: var(--sa-text-muted);
+  h2 {
+    margin: 0;
+    border: none;
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+
+  .sa-count {
+    min-width: 1.4rem;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    background: var(--sa-surface-hover);
+    font-size: 0.7rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
 }

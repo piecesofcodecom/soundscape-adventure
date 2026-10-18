@@ -1,34 +1,160 @@
 // Mood list and mood item styles
 .sa-mood-list {
   list-style: none;
-  padding: 0;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
   margin: 0;
+  padding: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .sa-mood {
-  padding: 8px 12px;
+  position: relative;
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  cursor: pointer;
-  border-left: 3px solid transparent;
-  box-shadow: var(--sa-mood-shadow) 0px -50px 36px -28px inset;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  padding: 0.35rem 0.4rem 0.35rem 0.75rem;
+  border-radius: var(--sa-radius);
   font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background-color 0.15s;
+
+  // Selection bar
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 22%;
+    bottom: 22%;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--sa-accent);
+    opacity: 0;
+    transform: scaleY(0.4);
+    transition: opacity 0.15s, transform 0.2s var(--sa-ease);
+  }
+
+  &:hover {
+    background: var(--sa-surface-hover);
+  }
+
+  &.active {
+    background: var(--sa-accent-soft);
+
+    &::before {
+      opacity: 1;
+      transform: scaleY(1);
+    }
+
+    .mood-name {
+      color: var(--color-text-primary);
+      font-weight: 600;
+    }
+  }
+
+  .name {
+    flex: 1 1 auto;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .mood-name {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    font-size: 0.85rem;
+    color: var(--color-text-primary);
+    text-shadow: none;
+  }
+
+  &.is-playing .mood-name {
+    color: var(--sa-accent);
+  }
 }
 
-.sa-mood:hover {
-  box-shadow: var(--sa-mood-shadow-hover) 0px -50px 36px -28px inset;
+// Animated equalizer shown while a mood is playing
+.sa-mood-eq {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  width: 12px;
+  height: 11px;
+
+  i {
+    flex: 1;
+    height: 100%;
+    border-radius: 1px;
+    background: var(--sa-accent);
+    transform-origin: bottom;
+    animation: sa-eq 0.9s ease-in-out infinite;
+
+    &:nth-child(2) { animation-delay: -0.3s; }
+    &:nth-child(3) { animation-delay: -0.6s; }
+  }
+}
+
+@keyframes sa-eq {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sa-mood-eq i { animation: none; transform: scaleY(0.7); }
 }
 
 .sa-mood-actions {
-  gap: 10px;
   display: flex;
+  align-items: center;
+  gap: 1px;
+
+  > a {
+    display: inline-grid;
+    place-items: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border-radius: var(--sa-radius);
+    color: var(--color-text-secondary);
+    font-size: 0.75rem;
+    transition: background-color 0.15s, color 0.15s, opacity 0.15s;
+
+    &:hover {
+      background: var(--sa-surface-hover);
+      color: var(--color-text-primary);
+      text-shadow: none;
+    }
+
+    &[data-action="deleteMood"]:hover {
+      color: var(--sa-audio-muted);
+    }
+  }
+
+  // Secondary actions stay quiet until the row is hovered or selected.
+  > a[data-action="configMood"],
+  > a[data-action="deleteMood"] {
+    opacity: 0;
+  }
+
+  .sa-unsaved {
+    color: var(--sa-audio-warning);
+  }
 }
 
-.sa-mood:hover {
-  background: var(--sa-bg-hover);
+.sa-mood:hover,
+.sa-mood.active,
+.sa-mood:focus-within {
+  .sa-mood-actions > a {
+    opacity: 1;
+  }
 }
 
-.sa-mood.active {
-  border-left-color: var(--sa-accent);
-  background: var(--sa-accent-soft);
+@media (hover: none) {
+  .sa-mood-actions > a { opacity: 1 !important; }
 }

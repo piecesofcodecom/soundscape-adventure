@@ -1,29 +1,9 @@
+@use '../abstracts' as *;
+
+// Range sliders used across the soundscape window, Soundpad and sound editor.
+// The filled part of the track follows --sa-fill, which utils.syncRangeFill
+// keeps in step with the input's value.
 input[type="range"].sadv {
-  -webkit-appearance: none;
-  appearance: none;
+  @include sa-range(8px, 16px, var(--sa-type-color, var(--sa-accent)));
   width: 80px;
-  height: 6px;
-  background: var(--sa-mixer-track);
-  border-radius: 4px;
-  cursor: pointer;
-  
-}
-
-// Webkit thumb
-input[type="range"].sadv::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border-color: var(--sa-slider-button-border);
-  background: var(--sa-slider-button);
-}
-
-// Firefox thumb
-input[type="range"].sadv::-moz-range-thumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border-color: var(--sa-slider-button-border);
-  background: var(--sa-slider-button);
 }

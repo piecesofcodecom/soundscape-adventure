@@ -7,29 +7,42 @@
   background: var(--button-background-color);
 }
 
+// Icon-only, chrome-less button used across cards, rows and headers.
 .sa-btn-simple {
-  border: 0px;
-  background: none;
-  color: var(--button-text-color);
+  display: inline-grid;
+  place-items: center;
+  flex: 0 0 auto;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--sa-radius);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-size: 0.8rem;
+  line-height: 1;
   outline: none;
   box-shadow: none;
-}
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s, transform 0.15s;
 
-.sa-btn-simple:hover {
-  color: var(--button-hover-background-color);
-}
+  &:hover {
+    background: var(--sa-surface-hover);
+    color: var(--color-text-primary);
+  }
 
-// Footer menu grid
-.sa-footer-menu {
-  margin-top: 1em;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 0.4rem 0.6rem;
-  align-items: center;
-  justify-items: center;
-  width: 100%;
-}
+  &:focus-visible {
+    box-shadow: 0 0 0 2px var(--sa-accent);
+  }
 
-.sa-footer-menu .sa-btn {
-  width: 30px;
+  &:active {
+    transform: scale(0.92);
+  }
+
+  &[data-action="remove-sound"]:hover,
+  &[data-action="delete"]:hover {
+    color: var(--sa-audio-muted);
+  }
 }

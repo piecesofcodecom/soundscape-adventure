@@ -15,7 +15,7 @@
             <div class="icon data-drag">
                 <button class="sound-control sa-btn-simple" data-tooltip="Configuration" data-action="edit-sound">
                 {{#ifNotEquals sound.soundIcon ''}}
-                <img style="width: 26px; height: 26px; box-shadow: rgb(255 255 255 / 2%) 0px 1px 3px 0px, rgb(208 230 251 / 15%) 0px 0px 0px 1px;" src="{{sound.soundIcon}}" >
+                <img src="{{sound.soundIcon}}">
                 {{else}}
                  {{#if (or (eq sound.type 4) (eq sound.type 5))}}
                 <i class="fas fa-speakers" data-tooltip="Group Sound"></i>
@@ -50,4 +50,4 @@
             <i class="fas fa-cog"></i>
         </button> --}}
     </div>
-</div>
+</div>

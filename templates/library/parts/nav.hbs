@@ -13,29 +13,37 @@
             <input type="range" class="sa-lib-volume__slider" min="0" max="1" step="0.01" value="{{volume}}"
                 aria-label="Preview volume">
         </label>
-        {{#if missing}}
-        <button type="button" class="sa-lib-btn sa-lib-btn--danger" data-action="clean-missing">
-            <i class="fas fa-broom"></i> Clean missing ({{missing}})
-        </button>
-        {{/if}}
+
+        <span class="sa-lib-actions__sep"></span>
+
         <select class="sa-lib-playlist" data-tooltip="Target playlist for “Add to playlist”">
             <option value="">Playlist: ask each time</option>
             {{#each playlists as |pl|}}
             <option value="{{pl.id}}" {{#if pl.selected}}selected{{/if}}>{{pl.name}}</option>
             {{/each}}
         </select>
+
+        <span class="sa-lib-actions__sep"></span>
+
+        {{#if missing}}
+        <button type="button" class="sa-lib-btn sa-lib-btn--danger" data-action="clean-missing"
+            data-tooltip="Remove sounds whose files are missing">
+            <i class="fas fa-broom"></i><span class="sa-lib-btn__label">Clean missing ({{missing}})</span>
+        </button>
+        {{/if}}
         <button type="button" class="sa-lib-btn sa-lib-btn--ghost" data-action="roots" data-tooltip="Manage library roots">
-            <i class="fas fa-folder-open"></i> Roots
-        </button>
-        <button type="button" class="sa-lib-btn" data-action="import">
-            <i class="fas fa-folder-plus"></i> Import
-        </button>
-        <button type="button" class="sa-lib-btn sa-lib-btn--ghost" data-action="refresh">
-            <i class="fas fa-rotate"></i> Refresh
+            <i class="fas fa-folder-open"></i><span class="sa-lib-btn__label">Roots</span>
         </button>
         <button type="button" class="sa-lib-btn sa-lib-btn--ghost" data-action="duplicates"
             data-tooltip="Find duplicate audio by content">
-            <i class="fas fa-clone"></i> Duplicates
+            <i class="fas fa-clone"></i><span class="sa-lib-btn__label">Duplicates</span>
+        </button>
+        <button type="button" class="sa-lib-btn sa-lib-btn--ghost" data-action="refresh"
+            data-tooltip="Re-scan the roots for new, moved and missing files">
+            <i class="fas fa-rotate"></i><span class="sa-lib-btn__label">Refresh</span>
+        </button>
+        <button type="button" class="sa-lib-btn" data-action="import" data-tooltip="Import a folder into the library">
+            <i class="fas fa-folder-plus"></i><span class="sa-lib-btn__label">Import</span>
         </button>
     </div>
 </nav>

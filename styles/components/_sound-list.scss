@@ -1,65 +1,91 @@
-// Sound list styles
+// Sound list styles (Soundpad UI section and the floating Soundpad window)
 .sa-sound-list {
   list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-// Each sound row
-.sa-sound-list li {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.35rem 0.5rem;
-  border-radius: 6px;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0.4rem;
 
-  font-family: var(--font-sans);
-  // background: rgba(0, 0, 0, 0.35);
+  li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.25rem;
+    padding: 0.25rem 0.4rem;
+    border-radius: var(--sa-radius);
+    font-family: var(--font-sans);
+    transition: background-color 0.15s;
+
+    &:hover {
+      background: var(--sa-surface-hover);
+    }
+
+    &.dragdrop-empty {
+      margin-bottom: 0.25rem;
+      background: none;
+    }
+
+    // Sound icon / image
+    img {
+      flex: 0 0 auto;
+      width: 26px;
+      height: 26px;
+      object-fit: cover;
+      border: none;
+      border-radius: 6px;
+    }
+
+    > i.fas {
+      flex: 0 0 26px;
+      text-align: center;
+      color: var(--sa-type-color, var(--sa-accent));
+    }
+
+    // Sound name
+    > span {
+      flex: 1;
+      min-width: 0;
+      font-size: 0.85rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    input[type="range"].sadv {
+      flex: 0 0 90px;
+    }
+
+    // Play button reads as the primary action of the row
+    .soundpad-btn {
+      background: var(--sa-accent-soft);
+      color: var(--sa-accent);
+      border-radius: 50%;
+
+      &:hover {
+        background: var(--sa-accent);
+        color: var(--sa-accent-contrast);
+      }
+    }
+  }
 }
 
-.sa-sound-list li.dragdrop-empty {
-  background: none;
-}
+// Floating Soundpad window
+.soundpad-ui-container {
+  h2 {
+    margin: 0 0 0.25rem;
+    padding: 0 0.4rem 0.4rem;
+    border-bottom: 1px solid var(--sa-line);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
 
-// Hover feedback
-.sa-sound-list li:hover {
-  background: var(--content-link-background);
-}
-
-// Sound icon / image
-.sa-sound-list li img {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-  flex: 0 0 auto;
-}
-
-// Sound name
-.sa-sound-list li span {
-  flex: 1;
-  font-size: 0.85rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-// Volume slider
-// .sa-sound-list li input[type="range"] {
-//   flex: 0 0 110px;
-//   --range-track-color: var(--sa-accent-soft);
-// }
-
-// Buttons
-.sa-sound-list li button {
-  border: none;
-  padding: 0.25rem;
-  cursor: var(--cursor-pointer);
-  background: var(--button-background-color);
-  color: var(--button-text-color);
-}
-
-.sa-sound-list li button:hover {
-  background: var(--button-hover-background-color);
-  color: var(--button-hover-text-color);
-  border-color: var(--button-hover-border-color);
+  > p {
+    padding: 1rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
 }

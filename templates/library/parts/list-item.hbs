@@ -10,9 +10,12 @@
     </button>
     <div class="sa-lib-item__main">
         <span class="sa-lib-item__name" data-action="rename" data-tooltip="Double-click to rename">{{name}}</span>
-        <span class="sa-lib-item__path">{{path}}</span>
+        <span class="sa-lib-item__path" data-tooltip="{{pathLabel}}">{{pathLabel}}</span>
     </div>
     <div class="sa-lib-item__tags">
+        <button type="button" class="sa-lib-chip sa-lib-chip--add" data-action="add-tag" data-tooltip="Add tag">
+            <i class="fas fa-plus"></i>
+        </button>
         {{#each userTags as |t|}}
         <span class="sa-lib-chip sa-lib-chip--user">{{t}}<button type="button" class="sa-lib-chip__x"
                 data-action="untag" data-tag-value="{{t}}" data-tooltip="Remove tag">×</button></span>
@@ -20,10 +23,8 @@
         {{#each autoTags as |t|}}
         <span class="sa-lib-chip sa-lib-chip--auto" data-tooltip="Auto tag (from folder)">{{t}}</span>
         {{/each}}
-        <button type="button" class="sa-lib-chip sa-lib-chip--add" data-action="add-tag" data-tooltip="Add tag">
-            <i class="fas fa-plus"></i>
-        </button>
     </div>
+    <span class="sa-lib-duration">{{duration}}</span>
     {{#if missing}}
     <span class="sa-lib-badge sa-lib-badge--{{missingReason}}" data-tooltip="File {{missingReason}}">
         {{missingReason}}

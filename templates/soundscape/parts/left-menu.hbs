@@ -2,19 +2,21 @@
 <aside class="sa-moods">
     <header class="sa-panel-header">
         <h2>Moods</h2>
+        <span class="sa-count">{{length moods}}</span>
     </header>
 
     <ul class="sa-mood-list">
         {{#each moods as |mood| }}
-        <li class="sa-mood {{#if mood.is_selected}}active{{/if}} mood-action" data-mood-id="{{ mood.id }}"
+        <li class="sa-mood {{#if mood.is_selected}}active{{/if}} {{#isMoodPlaying mood.status}}is-playing{{/isMoodPlaying}} mood-action" data-mood-id="{{ mood.id }}"
             data-action="viewMood" data-soundscape-id="{{ @root.soundscapeId}}">
             <span class="name">
+                {{#isMoodPlaying mood.status}}<span class="sa-mood-eq" aria-hidden="true"><i></i><i></i><i></i></span>{{/isMoodPlaying}}
                 <a class="mood-name">{{mood.name}}</a>
             </span>
             <div class="sa-mood-actions">
                 {{#if mood.has_changes}}
                 <a data-action="saveMood" class="mood-action" data-mood-id="{{ mood.id }}" data-tooltip="SAADV.MOOD.Save">
-                    <i class="fa-solid fa-download" style="color: red" data-mood-id="{{ mood.id }}"></i>
+                    <i class="fa-solid fa-download sa-unsaved" data-mood-id="{{ mood.id }}"></i>
                 </a>
                 {{/if}}
                 {{#isMoodPlaying mood.status}}
@@ -52,23 +54,15 @@
         </button>
     </footer>
     {{#if hasCredits}}
-    <br />
-    <hr />
     <section class="credits">
-    <h3 style="text-align: center">Credits</h3>
-    {{#each credits as |credit|}}
-    <div class="credit-item">
-        <h4 style="text-align: center">{{credit.type}}</h4>
-        
-            <p style="text-align: center">
-                <a href="{{credit.url}}" target="_blank">{{credit.name}}</a>
-            </p>
-            <p style="text-align: center">
-                {{credit.description}}
-            </p>
-        
-    </div>
-    {{/each}}
+        <h3>Credits</h3>
+        {{#each credits as |credit|}}
+        <div class="credit-item">
+            <h4>{{credit.type}}</h4>
+            <p><a href="{{credit.url}}" target="_blank">{{credit.name}}</a></p>
+            <p>{{credit.description}}</p>
+        </div>
+        {{/each}}
     </section>
     {{/if}}
-</aside>
+</aside>

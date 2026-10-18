@@ -1,60 +1,157 @@
 // Sound card grid and individual card styles
 .sa-sound-grid-card {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
-  padding: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 0.6rem;
+  padding: 0.6rem;
 }
 
 .sa-sound-card {
-  background-color: var(--sa-bg-card);
-  padding: 10px;
-  border-radius: var(--sa-radius);
-  border: 1px solid var(--sa-border);
+  position: relative;
+  isolation: isolate;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  position: relative;
+  justify-content: space-between;
+  gap: 0.6rem;
+  min-height: 108px;
+  padding: 0.55rem 0.6rem 0.65rem;
+  overflow: hidden;
+  border: 1px solid var(--sa-line);
+  border-radius: var(--sa-radius-lg);
+  background-color: var(--sa-surface-2);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: center;
+  box-shadow: var(--sa-shadow-sm);
+  transition: transform 0.18s var(--sa-ease), box-shadow 0.18s, border-color 0.18s, filter 0.18s;
+
+  // Legibility scrim over the (optional) background image
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: linear-gradient(180deg,
+        rgba(0, 0, 0, 0.55) 0%,
+        rgba(0, 0, 0, 0.15) 45%,
+        rgba(0, 0, 0, 0.6) 100%);
+    opacity: 0;
+    transition: opacity 0.18s;
+  }
+
+  &[style*="background-image"] {
+    --sa-track: rgba(255, 255, 255, 0.3);
+    color: #fff;
+
+    &::before { opacity: 1; }
+    .title { text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8); }
+    .sa-btn-simple { color: rgba(255, 255, 255, 0.85); }
+    .sa-btn-simple:hover { background: rgba(255, 255, 255, 0.15); color: #fff; }
+    .sa-card-slider i { color: rgba(255, 255, 255, 0.8); }
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--sa-shadow-md);
+    border-color: color-mix(in srgb, var(--sa-type-color, var(--sa-accent)) 45%, var(--sa-line));
+  }
+
+  &.playing {
+    border-color: var(--sa-type-color, var(--sa-audio-active));
+    box-shadow:
+      0 0 0 1px var(--sa-type-color, var(--sa-audio-active)),
+      0 6px 18px -8px var(--sa-type-color, var(--sa-audio-active));
+  }
+
+  &.stopped {
+    filter: saturate(0.55);
+
+    .title { opacity: 0.8; }
+  }
+
+  &.stopped:hover {
+    filter: none;
+  }
 }
 
 .sa-sound-card-header {
   display: flex;
-  gap: 10px;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  align-content: space-around;
+  align-items: flex-start;
   justify-content: space-between;
+  gap: 0.35rem;
+
+  .actions {
+    display: flex;
+    gap: 1px;
+    margin: -0.2rem -0.3rem 0 0;
+    opacity: 0;
+    transition: opacity 0.15s;
+  }
 }
 
-// .sa-sound-card input[type="range"] {
-//   --range-track-color: var(--sa-accent-soft);
-// }
-
-// .sa-sound-card:hover {
-//   background: var(--sa-bg-hover);
-// }
-
-.sa-sound-card.playing {
-  border-left: 3px solid var(--sa-audio-active);
+.sa-sound-card:hover .actions,
+.sa-sound-card:focus-within .actions {
+  opacity: 1;
 }
 
-.sa-sound-card.stopped {
-  border-left: 3px solid var(--sa-audio-muted);
+@media (hover: none) {
+  .sa-sound-card-header .actions { opacity: 1; }
 }
 
 .sa-sound-card .title {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  min-width: 0;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+
+  // Status dot
+  &::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--sa-track);
+    transform: translateY(-1px);
+  }
+}
+
+.sa-sound-card.playing .title::before {
+  background: var(--sa-type-color, var(--sa-audio-active));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sa-type-color, var(--sa-audio-active)) 25%, transparent);
+}
+
+.sa-card-sliders {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.sa-card-slider {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0;
+
+  i {
+    flex: 0 0 0.9rem;
+    font-size: 0.7rem;
+    text-align: center;
+    color: var(--color-text-secondary);
+  }
+
+  input[type="range"].sadv {
+    flex: 1 1 auto;
+    width: auto;
+    min-width: 0;
+  }
 }
 
 .sa-sound-card .meta {
   font-size: 0.7rem;
   color: var(--sa-text-muted);
-}
-
-.sa-sound-card .volume {
-  width: 100%;
 }
