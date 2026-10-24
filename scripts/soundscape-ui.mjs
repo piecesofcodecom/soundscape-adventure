@@ -1,6 +1,7 @@
 import utils from "./utils/utils.mjs";
 import constants from "./utils/constants.mjs";
 import { openLibrary } from "./soundscape-library.mjs";
+import PlayerAudio from "./utils/player-audio.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
 export default class SoundscapeUI extends HandlebarsApplicationMixin(ApplicationV2) {
@@ -206,6 +207,7 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
     _onRender(context, options) {
         super._onRender(context, options);
         utils.syncRangeFill(this.element);
+        PlayerAudio.refreshButtons(this.element);
         const content = this.element.querySelector('.mood-active');
         if (content)
             content.scrollTop = this.scrollTop;
@@ -460,6 +462,9 @@ export default class SoundscapeUI extends HandlebarsApplicationMixin(Application
 
                         }
                         break;
+                    case "send-to-players":
+                        await PlayerAudio.toggleDialog(this.soundscape, this.soundscape.moods[moodId].getSound(soundId));
+                        return;
                     case "stop":
                         const sounds = await this.soundscape.moods[moodId].getSound(soundId);
 

@@ -46,3 +46,8 @@
     color: var(--sa-audio-muted);
   }
 }
+
+// Soundboard sound currently sent to players (button toggles to "stop")
+.sa-btn-simple.sa-send-players-btn.active {
+  color: var(--sa-audio-active);
+}

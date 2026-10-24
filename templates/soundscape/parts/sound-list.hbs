@@ -16,6 +16,11 @@
     <button class="sa-btn-simple soundpad-btn sound-control" data-tooltip="Play sound" data-action="play">
         <i class="fas fa-play sound-control-icon"></i>
     </button>
+    {{#ifEquals sound.type 7}}
+    <button class="sa-btn-simple sa-send-players-btn sound-control" data-tooltip="Send to players" data-action="send-to-players">
+        <i class="fas fa-paper-plane"></i>
+    </button>
+    {{/ifEquals}}
     <button class="sa-btn-simple sound-control" data-tooltip="Remove from mood" data-action="remove-sound">
         <i class="fas fa-trash"></i>
     </button>

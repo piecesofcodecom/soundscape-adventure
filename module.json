@@ -46,6 +46,7 @@
     }
   },
   "persistentStorage": true,
+  "socket": true,
   "styles": [
     "./css/soundscape.css"
   ],
