@@ -4,6 +4,7 @@ import SoundscapeAdventure from "./soundscape-adventure.mjs";
 import SoundscapeTab from "./soundscape-tab.mjs";
 import SoundpadUI from "./soundpad-ui.mjs";
 import utils from './utils/utils.mjs';
+import PlayerAudio from './utils/player-audio.mjs';
 const cModuleName = "soundscape-adventure";
 /**
  * Triggers HOOKS
@@ -456,6 +457,11 @@ Hooks.once('init', () => {
 
 export const cNoteIcon = "fa-speaker";
 export const cFolderIcon = "fa-folder";
+
+/* Targeted audio (GM -> selected players) must listen on every client, not only the GM */
+Hooks.once('ready', () => {
+    PlayerAudio.init();
+});
 
 /* IN ITIALIZE SBAdventure */
 Hooks.once('ready', async () => {

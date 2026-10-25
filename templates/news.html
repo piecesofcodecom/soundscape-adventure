@@ -1,6 +1,18 @@
 <div class="changelog">
   <p style="color: #e5b726">if you're new to the module, I really recommend you to watch the basic tutorial on <a href="https://youtu.be/qpR3C4fUmUs" target="_blank">https://youtu.be/qpR3C4fUmUs</a>.</p>
   <hr/>
+  <h2 id="_version_610_october_2026">
+    <a name="6.1.0"> Version 6.1.0 - Whisper Sounds to Players<span class="date">October, 2026</span></a></h2>
+    <p>GMs can now send soundpad sounds straight to one or more players, like a <b>whisper sound</b>: only the chosen players hear it, everyone else at the table hears nothing.</p>
+    <ul>
+      <li><b>Whisper sound to player(s)</b>: Click the <b>Send to players</b> button (<i class="fas fa-paper-plane"></i>) next to a soundpad sound, pick one or more connected players, and send it. Perfect for a voice only one character hears, a private vision, or a noise behind a single player's door.</li>
+      <li><b>Play once or loop</b>: Choose to play the sound a single time or keep it looping until you stop it.</li>
+      <li><b>Stop anytime</b>: While the sound is playing for players, the button turns green with a stop icon (<i class="fas fa-stop"></i>). Click it again to stop the sound for them. Its tooltip shows who is hearing it.</li>
+      <li><b>Respects your settings</b>: The sound keeps its configured volume, fade-in and fade-out, and each player still controls it with their own audio channel volume.</li>
+    </ul>
+    <p style="color: #e5b726">Players need to have clicked anywhere in Foundry at least once, because browsers block audio until the first interaction.</p>
+    <p style="color: #e5b726"> If you're experiencing any issues with the module, please let me know by creating an <a style="color: #f1d67d" href="https://github.com/piecesofcodecom/soundscape-adventure/issues" target="_blank">issue on GitHub here</a>.</p>
+  <hr />
   <h2 id="_version_600_june_2026">
     <a name="6.0.0"> Version 6.0.0 - Sound Library &amp; Sequential Loop Groups<span class="date">June, 2026</span></a></h2>
     <p>This is a big one. Soundscape Adventure now has a <b>Sound Library</b>: a single, global source of truth for all your sounds that makes managing, organizing, and finding sounds far easier. It also introduces a new sequential playback mode for loop groups.</p>
@@ -14,25 +26,5 @@
     </ul>
     <p style="color: #e5b726">To open the Sound Library, click the <b>Sound Library</b> button (<i class="fas fa-list-music"></i>) in Foundry's Audio controls on the left scene toolbar.</p>
     <p style="color: #e5b726">Your existing soundscapes are migrated to the new format automatically the first time you open them, with an optional backup.</p>
-    <p style="color: #e5b726"> If you're experiencing any issues with the module, please let me know by creating an <a style="color: #f1d67d" href="https://github.com/piecesofcodecom/soundscape-adventure/issues" target="_blank">issue on GitHub here</a>.</p>
-  <hr />
-  <h2 id="_version_5010_may_2026">
-    <a name="5.1.0"> Version 5.1.0 - Common group issues fixed<span class="date">May, 2026</span></a></h2>
-    <p>This new version contains fixes for some bugs related to group sounds. Groups had several issues in previous versions that made them a pain to manage. These fixes aim to make it easier to delete and move groups.</p>
-    <ul>
-      <li><b>Delete Groups</b>: You can now delete a group from its configuration dialog.</li>
-      <li><b>Moving Groups</b>: When you move a group from Loop Sounds to Random Sounds, the group changes its type.</li>
-      <li><b>Other fixes</b>: Code improvements to make sure random and loop groups will follow group settings and not sound settings.</li>
-    </ul>
-    <p style="color: #e5b726"> If you're experiencing any issues with the module, please let me know by creating an <a style="color: #f1d67d" href="https://github.com/piecesofcodecom/soundscape-adventure/issues" target="_blank">issue on GitHub here</a>.</p>
-  <hr />
-  <h2 id="_version_5010_may_2026">
-    <a name="5.0.10"> Version 5.0.10 - Layout Fixes and Fade effects Concluded<span class="date">May, 2026</span></a></h2>
-    <p>This new version contains some layout fixes and the final version for the fade effects.</p>
-    <ul>
-      <li><b>Layout Fixes</b>: The layout improvements and adjustments fixes the scrolling behaviour.</li>
-      <li><b>Layout Fixes</b>: The Sound Config Button has been removed. Now, to configure a sound you click on the sound's icon. This removes the need for a separate configuration button.</li>
-      <li><b>Fade Effects</b>: The effects are now implemented. Fade-out is using the native effect. Fade-in is implemented using custom gain node that applies a linear gain.</li>
-    </ul>
     <p style="color: #e5b726"> If you're experiencing any issues with the module, please let me know by creating an <a style="color: #f1d67d" href="https://github.com/piecesofcodecom/soundscape-adventure/issues" target="_blank">issue on GitHub here</a>.</p>
 </div>

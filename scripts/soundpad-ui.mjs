@@ -2,6 +2,7 @@ import Soundscape from "./soundscape.mjs";
 import SoundscapeAdventure from "./soundscape-adventure.mjs";
 import constants from "./utils/constants.mjs";
 import utils from "./utils/utils.mjs";
+import PlayerAudio from "./utils/player-audio.mjs";
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api
 
 /**
@@ -63,6 +64,15 @@ export default class SoundpadUI extends HandlebarsApplicationMixin(ApplicationV2
     async _onRender(context, options) {
         await super._onRender(context, options);
         utils.syncRangeFill(this.element);
+        PlayerAudio.refreshButtons(this.element);
+        this.element.querySelectorAll('[data-action="send-to-players"]').forEach(button => {
+            button.addEventListener('click', async (event) => {
+                if (!this.soundscape) return;
+                const dataset = event.currentTarget.closest('.sa-dataset').dataset;
+                const sound = context.sounds.find(s => s.id === dataset.soundId);
+                if (sound) await PlayerAudio.toggleDialog(this.soundscape, sound);
+            });
+        });
         const buttons = this.element.querySelectorAll('.soundpad-btn');
         buttons.forEach(button => {
             button.addEventListener('click', async (event) => {
